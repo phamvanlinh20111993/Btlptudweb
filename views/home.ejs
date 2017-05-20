@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+    <!--[if IE]>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <![endif]-->
+    <title>Chat Box Everywhere</title>
+    <!-- BOOTSTRAP CORE STYLE CSS -->
+    <link href="/assets/css/bootstrap.css" rel="stylesheet" />
+    <!-- FONT AWESOME  CSS -->
+    <link href="/assets/css/font-awesome.css" rel="stylesheet" />
+    <!-- CUSTOM STYLE CSS -->
+    <link href="/assets/css/style.css" rel="stylesheet" />
+    <script src="http://127.0.0.1:5556/socket.io/socket.io.js"></script>
+  <!--  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script> -->
+  <style>
+    hr { 
+      display: block;
+      margin-top: 0.5em;
+      margin-bottom: 0.5em;
+      margin-left: auto;
+      margin-right: auto;
+      border-style: inset;
+      border-width: 1px;
+    } 
+  </style>
+ 
+</head>
+<body>
+    <div class="container">
+      <p id="conkec"></p>
+        <div class="row pad-top pad-bottom">
+
+         <div class="col-lg-3 col-md-3 col-sm-3" style="margin-left: -4%;">
+                <div class="chat-box-new-div">
+                    <div class="chat-box-new-head" style="font-size: 120%;font-style: oblique;cursor: pointer;" data-placement="top" title="<%= session.email %>">
+                        <%= session.name %>
+                    </div>
+
+                    <div class="panel-body chat-box-new" style="background-color: #e6f9ff;overflow: hidden;">
+                        <img src="<%= session.image %>" class="img-circle" alt="Anh dai dien" style="width: 100%;height: 100%;">
+                        <hr>
+                        <form method="post" enctype="multipart/form-data" style="margin-top: 2%;" action="/user/home">
+                          <input type="file" name="File"/>
+                          <p style="text-align: right; margin-top: 2%;">
+                          <input type="button" value="Upload Files" class="btn btn-sm btn-primary" />
+                          </p>
+                        </form>
+                    </div>
+
+                </div>
+
+                
+            </div>
+
+            <div class=" col-lg-6 col-md-6 col-sm-6">
+                <div class="chat-box-div">
+                    <div class="chat-box-head">
+                        GROUP CHAT HISTORY
+                            <div class="btn-group pull-right">
+                                <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-expanded="false" style="margin-top: -18%;">
+                                    <span class="fa fa-cogs"></span>
+                                    <span class="sr-only">Toggle Dropdown</span>
+                                </button>
+                                <ul class="dropdown-menu" role="menu">
+                                    <li><a href="#"><span  class="fa fa-book fa-fw"></span>&nbsp;Cập nhật thông tin</a></li>
+                                    <li><a href="#"><span class="fa fa-comments-o"></span>&nbsp;Tắt chat</a></li>
+                                    <li><a href="#"><span class="fa fa-lock"></span>&nbsp;Tắt online</a></li>
+                                    <li class="divider"></li>
+                                    <li><a href="#" ><form class="form-horizontal" method="post" action="/user/home"><input type = "hidden" name = "request_log_out" value = 1 ><span class="fa fa-circle-o-notch"></span>&nbsp;
+                                        <button name="logout" class="btn btn-link" style="margin-left: -15%;">&nbsp;Log out</button>
+                                  </form></a></li>
+                                </ul>
+                            </div>
+                    </div>
+                    <!--  Nội dung chat sẽ hiện ở đây 
+                          Thông tin bao gồm nội dung chat, thời gian, ảnh đại diện, tên của người gửi,
+                           người nhận
+                    -->
+                    <div class="panel-body chat-box-main">
+                        <div class="chat-box-left">
+                            Lorem ipsum dolor sit amet, consectetur adipiscing elit.Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                        </div>
+                        <div class="chat-box-name-left">
+                            <img src="/assets/img/user.png" alt="bootstrap Chat box user image" class="img-circle" />
+                            -  Justine Goliyad
+                        </div>
+                        <hr class="hr-clas" />
+                        <div class="chat-box-right">
+                            Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                           Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                        </div>
+                        <div class="chat-box-name-right">
+                            <img src="/assets/img/user.gif" alt="bootstrap Chat box user image" class="img-circle" />
+                            - Romin Royeelin
+                        </div>
+                        <hr class="hr-clas" />
+                        <div class="chat-box-left">
+                            Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                           Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                        </div>
+                        <div class="chat-box-name-left">
+                            <img src="/assets/img/user.png" alt="bootstrap Chat box user image" class="img-circle" />
+                            -  Justine Goliyad
+                             <span style="float: right;margin-top: 5%;font-size: 90%;font-style: italic;margin-right: 5%;"> 18:31, 24/5/2017 </span>
+                        </div>
+                        <hr class="hr-clas" />
+                        <div class="chat-box-right">
+                            Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                           Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                        </div>
+                        <div class="chat-box-name-right">
+                            <img src="/assets/img/user.gif" alt="bootstrap Chat box user image" class="img-circle" />
+                            - Romin Royeelin
+                            <span style="float: left;margin-top: 5%;font-size: 90%;font-style: italic;margin-left: 5%;"> 18:31, 24/5/2017 </span>
+                        </div>
+                        <hr class="hr-clas" />
+                    </div>
+
+                    <div class="chat-box-footer">
+                        <div class="input-group">
+                            <input type="text" class="form-control" placeholder="Enter Text Here..." autofocus="">
+                            <span class="input-group-btn">
+                                <button class="btn btn-info" type="button">SEND</button>
+                            </span>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+            <div class="col-lg-3 col-md-3 col-sm-3">
+                <div class="chat-box-online-div" onscroll='alert("Scroll Called");'>
+                    <div class="chat-box-online-head">
+                        ONLINE USERS (0)
+                    </div>
+
+                    <div class="panel-body chat-box-online">
+
+                      <!--  <div class="chat-box-online-left">
+                            <img src="/assets/img/user.png" alt="bootstrap Chat box user image" class="img-circle" />
+                            -  Justine Goliyad
+                            <br />
+                            ( <small>Active from 3 hours</small> )
+                        </div>
+                        <hr class="hr-clas-low" /> -->
+              
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+    <script type="text/javascript">
+        var yname = "<%= session.name  %>";//ten nguoi dung
+        var yimage = "<%= session.image  %>";//anh dai dien
+        var yemail = "<%= session.email  %>";//dia chi email
+        var yage = "<%= session.age  %>";//tuoi
+        var yid = "<%= session.chat_id %>";//ma chat cua nguoi dung trung voi ma Oject trong csdl
+      //ham nay se yeu cau server gui ma xac thuc email den cho nguoi dung 
+    /* function Request_log_out()
+     {
+        $.ajax({
+          type:"POST",
+          url:"/user/home",//den file controler home
+          data:{request_log_out: 1},
+          success: function(data)
+          {
+            // location.reload();
+          }
+
+        })
+     }
+
+     var Ulogout = document.getElementById("userloguout");
+     Ulogout.addEventListener("click", function(){
+       Request_log_out();
+     }) */
+    </script>
+
+    <!-- USING SCRIPTS BELOW TO REDUCE THE LOAD TIME -->
+    <!-- CORE JQUERY SCRIPTS FILE -->
+    <script src="/assets/js/jquery-1.11.1.js"></script>
+    <!-- CORE BOOTSTRAP SCRIPTS  FILE -->
+    <script src="/assets/js/bootstrap.js"></script>
+    <script src="/Xulihomepage.js"></script>
+</body>
+
+</html>
