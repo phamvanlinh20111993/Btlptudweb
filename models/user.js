@@ -9,6 +9,10 @@ var user = new Schema({
 	image: String, //Anh dai dien
 	age: Number,
 	status: Number,//trang thai on hay off của nguoi dung
+	sex: Number,//gioi tinh 0 la nam, 1 la nu
+	hobies: String, //so thich
+	multi_prompted: Number,//số lần bị nhắc nhở vì văng tục
+	warning: Number, //số lần bị người khác cảnh cáo 
 	created_at: Date,
 	updated_at: Date
 })
