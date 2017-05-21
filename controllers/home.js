@@ -141,10 +141,6 @@ router.route('/home')//dieu huong app
 //dieu huong
 router.route('/logsg')
 .get(function (req, res){
-  models.User.findOneAndUpdate({'email': data}, {'status': 0},
-  function(err, user) {
-    if (err) throw err;
-  });
 	res.render('login_signup');
 })
 
@@ -153,18 +149,21 @@ router.route('/logsg')
 //	this.email = email;
 //	this.time = time;
 //}
-var index = 0, index1 = 0, index2 = -1;
+var index = 0, flag = false, Length;
 var Useronoroffline_email = [];//dia chi email
-var Useronoroffline_time = [];//thoi gian hien tai
+var SocketID = [];//moi connect tuong ung voi 1 ID
 
 //khi clien connect vao server
-io.on('connection', function(client){  
-    console.log('Client connected...');//nguoi dung ket noi vao server
+io.on('connection', function(client)
+{  
+    console.log('Client connected ' + client.id);//nguoi dung ket noi vao server
     num_of_user_online ++;
-
-    client.on('chat', function(data) {//nguoi dung lang nghe tren su kien chat nhan tin cho doi phuong
-      //  console.log(data)
-      //  console.log("so nguoi online la " +num_of_user_online)                                              
+    client.on('chat', function(data)
+     {//nguoi dung lang nghe tren su kien chat nhan tin cho doi phuong     
+      var id_sender = data.substring(0, 24);//24 so dau la ma nguoi gui
+      var id_receiver = data.substring(24, 48);//24 so tiep theo la ma nguoi nhan
+      var content = data.substring(48, data.length);//con lai la noi dung chat
+                                       
        //luu du lieu vao co so du lieu
       //  client.emit('hello', 'Hello from Server')
       	/*models.User.findOne({email: "phamvanlinh2011199#@gmail.com"}).
@@ -177,113 +176,83 @@ io.on('connection', function(client){
 				}
 			}) */
 
-		var id_sender = data.substring(0, 24);//24 so dau la ma nguoi gui
-		var id_receiver = data.substring(24, 48);//24 so tiep theo la ma nguoi nhan
-		var content = data.substring(48, data.length);//con lai la noi dung chat
-
-		data = id_sender.concat(id_receiver)
-		data = data.concat(content)
-		console.log(data)
-	//	client.emit('reply', data);
-		client.broadcast.emit('reply', data);//server gui tin nhan den nguoi nhận
+		  data = id_sender.concat(id_receiver)
+		  data = data.concat(content)
+	  //	client.emit('reply', data);
+		  client.broadcast.emit('reply', data);//server gui tin nhan den nguoi nhận
 
     });
 
     //nguoi dung tat chat thoat khoi page :))), co thong bao ai do da offline
-    client.on('disconnect', function(data){
-        num_of_user_online --;
-        //so luong nguoi dung dang online-khi co ai do offline
-        client.broadcast.emit('useronline', num_of_user_online)
-        client.emit('useronline', num_of_user_online)
-
-        //Có 1 trường hợp rất hi hữu. Nếu A la người online cuối cùng(người duy nhất còn online) trên website nay thì
-        //khi A tắt trang hoặc tắt trình duyệt (không đăng xuất) thì trạng thái online trên csdl vẫn là online. Do đó
-        //Cần 1 hàm check tình trạng csdl nếu đây là ng online cuối cùng rồi
-        if(num_of_user_online == 0){//người cuối cùng vừa offline
-          models.User.update({'status': 1},{'status': 0}, {multi: true},
-           function(err, value){//cap nhat lai tat ca nhung nguoi dung dang online ve offline
-            if(err) console.log(err)
-            console.log(value)
-          });
-        }
-
-    });
-  
-    //thong bao nhung ai dang online 15s client request 1 lan
-    client.on('online', function(data){
-    	//xet thoi gian, cho nguoi dung online
-    	client.emit('offline', data)
-    	client.broadcast.emit('offline', data)
-    	//day la nguoi onlline moi hay nguoi dung da on line nhung refresh lai page
-    	if(num_of_user_online > 0)
-    	{
-        //them nguoi dung vao mang de thong bao so luong nguoi online
-    		index1 = 0;
-    		while(true)
-    		{
-    			if(data == Useronoroffline_email[index1]){//nguoi dung cu
-    				Useronoroffline_time[index1] = new Date();//cap nhat thoi gian moi online
-    				if(index1 == 0) index1 ++;//nguoi dung dau tien dang nhap
-    				break;
-    			}
-
-    			if(typeof Useronoroffline_email[index1] == 'undefined'){//nguoi dung moi tham gia
-    				Useronoroffline_email[index1] = data;
-    				Useronoroffline_time[index1] = new Date();//ghi nhan thoi gian
-    				index1++;
-    				break;
-    			}
-    			index1++;
-    		}
-
-    		if(index2 == -1){//day la gia tri khoi tao ban dau
-    			index2 = index1;//lay gia tri lon nhat cua index1 la so nguoi dang online
-    		}else{
-    			if(index1 > index2) index2 = index1;//cap nhat lai so nguoi dung online lon nhat
-    		}
-    	}
-    //  console.log("email la " + Useronoroffline_email)
-
-    	//co ai do da offline
-    	var Time_now = new Date()
-    	var index3 = index2;//bien chay
-    	for(index = 0; index <= index3; index++){
-    		//so sanh dia chi email cua tung nguoi dung da online
-    		if(typeof Useronoroffline_email[index] != 'undefined' && data != Useronoroffline_email[index])
-    		{
-    			 //lon hon thoi gian 17s ma phai client khong phan hoi tuc la offline
-    			if((Time_now - Useronoroffline_time[index]) > 17000)
-    			{ 
-    				client.emit('offline', Useronoroffline_email[index].concat("55555"))
-    				client.broadcast.emit('offline', Useronoroffline_email[index].concat("55555"))
-
+    client.on('disconnect', function(){
+        console.log("Co ai do da off line " + client.id)
+        Length = Useronoroffline_email.length
+        for(index = 0; index < Length; index++)
+        {
+          if((client.id) == SocketID[index])
+          {
+            client.emit('offline', Useronoroffline_email[index].concat("55555"))
+            client.broadcast.emit('offline', Useronoroffline_email[index].concat("55555"))
             //luu trang thai nguoi dung vao csdl(trang thai offline)
             models.User.findOneAndUpdate({'email': Useronoroffline_email[index]}, {'status': 0},
-              function(err, user) {
-                if (err) throw err;
-              //  console.log("khong chay "+user)
+            function(err, user) {
+              if (err) throw err;
             });
+            //xoa nguoi offline khoi danh danh nguoi dung online
+            Useronoroffline_email.splice(index, 1)
+            SocketID.splice(index, 1)  
+            break;
+          }
+        }
+        //Thong bao cho tat ca may trong server khi co ai do offline
+        client.broadcast.emit('useronline', Useronoroffline_email.length)
+        client.emit('useronline', Useronoroffline_email.length)
+    });
+  
+    //thong bao nhung ai dang online
+    client.on('online', function(data)
+    {
+    	//xet thoi gian, cho nguoi dung online
+      console.log(data +"  "+ client.id)
+      Length = Useronoroffline_email.length
+    	for(index = 0; index < Length; index ++)
+      {//nguoi dung da ton tai roi thi khong them
+        if(Useronoroffline_email[index] == data){
+          SocketID[index] = client.id;//sua lai gia tri ID cua nguoi dung
+          client.broadcast.emit('offline', data)//bao voi tat ca may khac la tao online
+          models.User.findOneAndUpdate({'email': data}, {'status': 1},//cap nhat csdl bao la t online
+          function(err, user) {
+            if (err) throw err;
+          });
+          flag = true;
+          break;
+        }
+      }
+      //neu chua ton tai nguoi dung
+      if(flag == false)
+      {
+        Length = Useronoroffline_email.length
+        Useronoroffline_email[Length] = data;
+        models.User.findOneAndUpdate({'email': data}, {'status': 1},//nguoi dung moi thi cap nhat vao csdl
+        function(err, user) {
+          if (err) throw err;
+        });
+        SocketID[Length] = client.id;
+        //thong bao cu the nguoi nao do online
+        client.broadcast.emit('offline', data)
+      }else flag = false;//khoi tao lai gia tri
 
-    				//xoa nguoi offline khoi danh danh nguoi dung online
-    				Useronoroffline_email.splice(index, 1)
-    		 		Useronoroffline_time.splice(index, 1)
-
-    		 		index2 --;//so nguoi online giam di 1
-    		 		if(index2 == 0) index2 = -1;//khoi dong lại gia trị
-    			}
-    		}
-    	}
-
-    	if(num_of_user_online > (index2 + 1))
-    	{//neu nguoi dung lien tuc refresh lai trang web, xay ra hieu hung num_of_user_online tang
-    	 // theo so lan refresh do, nhu the nguoi dung bi hieu nham.
-    		client.broadcast.emit('useronline', index2)
-    		client.emit('useronline', index2)
-    	}else{
-    		client.broadcast.emit('useronline', num_of_user_online)
-    		client.emit('useronline', num_of_user_online)
-    	}
+    	client.broadcast.emit('useronline', Useronoroffline_email.length)//do dai khong thay doi hoac thay 
+                                                             //doi neu co them nguoi dung moi 
+    	client.emit('useronline', Useronoroffline_email.length)
+      console.log("email " + Useronoroffline_email)
     })
+
+  //nguoi dung dang nhap tin nhan
+  client.on('chatting', function(data){
+    client.broadcast.emit('typing...', data)
+  })
+
 });
 
 //tao cong de nhan tin

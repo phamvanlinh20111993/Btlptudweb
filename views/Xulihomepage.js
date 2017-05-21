@@ -20,6 +20,8 @@
               var Form_image = Image_form_in_div[0].getElementsByTagName("form")
               var Input_button_form_submit = Form_image[0].getElementsByTagName("input")
 
+              var Event_user_typing = document.getElementById("nhapbanphim")
+
               Input_button_form_submit[1].addEventListener("click", function(){
                 if(Input_button_form_submit[0].value == ""){
                   alert("Please choose only a file to upload.")
@@ -63,21 +65,16 @@
 
                 var socket = io.connect('http://127.0.0.1:5556');
                 socket.on('connect', function(data) {
-                  //khi moi ket noi toi server
-               //    socket.emit('chat', 'Hello World from client');
                    //ban dau la khi nguoi dung ket noi         
-                   socket.emit('online', yemail);
-                   //cu 15s gui thong bao len server la toi dang online
-                   setInterval(function(){
-                     socket.emit('online', yemail);
-                   }, 15000)
+                   socket.emit('online', yemail);//client bao voi server la t online roi
                 });
 
                 //kiem tra nguoi dung co online hay khong
-                socket.on('offline', function(data) {
+                socket.on('offline', function(data) 
+                  {//neu co ai do offline server gui xuong client dia chi email co kem theo ma 55555
                   if(Cutstring(data) != "55555")   Status_user(data, "On");
                   else{
-                    data = data.substring(0, data.length-5)
+                    data = data.substring(0, data.length - 5)
                     Status_user(data, "Off"); 
                   }                            
                    
@@ -124,6 +121,7 @@
                 var themid = document.getElementById(id).value;
                 Partner_id = themid;//ma id cua doi phuong
                 Load_message(yid, themid)
+                Event_user_typing.style.display = "none"
               }
 
               //xet gia tri id cho nguoi dung
@@ -192,7 +190,8 @@
             var Div_content_message = document.getElementsByClassName("panel-body chat-box-main")
 
             //Nguoi dung nhan nut enter
-            Input_text_submit[0].addEventListener("keyup", function(e){
+            Input_text_submit[0].addEventListener("keyup", function(e)
+            {
               if(e.keyCode == 13){
                 if(this.value != "")
                 {
@@ -201,6 +200,9 @@
                   Div_content_message[0].scrollTop = Div_content_message[0].scrollHeight;//dat scroll trong the div luon o cuoi the div 
                   this.value = "";
                 }
+              }else{
+                //nguoi dung dang nhap tin nhan
+                socket.emit('chatting', Message_to_server(yid, Partner_id, ""))
               }
             })
 
@@ -212,6 +214,29 @@
                 Create_message_send(Input_text_submit[0].value)
                 Div_content_message[0].scrollTop = Div_content_message[0].scrollHeight;
                 Input_text_submit[0].value = "";
+              }
+            })
+
+            //lang nghe su kien nguoi dung dang nhap tin nhan
+            //hien thi 1 doan animation la dang co nguoi nhan tin cho minh ;)))))
+            var ind, Span_status_user_div, Id_status_user_div, Id_receive;
+            socket.on('typing...', function(data)
+            {
+              Id_send = data.substring(0, 24)//ma nguoi nhan
+              for(ind = 0; ind < Status_user_div.length; ind++){
+                Span_status_user_div = Status_user_div[ind].getElementsByTagName("span")
+                //lay ma nguoi ma nguoi dung dang nhan tin cung kiem tra xem co phai nguoi nhan khong
+                Id_status_user_div = Status_user_div[ind].getElementsByTagName("input")
+                //ID_status_user_div[1] chinh la ma nguoi nhan
+                if(Span_status_user_div[0].style.color == "red"
+                 && (Id_status_user_div[1].value).localeCompare(Id_send) == 0)
+                {
+                  Event_user_typing.style.display = "block";
+                  setTimeout(function(){
+                    Event_user_typing.style.display = "none";
+                  }, 7000)
+                  break;
+                }
               }
             })
 
@@ -308,8 +333,7 @@
             //server broacast toi tat ca nguoi dung dang online tren he thong
             //Nguoi dung muon nhan dung tin nhan thi phai mo goi du lieu va kiem tra id
             //su kien nay lang nghe phan hoi tin nhan tu ben kia(nguoi gui)
-            var receive_id, index, sender_id;
-            var Span_status_user_div, Input_hidden_status_user, Image_status_user_div;
+            var Input_hidden_status_user, Image_status_user_div, receive_id, index, sender_id;
 
             socket.on('reply', function(data)
             {  
