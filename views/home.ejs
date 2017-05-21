@@ -34,6 +34,91 @@
  
 </head>
 <body>
+
+    <!-- Người dùng muốn giới thiệu về bản thân mình hơn   -->
+    <div id="myModal" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+
+    <!-- Modal content-->
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h4 class="modal-title">Chỉnh sửa thông tin</h4>
+          </div>
+
+          <div class="modal-body">
+            <div class="input-group">
+              <input id="name" type="text" class="form-control" name="name" placeholder="User name" value="<%=session.name%>">
+              <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>   
+            </div>
+             </br>
+            <div class="input-group">
+              <input id="Age" type="number" class="form-control" name="Age" placeholder="Age" value="<%= session.age %>">
+              <span class="input-group-addon" ><i class="glyphicon glyphicon-eye-open"></i></span>
+            </div>
+            <br>
+            <div class="input-group">
+              <span class="input-group-addon">Hobies</span>
+              <input id="msg" type="text" class="form-control" name="msg" placeholder="Additional Info">
+           </div>
+
+           <div class="radio">
+              <label><input type="radio" name="optradio">Nam</label>
+          </div>
+          <div class="radio">
+            <label><input type="radio" name="optradio">Nữ</label>
+          </div>
+          <div class="radio">
+            <label><input type="radio" name="optradio">Không xác định</label>
+          </div>
+          </br>
+          <button type="button" class="btn btn-success">Xong</button>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!--cảnh cáo ai đó vì đã có lời lẽ đe dọa hoặc gì đó -->
+    <div id="myModal1" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+
+    <!-- Modal content-->
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h4 class="modal-title">Cảnh báo người này vì: </h4>
+          </div>
+          <div class="modal-body">
+           
+            <div class="checkbox">
+              <label><input type="checkbox" value="" name="A">Lời lẽ xúc phạm, đe dọa, phản động</label>
+            </div>
+            <div class="checkbox">
+              <label><input type="checkbox" value="" name="A">Cảm thấy ghét</label>
+            </div>
+            <div class="checkbox">
+              <label><input type="checkbox" value="" name="A">Kẻ biến thái</label>
+            </div>
+            <div class="checkbox">
+               <label><input type="checkbox" value="" name="A">Mình thích thì mình cảnh báo</label>
+            </div>
+
+            </br>
+            <button type="button" class="btn btn-warning">Warning</button>
+          </div>
+          <div class="modal-footer">
+             <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+       </div>
+
+      </div>
+    </div>
+
+
     <div class="container">
       <p id="conkec"></p>
         <div class="row pad-top pad-bottom">
@@ -70,9 +155,9 @@
                                     <span class="sr-only">Toggle Dropdown</span>
                                 </button>
                                 <ul class="dropdown-menu" role="menu">
-                                    <li><a href="#"><span  class="fa fa-book fa-fw"></span>&nbsp;Cập nhật thông tin</a></li>
+                                    <li><a href="#" data-toggle="modal" data-target="#myModal"><span  class="fa fa-book fa-fw"></span>&nbsp;Cập nhật thông tin</a></li>
                                     <li><a href="#"><span class="fa fa-comments-o"></span>&nbsp;Tắt chat</a></li>
-                                    <li><a href="#"><span class="fa fa-lock"></span>&nbsp;Cảnh cáo</a></li>
+                                    <li><a href="#" data-toggle="modal" data-target="#myModal1"><span class="fa fa-lock"></span>&nbsp;Cảnh báo</a></li>
                                     <li class="divider"></li>
                                     <li><a href="#" ><form class="form-horizontal" method="post" action="/user/home"><input type = "hidden" name = "request_log_out" value = 1 ><span class="fa fa-circle-o-notch"></span>&nbsp;
                                         <button name="logout" class="btn btn-link" style="margin-left: -15%;">&nbsp;Log out</button>
@@ -136,12 +221,12 @@
                 </div>
 
             </div>
+
             <div class="col-lg-3 col-md-3 col-sm-3">
                 <div class="chat-box-online-div" onscroll='alert("Scroll Called");'>
                     <div class="chat-box-online-head">
                         ONLINE USERS (0)
                     </div>
-
                     <div class="panel-body chat-box-online">
 
                       <!--  <div class="chat-box-online-left">
@@ -152,6 +237,15 @@
                         </div>
                         <hr class="hr-clas-low" /> -->
               
+                    </div>
+
+                    <div class="input-group" style="margin-top: 2%;">
+                      <input type="text" class="form-control" placeholder="Search someone...">
+                      <div class="input-group-btn">
+                         <button class="btn btn-default" type="submit">
+                         <i class="glyphicon glyphicon-search"></i>
+                        </button>
+                      </div>
                     </div>
 
                 </div>

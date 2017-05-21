@@ -3,16 +3,15 @@ var mongoose = require('mongoose')
 var Schema = mongoose.Schema
 
 var user = new Schema({
-	username: String,
+	username: String,//ten nguoi dung
 	email: String,
 	password: String,
 	image: String, //Anh dai dien
-	age: Number,
+	age: Number,//tuoi
 	status: Number,//trang thai on hay off của nguoi dung
 	sex: Number,//gioi tinh 0 la nam, 1 la nu
 	hobies: String, //so thich
-	multi_prompted: Number,//số lần bị nhắc nhở vì văng tục
-	warning: Number, //số lần bị người khác cảnh cáo 
+	warning: Number, //số lần bị người khác cảnh cáo, neu so lan canh cao lon hon 30 thi bi block 1 ngay 
 	created_at: Date,
 	updated_at: Date
 })

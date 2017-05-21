@@ -112,11 +112,13 @@
               //dung do bi thay doi 
               function Chat(th, id)
               {
-                var ind, Span_status_user_div;
+                var ind, Span_status_user_div, H5_status_user_div;
                 //phuc hoi mau ve trang thi binh thuong
                 for(ind = 0; ind < Status_user_div.length; ind++){
                   Span_status_user_div = Status_user_div[ind].getElementsByTagName("span")
+                  H5_status_user_div = Status_user_div[ind].getElementsByTagName("h5")
                   Span_status_user_div[0].style.color = "#03DB2F";
+                  H5_status_user_div[0].innerHTML = "";//nhan duoc thong bao thi tat di
                 }
                 th.style.color = "red";//doi mau tai vi tri kick
                 var themid = document.getElementById(id).value;
@@ -138,8 +140,8 @@
                   }else{
                     Content +=  '<span data-toggle="tooltip" data-placement="right" title="'+email+'" style= "cursor: pointer;" onclick="Chat(this,'+pos+')"> - ' + name + '</span>' + '  .';
                   }
-                  if(status == 1) Content += '<p>On</p>';
-                  else            Content += '<p>Off</p>';
+                  if(status == 1) Content += '<p>On</p><h5></h5>';
+                  else            Content += '<p>Off</p><h5></h5>';
                   
                   Content +=  '<br />';
                   Content +=  '( <small>Active from 3 hours</small> )';
@@ -247,7 +249,7 @@
               return time;
             }
 
-            //ham tao tin nhan hien thi tren giao dien cho nguoi dung khi nguoi dung gui tin
+            //ham tao tin nhan hien thi tren giao dien cho chinh nguoi dung khi nguoi dung gui tin
             function Create_message_send(content)
             {
               var Content =  "<div class='chat-box-left' style= 'word-break: break-all;'>" + content;
@@ -274,6 +276,34 @@
               Div_content_message[0].innerHTML += Content;
             }
 
+            /*Hàm này sẽ tiến hành thông báo cho người dùng nếu có người khác nhắn tin cho người dùng nhưng
+            người dùng đang bận nhắn tin với người khác nên chưa xem.
+            Ý tưởng: Kiem tra thẻ span xem có là màu đỏ không(màu đỏ thể hiện là người dùng đang nhắn tin với)
+            đối phương. Sau đó kiểm tra id xem có trùng với thẻ span không.Nếu không tức là người dùng chưa xem
+            tin nhắn naỳ => hiển thị thông báo*/ 
+
+            function Notify_message(anotherid)//tham so la id cua nguoi gui tin nhan
+            {
+              var index, Span_status_user_div, H5_status_user_div, Input_hidden_id_user;
+                //phuc hoi mau ve trang thi binh thuong
+                for(index = 0; index < Status_user_div.length; index++){
+                  Span_status_user_div = Status_user_div[index].getElementsByTagName("span")
+                  Input_hidden_id_user = Status_user_div[index].getElementsByTagName("input")
+                  if(Span_status_user_div[0].style.color ==  "red")
+                  {
+                    if(Input_hidden_id_user[1].value.localeCompare(anotherid) == 0){//nguoi nhan va nguoi gui
+                      break;                           //dang nhan tin voi nhau
+                    }
+                  }else//nguoi khac nhan tin cho nguoi tôi
+                  {
+                    if(Input_hidden_id_user[1].value.localeCompare(anotherid) == 0){
+                      H5_status_user_div = Status_user_div[index].getElementsByTagName("h5")
+                      H5_status_user_div[0].innerHTML = "(Có tin nhắn đến...)";
+                   }
+                  }
+                }
+            }
+
 
             //server broacast toi tat ca nguoi dung dang online tren he thong
             //Nguoi dung muon nhan dung tin nhan thi phai mo goi du lieu va kiem tra id
@@ -283,21 +313,22 @@
 
             socket.on('reply', function(data)
             {  
-              receive_id = data.substring(24, 48);
+              receive_id = data.substring(24, 48);//tôi là người nhận tin của bạn
               sender_id = data.substring(0, 24);
+              Notify_message(sender_id)//thong bao co tin nhan neu nguoi dung hien tai dang nhan tin cho nguoi khac
               if(receive_id.localeCompare(yid) == 0)
               {//du lieu nhan dung là của mình thì nhận lấy và hiển thị
                 for(index = 0; index < Status_user_div.length; index++)
                 {
                   Input_hidden_status_user = Status_user_div[index].getElementsByTagName("input")
+                  Span_status_user_div = Status_user_div[index].getElementsByTagName("span")
                  //vi tri 1 luu id, 0 luu email va 2 luu tuoi cua nguoi tôi dang nt
-                  if((Input_hidden_status_user[1].value).localeCompare(sender_id) == 0)
+                  if((Input_hidden_status_user[1].value).localeCompare(sender_id) == 0 && Span_status_user_div[0].style.color == "red")
                   {//tao ra 1 message hien thi tren cho nguoi dung
-                    Span_status_user_div = Status_user_div[index].getElementsByTagName("span")
                     Image_status_user_div = Status_user_div[index].getElementsByTagName("img")
-                              //cac gia tri tham so tuong ung la 1- noi dung hoi thoai, 2- ten nguoi gui, 3-anh dai dien nguoi gui, 4- tuoi nguoi gui
-                    Create_message_receive(data.substring(48, data.length), Span_status_user_div[0].innerHTML,  Image_status_user_div[0].src, Time_stand(), Input_hidden_status_user[2].value)
-                    Div_content_message[0].scrollTop = Div_content_message[0].scrollHeight;
+                  //cac gia tri tham so tuong ung la 1- noi dung hoi thoai, 2- ten nguoi gui, 3-anh dai dien nguoi gui, 4- tuoi nguoi gui
+                    Create_message_receive(data.substring(48, data.length), Span_status_user_div[0].innerHTML, Image_status_user_div[0].src, Time_stand(), Input_hidden_status_user[2].value, receive_id)
+                    Div_content_message[0].scrollTop = Div_content_message[0].scrollHeight;//dieu chinh thanh scroll 
                   }
                
                 }

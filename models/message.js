@@ -7,6 +7,8 @@ var messgage = new Schema({
 	code_send_receiver: Number,//mã 1 đại diện cho nguoi gui, ma  0 đại diện nguoi nhan lay id_user_A la moc
 	//giả sử A nhắn tin cho B, nếu A nhắn cho B thì code_send_receive là 1 ngược lại là 0(B là người gửi)
 	content: String,// noi dung tin nhan
+	check: Number,//giá trị check thông báo đối phương đã xem tin nhắn hay chưa
+				  //đặt 1 là user_A đã xem, 2 là user_B đã xem, 0 là chưa ai xem(A hoặc B là người nhận)
 	created_at: Date,
 	updated_at: Date
 })

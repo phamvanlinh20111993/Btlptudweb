@@ -120,11 +120,8 @@ router.route('/home')//dieu huong app
               //cap nhat duong dan anh vao csdl
         			models.User.findOneAndUpdate({'email': req.session.email}, {'image': link_img},
         			function(err, user) {
-  						  if (err) throw err;
-  						  else{
-  							 console.log(user);
-  							 res.render("home")
-  						  }
+  						  if (err)  throw err;
+  							res.render("home")
 					});
       	 		});
         	}
