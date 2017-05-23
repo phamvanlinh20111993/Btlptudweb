@@ -7,6 +7,7 @@ var router = express.Router()
 var server = require('http').createServer(app)  
 var io = require('socket.io')(server)
 var models = require('../models/user')
+var models1 = require('../models/message')
 var md5 = require('md5')
 var fs = require('fs');
 var num_of_user_online = 0;
@@ -45,18 +46,36 @@ function Delete_file_in_directory(user_id)
   	}
 }
 
+//ham tra ve 1 so  nguyen nam trong khoang max, min
+function RandomInt(max, min)
+{
+  return Math.floor(Math.random() * max + min);
+}
 
 router.route('/home')//dieu huong app
 .get(function(req, res)
 {
 	//load danh sach nguoi dung tu csdl
-	if(typeof req.query.loaduser != 'undefined')
+	if(req.query.loaduser)
 	{
-		models.User.find({}, function(err, users){
-			if (err) throw err;
-  			//console.log(users);
-  			res.send(users)
-		})
+    //load gia tri nguoi dung ban dau
+    if(req.query.loaduser == 1){
+		  models.User.find({}, function(err, users){
+			   if (err) throw err;
+  			   //console.log(users);
+  			   res.send(users)
+		  })
+    }else if(req.query.loaduser == 2){//tra ve mot nguoi dung random trong danh sach online
+      models.User.find({}, function(err, users){
+         if (err) throw err;
+         var Length = users.length;
+         var Random =  RandomInt(Length, 0)//random 1 nguoi dua tren vi tri cua nguoi dung trong danh sach
+         res.send(users[Random])
+      })    
+    }else{//load nguoi dung voi gia tri tim kiem value duoc nhap boi nguoi dung
+
+    }
+
 		delete req.query.loaduser;
 		//tien hanh noi dung hoi thoai giua nguoi gui va nguoi nhan bat ki
 	} else if(typeof req.query.yourid != 'undefined')
@@ -135,6 +154,9 @@ router.route('/home')//dieu huong app
     res.render('home');
   }
 
+}).delete(function(req, res){
+
+  
 })
 
 
@@ -157,24 +179,24 @@ var SocketID = [];//moi connect tuong ung voi 1 ID
 io.on('connection', function(client)
 {  
     console.log('Client connected ' + client.id);//nguoi dung ket noi vao server
-    num_of_user_online ++;
     client.on('chat', function(data)
-     {//nguoi dung lang nghe tren su kien chat nhan tin cho doi phuong     
+    {//nguoi dung lang nghe tren su kien chat nhan tin cho doi phuong     
       var id_sender = data.substring(0, 24);//24 so dau la ma nguoi gui
       var id_receiver = data.substring(24, 48);//24 so tiep theo la ma nguoi nhan
       var content = data.substring(48, data.length);//con lai la noi dung chat
-                                       
-       //luu du lieu vao co so du lieu
-      //  client.emit('hello', 'Hello from Server')
-      	/*models.User.findOne({email: "phamvanlinh2011199#@gmail.com"}).
-			exec(function(err, value){
-				if(err){
-				console.log(err)
-				}else{
-					console.log("hi")
-					console.log(sess.name)
-				}
-			}) */
+                     
+      // luu du lieu vao co so du lieu
+    /*  var Amessage = new models1.Message({
+        id_user_A: id_sender,
+        id_user_B: id_receiver,
+        content: content, //noi dung tin nhan
+        check: 0,//gia gia mac dinh la chua ai xem
+			})
+
+      Amessage.save(function(err){
+        if(err) 
+          console.log("Loi luu tin nhan: " + err)
+      }) */
 
 		  data = id_sender.concat(id_receiver)
 		  data = data.concat(content)

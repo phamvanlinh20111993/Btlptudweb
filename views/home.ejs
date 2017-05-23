@@ -17,9 +17,9 @@
     <!-- CUSTOM STYLE CSS -->
     <link href="/assets/css/style.css" rel="stylesheet" />
     <script src="http://127.0.0.1:5556/socket.io/socket.io.js"></script>
-  <!--  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+   <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script> -->
+   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script> -->
   <style>
     hr { 
       display: block;
@@ -33,6 +33,7 @@
   </style>
  
 </head>
+
 <body>
 
     <!-- Người dùng muốn giới thiệu về bản thân mình hơn   -->
@@ -43,7 +44,7 @@
         <div class="modal-content">
           <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal">&times;</button>
-            <h4 class="modal-title">Chỉnh sửa thông tin</h4>
+            <h4 class="modal-title">Chỉnh sửa/bổ sung thông tin</h4>
           </div>
 
           <div class="modal-body">
@@ -63,10 +64,10 @@
            </div>
 
            <div class="radio">
-              <label><input type="radio" name="optradio">Nam</label>
+              <label><input type="radio" name="optradio">Boy thẳng</label>
           </div>
           <div class="radio">
-            <label><input type="radio" name="optradio">Nữ</label>
+            <label><input type="radio" name="optradio">Girl chuẩn</label>
           </div>
           <div class="radio">
             <label><input type="radio" name="optradio">Không xác định</label>
@@ -95,16 +96,16 @@
           <div class="modal-body">
            
             <div class="checkbox">
-              <label><input type="checkbox" value="" name="A">Lời lẽ xúc phạm, đe dọa, phản động</label>
+              <label><input type="checkbox" value="AB111" name="A">Lời lẽ xúc phạm, đe dọa, phản động</label>
             </div>
             <div class="checkbox">
-              <label><input type="checkbox" value="" name="A">Cảm thấy ghét</label>
+              <label><input type="checkbox" value="AB222" name="A">Cảm thấy ghét</label>
             </div>
             <div class="checkbox">
-              <label><input type="checkbox" value="" name="A">Kẻ biến thái</label>
+              <label><input type="checkbox" value="AB333" name="A">Kẻ biến thái</label>
             </div>
             <div class="checkbox">
-               <label><input type="checkbox" value="" name="A">Mình thích thì mình cảnh báo</label>
+               <label><input type="checkbox" value="AB444" name="A">Mình thích thì mình cảnh báo</label>
             </div>
 
             </br>
@@ -118,64 +119,85 @@
       </div>
     </div>
 
+    <nav class="navbar navbar-default">
+      <div class="container-fluid">
+       <div class="navbar-header">
+          <a class="navbar-brand" href="#">Web App NodeJs</a>
+       </div>
+        <ul class="nav navbar-nav">
+          <li class="active"><a href="#">Notify</a></li>
+           <li><a href="#">Introduce</a></li>
+            <li><a href="#">About us</a></li>
+        </ul>
+        <ul class="nav navbar-nav navbar-right">
+          <li>
+            <form class="form-horizontal" method="post" action="/user/home" style="margin-top: 7%;">
+             <input type = "hidden" name = "request_log_out" value = 1 >
+              <span class="glyphicon glyphicon-log-out"></span> 
+              <button name="logout" class="btn btn-link" style="margin-left: -15%;">&nbsp;Log out</button>
+            </form>
+          </li>
 
-    <div class="container">
+        </ul>
+      </div>
+    </nav>
+  
+
+    <div class="container" style="margin-top:-4%;">
       <p id="conkec"></p>
-        <div class="row pad-top pad-bottom">
+        <div class="row pad-top pad-bottom" style="width: 118%;margin-left: -10%;">
 
-         <div class="col-lg-3 col-md-3 col-sm-3" style="margin-left: -4%;">
-                <div class="chat-box-new-div">
-                    <div class="chat-box-new-head" style="font-size: 120%;font-style: oblique;cursor: pointer;" data-placement="top" title="<%= session.email %>">
-                        <%= session.name %>
-                    </div>
-
-                    <div class="panel-body chat-box-new" style="background-color: #e6f9ff;overflow: hidden;">
-                        <img src="<%= session.image %>" class="img-circle" alt="Anh dai dien" style="width: 100%;height: 100%;">
-                        <hr>
-                        <form method="post" enctype="multipart/form-data" style="margin-top: 2%;" action="/user/home">
-                          <input type="file" name="File"/>
-                          <p style="text-align: right; margin-top: 2%;">
-                          <input type="button" value="Upload Files" class="btn btn-sm btn-primary" />
-                          </p>
-                        </form>
-                    </div>
-
+         <div class="col-lg-3 col-md-3 col-sm-3" style="width: 21%;">
+            <div class="chat-box-new-div" >
+                <div class="chat-box-new-head" style="font-size: 120%;font-style: oblique;cursor: pointer;" data-placement="top" title="<%= session.email %>">
+                    <%= session.name %>
                 </div>
 
-                
-            </div>
+                <div class="panel-body chat-box-new" style="background-color: #e6f9ff;overflow: hidden;">
+                    <img src="<%= session.image %>" class="img-circle" alt="Anh dai dien" style="width: 100%;height: 100%;">
+                    <hr>
+                    <form method="post" enctype="multipart/form-data" style="margin-top: 2%;" action="/user/home">
+                      <input type="file" name="File"/>
+                      <p style="text-align: right; margin-top: 2%;">
+                      <input type="button" value="Upload Files" class="btn btn-sm btn-primary" />
+                      </p>
+                    </form>
+                </div>
 
-            <div class=" col-lg-6 col-md-6 col-sm-6">
-                <div class="chat-box-div">
-                    <div class="chat-box-head">
-                        GROUP CHAT HISTORY
-                            <div class="btn-group pull-right">
-                                <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-expanded="false" style="margin-top: -18%;">
-                                    <span class="fa fa-cogs"></span>
-                                    <span class="sr-only">Toggle Dropdown</span>
-                                </button>
-                                <ul class="dropdown-menu" role="menu">
-                                    <li><a href="#" data-toggle="modal" data-target="#myModal"><span  class="fa fa-book fa-fw"></span>&nbsp;Cập nhật thông tin</a></li>
-                                    <li><a href="#"><span class="fa fa-comments-o"></span>&nbsp;Tắt chat</a></li>
-                                    <li><a href="#" data-toggle="modal" data-target="#myModal1"><span class="fa fa-lock"></span>&nbsp;Cảnh báo</a></li>
-                                    <li class="divider"></li>
-                                    <li><a href="#" ><form class="form-horizontal" method="post" action="/user/home"><input type = "hidden" name = "request_log_out" value = 1 ><span class="fa fa-circle-o-notch"></span>&nbsp;
-                                        <button name="logout" class="btn btn-link" style="margin-left: -15%;">&nbsp;Log out</button>
-                                  </form></a></li>
-                                </ul>
-                            </div>
-                    </div>
+            </div>
+    
+          </div>
+
+          <div class=" col-lg-6 col-md-6 col-sm-6" style="width: 56%;">
+              <div class="chat-box-div">
+                  <div class="chat-box-head">
+                      GROUP CHAT HISTORY
+                    <div class="btn-group pull-right">
+                      <button type="button" class="btn btn-info dropdown-toggle" data-toggle="dropdown" aria-expanded="false" style="margin-top: -18%;">
+                        <span class="fa fa-cogs"></span>
+                        <span class="sr-only">Toggle Dropdown</span>
+                        </button>
+                          <ul class="dropdown-menu" role="menu">
+                            <li><a href="#" data-toggle="modal" data-target="#myModal"><span  class="fa fa-book fa-fw"></span>&nbsp;Cập nhật thông tin</a></li>
+                            <li><a href="#"><span class="fa fa-comments-o"></span>&nbsp;Tắt chat</a></li>
+                            <li><a href="#" data-toggle="modal" data-target="#myModal1"><span class="fa fa-lock"></span>&nbsp;Cảnh báo</a></li>
+                            <li class="divider"></li>
+                            <li><a href="#" ><span class="fa fa-circle-o-notch"></span>&nbsp;Setting</a></li>
+                          </ul>
+                      </div>
+                  </div>
                     <!--  Nội dung chat sẽ hiện ở đây 
                           Thông tin bao gồm nội dung chat, thời gian, ảnh đại diện, tên của người gửi,
                            người nhận
                     -->
-                    <div class="panel-body chat-box-main">
+                    <div class="panel-body chat-box-main" style="max-height: 485px;min-height: 485px;">
                         <div class="chat-box-left">
                             Lorem ipsum dolor sit amet, consectetur adipiscing elit.Lorem ipsum dolor sit amet, consectetur adipiscing elit.
                         </div>
                         <div class="chat-box-name-left">
                             <img src="/assets/img/user.png" alt="bootstrap Chat box user image" class="img-circle" />
                             -  Justine Goliyad
+                            
                         </div>
                        
                         <hr class="hr-clas" />
@@ -211,21 +233,21 @@
 
             </div>
 
-            <div class="col-lg-3 col-md-3 col-sm-3">
-                <div class="chat-box-online-div" onscroll='alert("Scroll Called");'>
+            <div class="col-lg-3 col-md-3 col-sm-3" style="width: 23%;">
+                <div class="chat-box-online-div" onscroll='alert("Scroll Called");' >
                     <div class="chat-box-online-head">
-                        ONLINE USERS (0)
+                      ONLINE USERS (0)                    
                     </div>
-                    <div class="panel-body chat-box-online">
+                    <div class="panel-body chat-box-online" style="overflow-y: auto; max-height: 445px;min-height: 445px;">
 
-                      <!--  <div class="chat-box-online-left">
+                       <!--<div class="chat-box-online-left">
                             <img src="/assets/img/user.png" alt="bootstrap Chat box user image" class="img-circle" />
                             -  Justine Goliyad
                             <br />
                             ( <small>Active from 3 hours</small> )
                         </div>
                         <hr class="hr-clas-low" /> -->
-              
+
                     </div>
 
                     <div class="input-group" style="margin-top: 2%;">
@@ -238,11 +260,16 @@
                     </div>
 
                 </div>
+                <div class="btn-group" id= "cachthucnhantin" style="margin-top: 2%;margin-left: 4%;">
+                  <button type="button" class="btn btn-default active" data-toggle="tooltip" title="Hiển thị danh sách trò chuyện trong ứng dụng">Talking by list</button>
+                  <button type="button" class="btn btn-default" data-toggle="tooltip" title="Auto tìm kiếm ai đó đang online trong ứng dụng, nội dung hội thoại sẽ không được lưu">Talking random</button>
+                </div>
 
             </div>
 
         </div>
     </div>
+
     <script type="text/javascript">
         var yname = "<%= session.name  %>";//ten nguoi dung
         var yimage = "<%= session.image  %>";//anh dai dien
@@ -268,11 +295,12 @@
      Ulogout.addEventListener("click", function(){
        Request_log_out();
      }) */
+
     </script>
 
     <!-- USING SCRIPTS BELOW TO REDUCE THE LOAD TIME -->
     <!-- CORE JQUERY SCRIPTS FILE -->
-    <script src="/assets/js/jquery-1.11.1.js"></script>
+    <script src="/assets/js/jquery-1.11.1.js"></script> 
     <!-- CORE BOOTSTRAP SCRIPTS  FILE -->
     <script src="/assets/js/bootstrap.js"></script>
     <script src="/Xulihomepage.js"></script>

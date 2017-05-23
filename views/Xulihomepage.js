@@ -153,25 +153,26 @@
               }
 
               //ham tu dong load nhung nguoi dung trong csdl
-              function Load_user()
+              function Load_user(Id, val)
               {
-                  $.ajax({
-                    type: "GET",
-                    url: "/user/home",
-                    data:{loaduser: 1},
-                    success: function(data)
-                    {
-                      var Length = data.length, index;
-                      for(index = 0; index < Length; index++){
-                        if((data[index].email).localeCompare(yemail) != 0){
-                          Sub_div_infor_user_on[0].innerHTML += User_in_app(data[index].image, data[index].username, data[index].email, data[index].age, data[index]._id, data[index].status)
-                        }
-                      }  
-                    }
-                  })
+                $.ajax({
+                  type: "GET",
+                  url: "/user/home",
+                  data:{loaduser: Id, valsearch: val},
+                  success: function(data)
+                  {
+                    var Length = data.length, index;
+                    for(index = 0; index < Length; index++){
+                      if((data[index].email).localeCompare(yemail) != 0){
+                        Sub_div_infor_user_on[0].innerHTML += User_in_app(data[index].image, 
+                        data[index].username, data[index].email, data[index].age, data[index]._id, data[index].status)
+                      }
+                    }  
+                  }
+                })
               }
 
-              setTimeout(Load_user, 0)//load danh sach hien thi nguoi dung
+              setTimeout(Load_user(1, ""), 0)//load danh sach hien thi nguoi dung
              // setInterval(Load_user, 4000)
             
             //Ham nay se ghep ma nguoi gui va ma nguoi dung vao trong tin nhan theo quy tac
@@ -266,6 +267,19 @@
               })
             }
 
+            //ham xoa tin nhan cua nguoi dung
+            function Delete_message(user_name, userpass)
+            {
+              $.ajax({
+                type: "DELETE",
+                url: "/user/home",
+                data:{},
+                success: function(data){
+                                
+                }
+              })
+            }
+
             //ham tra ve dinh dang thoi gian chuan
             function Time_stand()
             {
@@ -351,13 +365,30 @@
                   {//tao ra 1 message hien thi tren cho nguoi dung
                     Image_status_user_div = Status_user_div[index].getElementsByTagName("img")
                   //cac gia tri tham so tuong ung la 1- noi dung hoi thoai, 2- ten nguoi gui, 3-anh dai dien nguoi gui, 4- tuoi nguoi gui
-                    Create_message_receive(data.substring(48, data.length), Span_status_user_div[0].innerHTML, Image_status_user_div[0].src, Time_stand(), Input_hidden_status_user[2].value, receive_id)
+                     Event_user_typing.style.display = "none";
+                    Create_message_receive(data.substring(48, data.length), Span_status_user_div[0].innerHTML, 
+                      Image_status_user_div[0].src, Time_stand(), Input_hidden_status_user[2].value, receive_id)
                     Div_content_message[0].scrollTop = Div_content_message[0].scrollHeight;//dieu chinh thanh scroll 
                   }
-               
                 }
               }
             })
+
+            //bắt sự kiện kick chuột vào 2 button Talking by list và Talking random
+            var Talking_chat = document.getElementById("cachthucnhantin")
+            var Talking_chat_button = Talking_chat.getElementsByTagName("button");
+            Talking_chat_button[0].addEventListener("click", function(){
+                Talking_chat_button[1].className = "btn btn-default"
+                Talking_chat_button[0].className = "btn btn-default active"
+                Load_user(1, "")
+              })
+
+            Talking_chat_button[1].addEventListener("click", function(){
+              Talking_chat_button[0].className = "btn btn-default"
+              Talking_chat_button[1].className = "btn btn-default active"
+              Load_user(2, "")
+            })
+
 
         
          /* //khi nguoi dung kick vao nhung nguoi trong danh sach thi can load noi dung hoi thoai giua 2 nguoi
