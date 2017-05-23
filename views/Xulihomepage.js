@@ -19,9 +19,10 @@
               var Image_form_in_div = Image_upload_div[0].getElementsByClassName("panel-body chat-box-new")
               var Form_image = Image_form_in_div[0].getElementsByTagName("form")
               var Input_button_form_submit = Form_image[0].getElementsByTagName("input")
-
+              var Div_Body_Scroll = document.getElementsByClassName("panel-body chat-box-main")
               var Event_user_typing = document.getElementById("nhapbanphim")
 
+              //chon file de upload anh dai dien
               Input_button_form_submit[1].addEventListener("click", function(){
                 if(Input_button_form_submit[0].value == ""){
                   alert("Please choose only a file to upload.")
@@ -63,6 +64,7 @@
                   }
               }
 
+
                 var socket = io.connect('http://127.0.0.1:5556');
                 socket.on('connect', function(data) {
                    //ban dau la khi nguoi dung ket noi         
@@ -86,20 +88,6 @@
                       Sub_div_infor_user_on0[0].innerHTML =  "ONLINE USERS ("+(parseInt(data) - 1)+")";
                   else Sub_div_infor_user_on0[0].innerHTML =  "ONLINE USERS (0)";
                 });
-
-           //ham gui toi server lenh yeu cau load tin nhan hoi thoai ve cho nguoi dung
-             function Load_message(senderid, receiveid)
-             {
-                $.ajax({
-                  type: "GET",
-                  url: "/user/home",
-                  data:{yourid: senderid, themid: receiveid},
-                  success: function(data)
-                  {
-                      
-                  }
-                })
-              }
 
         
               //ham bieu dien nguoi dung tren trang web
@@ -128,28 +116,28 @@
               var pos = 0;
               function User_in_app(image, name, email, age, id, status)
               {
-                  var Content = "";
-                  Content += '<div class="chat-box-online-left">';
-                  Content += '<img src="'+image+'" alt="bootstrap Chat box user image" class="img-circle" data-toggle="tooltip" data-placement="right" title="'+age+'" tuổi/>';
-                  if(pos == 0){
-                    Partner_id = id;//mac dinh id nhan tin la nguoi dau tien trong danh sach
-                    //thay doi the span mac dinh la do la nguoi mac dinh se nhan tin
-                    Content +=  '<span data-toggle="tooltip" data-placement="right" title="'+email+'" style= "cursor: pointer;color:red;" onclick="Chat(this,'+pos+')"> - ' + name + '</span>' + '  .';
-                  }else{
-                    Content +=  '<span data-toggle="tooltip" data-placement="right" title="'+email+'" style= "cursor: pointer;" onclick="Chat(this,'+pos+')"> - ' + name + '</span>' + '  .';
-                  }
-                  if(status == 1) Content += '<p>On</p><h5></h5>';
-                  else            Content += '<p>Off</p><h5></h5>';
+                var Content = "";
+                Content += '<div class="chat-box-online-left">';
+                Content += '<img src="'+image+'" alt="bootstrap Chat box user image" class="img-circle" data-toggle="tooltip" data-placement="right" title="'+age+'" tuổi/>';
+                if(pos == 0){
+                  Partner_id = id;//mac dinh id nhan tin la nguoi dau tien trong danh sach
+                  //thay doi the span mac dinh la do la nguoi mac dinh se nhan tin
+                  Content +=  '<span data-toggle="tooltip" data-placement="right" title="'+email+'" style= "cursor: pointer;color:red;" onclick="Chat(this,'+pos+')"> - ' + name + '</span>' + '  .';
+                }else{
+                  Content +=  '<span data-toggle="tooltip" data-placement="right" title="'+email+'" style= "cursor: pointer;" onclick="Chat(this,'+pos+')"> - ' + name + '</span>' + '  .';
+                }
+                if(status == 1) Content += '<p>On</p><h5></h5>';
+                else            Content += '<p>Off</p><h5></h5>';
                   
-                  Content +=  '<br />';
-                  Content +=  '( <small>Active from 3 hours</small> )';
-                  Content += '<input type="hidden" value = "'+email+'" >';//an dia chi email
-                  Content += '<input type="hidden" id = "'+pos+'" value = "'+id+'" >';//an id nguoi dung
-                   Content += '<input type="hidden" value = "'+age+'">';//an do tuoi
-                  Content +=  '</div>';
-                  Content +=  '<hr class="hr-clas-low" />';
-                  pos++;
-                  return Content;
+                Content +=  '<br />';
+                Content +=  '( <small>Active from 3 hours</small> )';
+                Content += '<input type="hidden" value = "'+email+'" >';//an dia chi email
+                Content += '<input type="hidden" id = "'+pos+'" value = "'+id+'" >';//an id nguoi dung
+                Content += '<input type="hidden" value = "'+age+'">';//an do tuoi
+                Content +=  '</div>';
+                Content +=  '<hr class="hr-clas-low" />';
+                pos++;
+                return Content;
               }
 
               //ham tu dong load nhung nguoi dung trong csdl
@@ -164,17 +152,95 @@
                     var Length = data.length, index;
                     for(index = 0; index < Length; index++){
                       if((data[index].email).localeCompare(yemail) != 0){
-                        Sub_div_infor_user_on[0].innerHTML += User_in_app(data[index].image, 
-                        data[index].username, data[index].email, data[index].age, data[index]._id, data[index].status)
+                        Sub_div_infor_user_on[0].innerHTML += User_in_app(data[index].image, data[index].username,
+                         data[index].email, data[index].age, data[index]._id, data[index].status)
                       }
                     }  
                   }
                 })
               }
 
-              setTimeout(Load_user(1, ""), 0)//load danh sach hien thi nguoi dung
+              setTimeout(Load_user(1, ""), 500)//load danh sach hien thi nguoi dung
              // setInterval(Load_user, 4000)
-            
+              setTimeout(function(){//tu dong load tin nhan tu server
+                var index,  Span_status_user_div, Input_hidden_id_user
+                for(index = 0; index < Status_user_div.length; index++){
+                    Span_status_user_div = Status_user_div[index].getElementsByTagName("span")
+                    Input_hidden_id_user = Status_user_div[index].getElementsByTagName("input")
+                    if(Span_status_user_div[0].style.color ==  "red")
+                    {
+                      //load tin nhan tu csdl cho nguoi dung
+                      Load_message(yid, Input_hidden_id_user[1].value)
+                      break
+                    }
+                  }
+              }, 1500)
+
+             //ham bat su kien nguoi dung tim kiem nguoi dung trong danh sach
+              var Div_contain_search = Div_infor_user_on[0].getElementsByTagName("div")
+              var Search_input_user = Div_contain_search[2].getElementsByTagName("input")
+              var Search_button_user = Div_contain_search[2].getElementsByTagName("button")
+              //kick enter tim kiem
+              Search_input_user[0].addEventListener("keyup", function(e){
+                if(Search_input_user[0].value.length > 2 && e.keyCode == 13){
+                  Load_user(5, Search_input_user[0].value);
+                  Search_input_user[0].value = "";
+                }
+              })
+
+              //khi nguoi dung nhan nut search
+              Search_button_user[0].addEventListener("click", function(){
+                if(Search_input_user[0].value.length > 2){
+                  Load_user(5, Search_input_user[0].value)
+                  Search_input_user[0].value = "";
+                }
+              }) 
+
+              //ham load message tu server ve app nguoi dung
+              function Load_message(usera, userb)
+              {
+                var Length, index;
+
+                $.ajax({
+                  type: "GET",
+                  url: "/user/home",
+                  data:{loadmessagea: usera, loadmessageb: userb},
+                  success: function(data)//hien thi message
+                  {
+                    Length = data.length;
+                    for(index = 0; index < Length; index++){
+                      if((data[index].id_user_A._id).localeCompare(yid) == 0)
+                      {//tin nhan nguoi dung gui
+                        Create_message_send(data[index].content, Time_transfer(data[index].created_at))
+                      }else{//tin nhan duoc nhan
+                        Create_message_receive(data[index].content, data[index].id_user_B.username, 
+                         data[index].id_user_B.image, Time_transfer(data[index].created_at), data[index].id_user_B.age);
+                      }
+                    }
+                  }
+                })
+              }
+
+            //Bat su kien scroll de load tin nhan cho nguoi dung
+              var num = 0, Input_hidden_id_user;
+              Div_Body_Scroll[0].addEventListener("scroll", function(){
+                var position =  Div_Body_Scroll[0].scrollTop;
+                if(position == 0){
+                  num++;
+                  for(var index = 0; index < Status_user_div.length; index++){
+                    Span_status_user_div = Status_user_div[index].getElementsByTagName("span")
+                    Input_hidden_id_user = Status_user_div[index].getElementsByTagName("input")
+                    if(Span_status_user_div[0].style.color ==  "red")
+                    {
+                      //load tin nhan tu csdl cho nguoi dung
+                      Load_message(yid, Input_hidden_id_user[1].value)
+                      break
+                    }
+                  }
+                  
+                }
+              })
+
             //Ham nay se ghep ma nguoi gui va ma nguoi dung vao trong tin nhan theo quy tac
             //de gui toi server, server se boc tach ra luu vao csdl va gui toi nguoi nhan
             function Message_to_server(id_send, id_receive, content)
@@ -197,7 +263,7 @@
                 if(this.value != "")
                 {
                   socket.emit('chat', Message_to_server(yid, Partner_id, this.value))
-                  Create_message_send(this.value)
+                  Create_message_send(this.value, Time_stand())
                   Div_content_message[0].scrollTop = Div_content_message[0].scrollHeight;//dat scroll trong the div luon o cuoi the div 
                   this.value = "";
                 }
@@ -212,7 +278,7 @@
               if(Input_text_submit[0].value != "")
               {
                 socket.emit('chat', Message_to_server(yid, Partner_id, Input_text_submit[0].value))
-                Create_message_send(Input_text_submit[0].value)
+                Create_message_send(Input_text_submit[0].value, Time_stand())
                 Div_content_message[0].scrollTop = Div_content_message[0].scrollHeight;
                 Input_text_submit[0].value = "";
               }
@@ -240,19 +306,6 @@
                 }
               }
             })
-
-            //ham tu dong load tin nhan tu server
-            function Auto_load_message(user_name, userpass)
-            {
-              $.ajax({
-                type: "GET",
-                url: "/user/home",
-                data:{},
-                success: function(data){
-           
-                }
-              })
-            }
 
             //ham sua tin nhan ;))))
             function Fix_message(user_name, userpass)
@@ -288,14 +341,22 @@
               return time;
             }
 
+            //ham chuyen ISOdate trong mongo ve Date js
+             function Time_transfer(ISOdate)
+            {
+              dt = new Date(ISOdate)
+              var  time = dt.getHours() + ":" + dt.getMinutes() +", "+ dt.getDate()+ "/" + (dt.getMonth() + 1) + "/" + dt.getFullYear();
+              return time;
+            }
+
             //ham tao tin nhan hien thi tren giao dien cho chinh nguoi dung khi nguoi dung gui tin
-            function Create_message_send(content)
+            function Create_message_send(content, time)
             {
               var Content =  "<div class='chat-box-left' style= 'word-break: break-all;'>" + content;
               Content += "</div><div class='chat-box-name-left'>";
               Content += "<img src='"+ yimage +"' alt='bootstrap Chat box user image' class='img-circle' data-placement='top' title='"+yage+" tuổi'/>";
               Content +=  "- " + yname;
-              Content += "<span style='float: right;margin-top: 5%;font-size: 90%;font-style: italic;margin-right:5%;'>"+ Time_stand() +"</span>";
+              Content += "<span style='float: right;margin-top: 5%;font-size: 90%;font-style: italic;margin-right:5%;'>"+ time +"</span>";
               Content += "</div><hr class='hr-clas' />";
 
               Div_content_message[0].innerHTML += Content;
@@ -361,7 +422,8 @@
                   Input_hidden_status_user = Status_user_div[index].getElementsByTagName("input")
                   Span_status_user_div = Status_user_div[index].getElementsByTagName("span")
                  //vi tri 1 luu id, 0 luu email va 2 luu tuoi cua nguoi tôi dang nt
-                  if((Input_hidden_status_user[1].value).localeCompare(sender_id) == 0 && Span_status_user_div[0].style.color == "red")
+                  if((Input_hidden_status_user[1].value).localeCompare(sender_id) == 0 && 
+                    Span_status_user_div[0].style.color == "red")
                   {//tao ra 1 message hien thi tren cho nguoi dung
                     Image_status_user_div = Status_user_div[index].getElementsByTagName("img")
                   //cac gia tri tham so tuong ung la 1- noi dung hoi thoai, 2- ten nguoi gui, 3-anh dai dien nguoi gui, 4- tuoi nguoi gui

@@ -73,17 +73,36 @@ router.route('/home')//dieu huong app
          res.send(users[Random])
       })    
     }else{//load nguoi dung voi gia tri tim kiem value duoc nhap boi nguoi dung
-
+      var val = req.query.valsearch
+      console.log(val)
     }
 
-		delete req.query.loaduser;
-		//tien hanh noi dung hoi thoai giua nguoi gui va nguoi nhan bat ki
-	} else if(typeof req.query.yourid != 'undefined')
-	{
-		console.log("da chay " + req.query.yourid + ", "+ req.query.themid)
-		delete req.query.yourid;
+	}else if(req.query.loadmessagea)//req.query.loadmessagea la ma id nguoi dung hien tai muon load message
+  {                               //req.query.loadmessageb la nguoi ma nguoi dung htai nhan tin cung
+    models1.Message.find({})
+    .populate({//truy van bo qua null  { "$exists": true, "$ne": null }....
+      path: 'id_user_A',
+      match: {
+        $or:[{$and: [{'_id': { "$exists": true, $ne:null }}, {'_id': req.query.loadmessagea}]}, 
+            {$and: [{'_id': { "$exists": true, $ne:null }}, {'_id': req.query.loadmessageb}]}
+        ]}
+      })
+    .populate({
+      path: 'id_user_B',
+      match:{
+        $or:[{$and: [{'_id': {"$exists": true, $ne:null }}, {'_id': req.query.loadmessageb}]}, 
+            {$and: [{'_id': { "$exists": true, $ne:null }}, {'_id': req.query.loadmessagea}]}
+        ]}
+      })
+    .sort({'created_at': 1})//sap xep tang dan theo thoi gian
+    .limit(30)//gioi han so ban ghi
+    .exec(function(err, message) {
+       if (err) return handleError(err);
+       res.send(message)
+      console.log(message)
+      });
 
-	}else
+  }else
 	{//kiem tra session da duoc khai bao moi chuyen qua trang khac
 		if(!req.session.name){
 			res.redirect('logsg');
@@ -102,6 +121,7 @@ router.route('/home')//dieu huong app
 		  res.render('home');
 		}
 	}
+
 })
 .post(multipartMiddleware, function(req, res)
 {
@@ -186,7 +206,7 @@ io.on('connection', function(client)
       var content = data.substring(48, data.length);//con lai la noi dung chat
                      
       // luu du lieu vao co so du lieu
-    /*  var Amessage = new models1.Message({
+      var Amessage = new models1.Message({
         id_user_A: id_sender,
         id_user_B: id_receiver,
         content: content, //noi dung tin nhan
@@ -196,7 +216,7 @@ io.on('connection', function(client)
       Amessage.save(function(err){
         if(err) 
           console.log("Loi luu tin nhan: " + err)
-      }) */
+      })
 
 		  data = id_sender.concat(id_receiver)
 		  data = data.concat(content)

@@ -119,17 +119,18 @@
       </div>
     </div>
 
-    <nav class="navbar navbar-default">
+    <nav class="navbar navbar-light" style="background-color: #e3f2fd;">
       <div class="container-fluid">
        <div class="navbar-header">
           <a class="navbar-brand" href="#">Web App NodeJs</a>
        </div>
         <ul class="nav navbar-nav">
-          <li class="active"><a href="#">Notify</a></li>
+          <li class="active"><a href="#">Notify(0)</a></li>
            <li><a href="#">Introduce</a></li>
             <li><a href="#">About us</a></li>
         </ul>
         <ul class="nav navbar-nav navbar-right">
+          <li><a href="#"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
           <li>
             <form class="form-horizontal" method="post" action="/user/home" style="margin-top: 7%;">
              <input type = "hidden" name = "request_log_out" value = 1 >
@@ -143,8 +144,8 @@
     </nav>
   
 
-    <div class="container" style="margin-top:-4%;">
-      <p id="conkec"></p>
+    <div class="container" style="margin-top:-3%;">
+
         <div class="row pad-top pad-bottom" style="width: 118%;margin-left: -10%;">
 
          <div class="col-lg-3 col-md-3 col-sm-3" style="width: 21%;">
@@ -152,7 +153,6 @@
                 <div class="chat-box-new-head" style="font-size: 120%;font-style: oblique;cursor: pointer;" data-placement="top" title="<%= session.email %>">
                     <%= session.name %>
                 </div>
-
                 <div class="panel-body chat-box-new" style="background-color: #e6f9ff;overflow: hidden;">
                     <img src="<%= session.image %>" class="img-circle" alt="Anh dai dien" style="width: 100%;height: 100%;">
                     <hr>
@@ -190,7 +190,7 @@
                           Thông tin bao gồm nội dung chat, thời gian, ảnh đại diện, tên của người gửi,
                            người nhận
                     -->
-                    <div class="panel-body chat-box-main" style="max-height: 485px;min-height: 485px;">
+                    <div class="panel-body chat-box-main" style="height: 485px;">
                         <div class="chat-box-left">
                             Lorem ipsum dolor sit amet, consectetur adipiscing elit.Lorem ipsum dolor sit amet, consectetur adipiscing elit.
                         </div>
@@ -238,7 +238,8 @@
                     <div class="chat-box-online-head">
                       ONLINE USERS (0)                    
                     </div>
-                    <div class="panel-body chat-box-online" style="overflow-y: auto; max-height: 445px;min-height: 445px;">
+                    
+                    <div class="panel-body chat-box-online" style="overflow-y: auto; height: 457px;">
 
                        <!--<div class="chat-box-online-left">
                             <img src="/assets/img/user.png" alt="bootstrap Chat box user image" class="img-circle" />
@@ -276,6 +277,7 @@
         var yemail = "<%= session.email  %>";//dia chi email
         var yage = "<%= session.age  %>";//tuoi
         var yid = "<%= session.chat_id %>";//ma chat cua nguoi dung trung voi ma Oject trong csdl
+
       //ham nay se yeu cau server gui ma xac thuc email den cho nguoi dung 
     /* function Request_log_out()
      {
