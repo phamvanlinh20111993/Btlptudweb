@@ -104,6 +104,8 @@
               function Chat(th, id)
               {
                 var ind, Span_status_user_div, H5_status_user_div;
+                user_request = true;//khoi phuc trang thai load nguoi dung
+                message_request = true;//khoi phuc trang thai load tin nhan
                 //phuc hoi mau ve trang thi binh thuong
                 for(ind = 0; ind < Status_user_div.length; ind++){
                   Span_status_user_div = Status_user_div[ind].getElementsByTagName("span")
@@ -163,6 +165,10 @@
                 đúng nhất với giá trị tìm kiếm)
                 -Tìm kiếm random 1 người nào đó để trò chuyện
               */
+              var message_request = true, user_request = true;
+              //bien message_request de the hien neu tren server da het message thi k duoc yeu cau gui nua
+              //bat su kien scroll cho viec yeu cau xem lich su tin nhan giua 2 nguoi
+              //tuong tu nhu bien user_request bat su kien scroll hien thi them nguoi dung
               function Load_user(Id, val, num_of_user_request)
               {
                 $.ajax({
@@ -171,6 +177,11 @@
                   data:{loaduser: Id, valsearch: val, num_of_user: num_of_user_request},
                   success: function(data)
                   {
+                    if(data.length == 0 && val = ""){
+                      if(Id == 1)//lay nguoi dung
+                        user_request = false
+                    }
+
                     var Length = data.length, index;
                     for(index = 0; index < Length; index++){
                       if((data[index].email).localeCompare(yemail) != 0){
@@ -213,7 +224,7 @@
 
               //khi nguoi dung nhan nut search
               Search_button_user[0].addEventListener("click", function(){
-                if(Search_input_user[0].value.length > 2){
+                if(Search_input_user[0].value.length > 1){
                   Load_user(5, Search_input_user[0].value, 100)
                   Search_input_user[0].value = "";
                 }
@@ -236,6 +247,9 @@
                   success: function(data)//hien thi message
                   {
                     Length = data.length;
+                    if(Length == 0)//khong con tin nhan de load
+                      message_request = false;
+
                     for(index = 0; index < Length; index++){
                       if((data[index].id_user_A._id).localeCompare(yid) == 0)
                       {//tin nhan nguoi dung gui
@@ -250,7 +264,7 @@
               }
 
             //Bat su kien scroll de load tin nhan cho nguoi dung
-              var num_of_message_request = 1, Input_hidden_id_user;
+              var num_of_message_request = 1, Input_hidden_id_user, num_of_user_request = 0;
               Div_Body_Scroll[0].addEventListener("scroll", function(){
                 var position =  Div_Body_Scroll[0].scrollTop;
                 if(position == 0){
@@ -262,7 +276,8 @@
                     {
                       //load tin nhan tu csdl cho nguoi dung
                       Div_content_message[0].innerHTML = "";
-                      Load_message(yid, Input_hidden_id_user[1].value, num_of_message_request*15)
+                      if(message_request)//neu van con tin nhan giua 2 nguoi 
+                        Load_message(yid, Input_hidden_id_user[1].value, num_of_message_request*15)
                       break
                     }
                   }
@@ -472,17 +487,33 @@
             //bắt sự kiện kick chuột vào 2 button Talking by list và Talking random
             var Talking_chat = document.getElementById("cachthucnhantin")
             var Talking_chat_button = Talking_chat.getElementsByTagName("button");
+            var count_click_talkingbylist = 0;
+            //Talking by list
             Talking_chat_button[0].addEventListener("click", function(){
-                Talking_chat_button[1].className = "btn btn-default"
-                Talking_chat_button[0].className = "btn btn-default active"
-                Load_user(1, "", 20)//hien thi 10 nguoi trong danh sach
-              })
+              Talking_chat_button[1].className = "btn btn-default"
+              Talking_chat_button[0].className = "btn btn-default active"
+              if(count_click_talkingbylist == 0){
+                Load_user(1, "", 30)//hien thi 20 nguoi trong danh sach
+                count_click_talkingbylist++
+              }
+            })
 
+            //Talking random
             Talking_chat_button[1].addEventListener("click", function(){
               Talking_chat_button[0].className = "btn btn-default"
               Talking_chat_button[1].className = "btn btn-default active"
               Load_user(2, "", 0)
+              count_click_talkingbylist = 0;//khoi phuc ve trang thai ban dau
             })
 
             //ham su li su kien nguoi dung scroll tim kiem nguoi dung khac
-
+            Sub_div_infor_user_on[0].addEventListener("scroll", function(){
+              var position1 =  Sub_div_infor_user_on[0].offsetHeight + Sub_div_infor_user_on[0].scrollTop;
+              var position = Sub_div_infor_user_on[0].scrollHeight;
+              if(position == position1){//khi nguoi dung kick vao button tim kiem nguoi dung
+                 num_of_user_request++;
+                 document.getElementById("concac").innerHTML += position 
+                 if(user_request)//neu van con nguoi dung de load
+                  Load_user(1, "", num_of_user_request*10)
+              }
+            })
