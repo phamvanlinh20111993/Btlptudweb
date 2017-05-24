@@ -129,8 +129,8 @@ router.route('/logsg')
 		   					res.redirect('home')
 		   				}
 					}
-				}) }, 500)//500miliseconds
-			
+				}) }, 400)//400 miliseconds run function
+ 			
 		}else{
 			res.render("login_signup", {code_err: 1});
 		}

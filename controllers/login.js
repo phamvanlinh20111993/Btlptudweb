@@ -82,7 +82,8 @@ router.route('/login')
 }).put(function(req, res)
 {
 	//nguoi dung quen mat khau yeu cau xac minh lại
-	if(typeof User_enter_code != 'undefined'){
+	if(typeof User_enter_code != 'undefined')
+	{
 		if(User_enter_code == req.body.mailauthor){
 			models.User.findOneAndUpdate({email: req.body.youremail}, {password: md5(req.body.repassword)}).
 			exec(function(err, value){
