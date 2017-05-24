@@ -1,4 +1,5 @@
-
+              //hàm kiểm tra kiểu file mà người dùng muốn cập nhật ảnh đại diện
+              //tham số val là đường dẫn của người dùng có chứa tên file và kiểu file 
               function TypeofFile(val)
               {
                 var type = val.slice((Math.max(0, val.lastIndexOf(".")) || Infinity) + 1);//lay kieu file vi du helo.jpg se lay duoi file la jpg hoac neu file la abc.adf.acc lay duoc duoi file la acc
@@ -39,6 +40,7 @@
               })
 
               //ham cat gia tri de xem tin nhan co gui loi hay khong
+              //Nếu tin nhắn có lỗi thì nội dung tin nhắn có gắn thêm mã "55555" ở cuối String của tin nhắn
               function Cutstring(String)
               {
                   var Length = String.length;
@@ -51,11 +53,13 @@
               var Status_user_div = Sub_div_infor_user_on[0].getElementsByClassName("chat-box-online-left")
 
               //ham ve lai so nguoi dung da on hay off
+              //các tham số data là mã của người dùng đang nhắn tin cùng
+              //tham số Value là là 1 string "on" hoặc "off" tùy vào trạng thái
               function Status_user(data, Value)
               {
                   var Length = Status_user_div.length; 
                   for(var index = 0; index < Length; index++){
-                    var inputhidden = Status_user_div[index].getElementsByTagName('input');
+                    var inputhidden = Status_user_div[index].getElementsByTagName('input');//mã người dùng bị ẩn
                     if(inputhidden[0].value.localeCompare(data) == 0){
                       var tagp = Status_user_div[index].getElementsByTagName('p');
                       tagp[0].innerHTML = Value;
@@ -65,36 +69,38 @@
               }
 
 
-                var socket = io.connect('http://127.0.0.1:5556');
-                socket.on('connect', function(data) {
-                   //ban dau la khi nguoi dung ket noi         
-                   socket.emit('online', yemail);//client bao voi server la t online roi
-                });
+              var socket = io.connect('http://127.0.0.1:5556');
+              socket.on('connect', function(data) {
+                //ban dau la khi nguoi dung ket noi         
+                socket.emit('online', yemail);//client bao voi server la t online roi
+              });
 
-                //kiem tra nguoi dung co online hay khong
-                socket.on('offline', function(data) 
-                  {//neu co ai do offline server gui xuong client dia chi email co kem theo ma 55555
-                  if(Cutstring(data) != "55555")   Status_user(data, "On");
-                  else{
-                    data = data.substring(0, data.length - 5)
-                    Status_user(data, "Off"); 
-                  }                            
+              //kiem tra nguoi dung co online hay khong
+              socket.on('offline', function(data) //data là tham số chứa email người dùng bên kia
+              {//neu co ai do offline server gui xuong client dia chi email co kem theo ma 55555
+                if(Cutstring(data) != "55555")   Status_user(data, "On");
+                else{
+                  data = data.substring(0, data.length - 5)
+                  Status_user(data, "Off"); 
+                }                            
                    
-                });
+              });
 
-                //so luong nguoi dang online
-                socket.on('useronline', function(data) {
-                  if(parseInt(data)  >  1)
-                      Sub_div_infor_user_on0[0].innerHTML =  "ONLINE USERS ("+(parseInt(data) - 1)+")";
-                  else Sub_div_infor_user_on0[0].innerHTML =  "ONLINE USERS (0)";
-                });
+              //so luong nguoi dang online
+              socket.on('useronline', function(data) {
+                if(parseInt(data)  >  1)
+                  Sub_div_infor_user_on0[0].innerHTML =  "ONLINE USERS ("+(parseInt(data) - 1)+")";
+                else Sub_div_infor_user_on0[0].innerHTML =  "ONLINE USERS (0)";
+              });
 
         
               //ham bieu dien nguoi dung tren trang web
               //Load noi dung tin nhan tu server
               var Partner_id = "";
-              //Khi nguoi dung kick vao bat ki nguoi dung trong danh sach online khac thi mau tren ten cua nguoi
-              //dung do bi thay doi 
+              /*Khi nguoi dung kick vao bat ki nguoi dung trong danh sach online khac thi mau tren ten cua nguoi
+               dung do bi thay doi(cụ thể là màu đỏ), tham số th là 1 html DOM-đại diện cho thẻ span chứa người
+               Dùng. id là tham số đại diện cho vị trí của người dùng trong HTML DOM
+               */
               function Chat(th, id)
               {
                 var ind, Span_status_user_div, H5_status_user_div;
@@ -108,11 +114,16 @@
                 th.style.color = "red";//doi mau tai vi tri kick
                 var themid = document.getElementById(id).value;
                 Partner_id = themid;//ma id cua doi phuong
-                Load_message(yid, themid)
+                Load_message(yid, themid, 15)// mặc định 15 tin nhắn(lịch sử chat) từ 2 người dùng
                 Event_user_typing.style.display = "none"
               }
 
-              //xet gia tri id cho nguoi dung
+              /*xet gia tri id cho nguoi dung
+              Các tham số image là ảnh đại diện của người dùng, name là tên của người dùng, email là địa chỉ
+              mail người dùng đăng kí(mail duy nhất- nhận dạng người dùng), tham số age là tuổi người dùng 
+              đăng kí, id là 1 Object id trong csdl mặc định(nhận dạng người dùng), tham số status biểu thị trạng
+              thái on hay offline của người dùng
+              */
               var pos = 0;
               function User_in_app(image, name, email, age, id, status)
               {
@@ -140,13 +151,24 @@
                 return Content;
               }
 
-              //ham tu dong load nhung nguoi dung trong csdl
-              function Load_user(Id, val)
+              /*Hàm tu dong load nhung nguoi dung trong csdl,mỗi người dùng online muốn biết cụ thể ngoài bản thân
+                mình ra còn ai online trong danh sách không để nhắn tin hoặc làm gì đó.
+                Các tham số Id là mã load, val là giá trị khi người dùng tìm kiếm, num_of_user_request
+                Hàm Load_user() được sử dụng khi:
+                -Khi người dùng vào app thì Hàm được tự động được sử dụng load 1 số người dùng khác đang online:
+                các tham số val = "", num_of_user_request = 10(hiển thị 10 người)
+                -Khi người dùng muốn hiển thị thêm nhiều hơn những người online(mỗi lần yêu cầu sẽ tăng thêm 10), giá
+                trị val = "", num_of_user_request tương ứng với số lần yêu cầu
+                -Khi người dùng muốn tìm kiếm ai đó: val = giá trị tìm kiếm, num_of_user_request = 5(tìm người gần
+                đúng nhất với giá trị tìm kiếm)
+                -Tìm kiếm random 1 người nào đó để trò chuyện
+              */
+              function Load_user(Id, val, num_of_user_request)
               {
                 $.ajax({
                   type: "GET",
                   url: "/user/home",
-                  data:{loaduser: Id, valsearch: val},
+                  data:{loaduser: Id, valsearch: val, num_of_user: num_of_user_request},
                   success: function(data)
                   {
                     var Length = data.length, index;
@@ -160,9 +182,10 @@
                 })
               }
 
-              setTimeout(Load_user(1, ""), 500)//load danh sach hien thi nguoi dung
+              setTimeout(Load_user(1, "", 10), 500)//load danh sach hien thi nguoi dung
              // setInterval(Load_user, 4000)
-              setTimeout(function(){//tu dong load tin nhan tu server
+              setTimeout(function()
+               {//tu dong load tin nhan tu server
                 var index,  Span_status_user_div, Input_hidden_id_user
                 for(index = 0; index < Status_user_div.length; index++){
                     Span_status_user_div = Status_user_div[index].getElementsByTagName("span")
@@ -170,20 +193,20 @@
                     if(Span_status_user_div[0].style.color ==  "red")
                     {
                       //load tin nhan tu csdl cho nguoi dung
-                      Load_message(yid, Input_hidden_id_user[1].value)
+                      Load_message(yid, Input_hidden_id_user[1].value, 15)
                       break
                     }
                   }
-              }, 1500)
+              }, 1500)//load sau 1,5s
 
-             //ham bat su kien nguoi dung tim kiem nguoi dung trong danh sach
+             //ham bat su kien nguoi dung tim kiem nguoi dung khác trong danh sach
               var Div_contain_search = Div_infor_user_on[0].getElementsByTagName("div")
               var Search_input_user = Div_contain_search[2].getElementsByTagName("input")
               var Search_button_user = Div_contain_search[2].getElementsByTagName("button")
               //kick enter tim kiem
               Search_input_user[0].addEventListener("keyup", function(e){
                 if(Search_input_user[0].value.length > 2 && e.keyCode == 13){
-                  Load_user(5, Search_input_user[0].value);
+                  Load_user(5, Search_input_user[0].value, 100);
                   Search_input_user[0].value = "";
                 }
               })
@@ -191,20 +214,25 @@
               //khi nguoi dung nhan nut search
               Search_button_user[0].addEventListener("click", function(){
                 if(Search_input_user[0].value.length > 2){
-                  Load_user(5, Search_input_user[0].value)
+                  Load_user(5, Search_input_user[0].value, 100)
                   Search_input_user[0].value = "";
                 }
               }) 
 
-              //ham load message tu server ve app nguoi dung
-              function Load_message(usera, userb)
+              /*ham load message tu server ve app nguoi dung
+                để load được tin nhắn của 2 người giao tiếp với nhau cần có mã id phân biệt từng người với nhau
+                Ham Load_message() chứa 3 tham số trong đó usera là mã của người dùng đang online, userb là mã của
+                người mà người dùng sẽ nhắn tin cùng, tham số còn lại num_of_message_request để load 1 số lượng tin
+                nhắn mà người dùng yêu cầu(mặc định là 15 tin nhắn)
+              */
+              function Load_message(usera, userb, num_of_message_request)
               {
                 var Length, index;
 
                 $.ajax({
                   type: "GET",
                   url: "/user/home",
-                  data:{loadmessagea: usera, loadmessageb: userb},
+                  data:{loadmessagea: usera, loadmessageb: userb, num: num_of_message_request},
                   success: function(data)//hien thi message
                   {
                     Length = data.length;
@@ -222,18 +250,19 @@
               }
 
             //Bat su kien scroll de load tin nhan cho nguoi dung
-              var num = 0, Input_hidden_id_user;
+              var num_of_message_request = 1, Input_hidden_id_user;
               Div_Body_Scroll[0].addEventListener("scroll", function(){
                 var position =  Div_Body_Scroll[0].scrollTop;
                 if(position == 0){
-                  num++;
+                   num_of_message_request++;
                   for(var index = 0; index < Status_user_div.length; index++){
                     Span_status_user_div = Status_user_div[index].getElementsByTagName("span")
                     Input_hidden_id_user = Status_user_div[index].getElementsByTagName("input")
                     if(Span_status_user_div[0].style.color ==  "red")
                     {
                       //load tin nhan tu csdl cho nguoi dung
-                      Load_message(yid, Input_hidden_id_user[1].value)
+                      Div_content_message[0].innerHTML = "";
+                      Load_message(yid, Input_hidden_id_user[1].value, num_of_message_request*15)
                       break
                     }
                   }
@@ -350,6 +379,7 @@
             }
 
             //ham tao tin nhan hien thi tren giao dien cho chinh nguoi dung khi nguoi dung gui tin
+            //tham số content là nội dung tin nhắn, time là thời gian đăng
             function Create_message_send(content, time)
             {
               var Content =  "<div class='chat-box-left' style= 'word-break: break-all;'>" + content;
@@ -362,7 +392,10 @@
               Div_content_message[0].innerHTML += Content;
             }
 
-            //ham tao tin nhan hien thi tren giao dien cho nguoi dung khi nguoi dung nhan tin nhan tu nguoi gui
+            /*ham tao tin nhan hien thi tren giao dien cho nguoi dung khi nguoi dung nhan tin nhan tu nguoi gui
+             tham số content la nội dung tin nhắn được nhận, user_send là tên người gửi, image là ảnh đại diện
+             của người gửi, time là thời gian gửi đến, age là tuổi của người gửi
+             */
             function Create_message_receive(content, user_send, image, time, age)
             {
               var Content = "<div class='chat-box-right' style= 'word-break: break-all;'>";
@@ -442,27 +475,14 @@
             Talking_chat_button[0].addEventListener("click", function(){
                 Talking_chat_button[1].className = "btn btn-default"
                 Talking_chat_button[0].className = "btn btn-default active"
-                Load_user(1, "")
+                Load_user(1, "", 20)//hien thi 10 nguoi trong danh sach
               })
 
             Talking_chat_button[1].addEventListener("click", function(){
               Talking_chat_button[0].className = "btn btn-default"
               Talking_chat_button[1].className = "btn btn-default active"
-              Load_user(2, "")
+              Load_user(2, "", 0)
             })
 
+            //ham su li su kien nguoi dung scroll tim kiem nguoi dung khac
 
-        
-         /* //khi nguoi dung kick vao nhung nguoi trong danh sach thi can load noi dung hoi thoai giua 2 nguoi
-            var Span_status_user_div, Input_hidden_status_user;
-            alert(Status_user_div.length)
-            for(var index = 0; index < Status_user_div.length; index++)
-            {
-                Span_status_user_div = Status_user_div[index].getElementsByTagName("span")
-                Input_hidden_status_user = Status_user_div[index].getElementsByTagName("input")
-                alert(index)
-                alert(Input_hidden_status_user[1].value)
-                Span_status_user_div[0].onclick = function(){
-                Load_message(yid, Input_hidden_status_user[1].value)//Input_hidden_status_user[0] la dia chi mail
-                }
-            } */

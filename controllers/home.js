@@ -59,18 +59,26 @@ router.route('/home')//dieu huong app
 	if(req.query.loaduser)
 	{
     //load gia tri nguoi dung ban dau
+    var num_of_rq = req.query.num_of_user
     if(req.query.loaduser == 1){
-		  models.User.find({}, function(err, users){
+		  models.User.find({})
+      .limit(parseInt(num_of_rq))//gioi han so nguoi can tim
+      .skip((parseInt(num_of_rq) - 10))//bo qua so ban ghi tinh tu vi tri dau tien
+      .exec(function(err, users){
 			   if (err) throw err;
   			   //console.log(users);
   			   res.send(users)
 		  })
     }else if(req.query.loaduser == 2){//tra ve mot nguoi dung random trong danh sach online
-      models.User.find({}, function(err, users){
+      var Length = users.length;
+      var Random =  RandomInt(Length, 0)//random 1 nguoi dua tren vi tri cua nguoi dung trong danh sach
+      if(Random == 0) Random = 1;//trường hợp skip bỏ qua 
+      models.User.find({})
+      .limit(1)
+      .skip(Random - 1)
+      .exec(function(err, user){
          if (err) throw err;
-         var Length = users.length;
-         var Random =  RandomInt(Length, 0)//random 1 nguoi dua tren vi tri cua nguoi dung trong danh sach
-         res.send(users[Random])
+         res.send(user)
       })    
     }else{//load nguoi dung voi gia tri tim kiem value duoc nhap boi nguoi dung
       var val = req.query.valsearch
@@ -78,28 +86,32 @@ router.route('/home')//dieu huong app
     }
 
 	}else if(req.query.loadmessagea)//req.query.loadmessagea la ma id nguoi dung hien tai muon load message
-  {                               //req.query.loadmessageb la nguoi ma nguoi dung htai nhan tin cung
+  {                              //req.query.loadmessageb la nguoi ma nguoi dung htai nhan tin cung
+
     models1.Message.find({})
     .populate({//truy van bo qua null  { "$exists": true, "$ne": null }....
       path: 'id_user_A',
       match: {
         $or:[{$and: [{'_id': { "$exists": true, $ne:null }}, {'_id': req.query.loadmessagea}]}, 
             {$and: [{'_id': { "$exists": true, $ne:null }}, {'_id': req.query.loadmessageb}]}
-        ]}
+        ]},
+      select: '_id'
       })
     .populate({
       path: 'id_user_B',
       match:{
         $or:[{$and: [{'_id': {"$exists": true, $ne:null }}, {'_id': req.query.loadmessageb}]}, 
             {$and: [{'_id': { "$exists": true, $ne:null }}, {'_id': req.query.loadmessagea}]}
-        ]}
+        ]},
+       select: {'_id': 0, 'password': 0, 'updated_at': 0, 'status': 0} //bo qua ca truong nay
       })
     .sort({'created_at': 1})//sap xep tang dan theo thoi gian
-    .limit(30)//gioi han so ban ghi
+    .limit(parseInt(req.query.num))//gioi han so ban ghi
+    .skip(0)
     .exec(function(err, message) {
        if (err) return handleError(err);
        res.send(message)
-      console.log(message)
+       //console.log(message)
       });
 
   }else

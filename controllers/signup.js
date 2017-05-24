@@ -101,6 +101,7 @@ router.route('/logsg')
 
 			//luu lai
 			user_chat.save(function(err){
+				console.log("value ccccccc")
                 if(err){
                 	console.log(err)
                 }
@@ -115,17 +116,20 @@ router.route('/logsg')
 			})
 
 			//tao ma id chat cho nguoi dung
-			models.User.findOne({'email' : email, 'password': pass1}).
-			exec(function(err, value){
-				if(err){
-		  	 		console.log(err);
-				}else{
-		   			if(value != null){
-		   				req.session.chat_id = value._id
-		   				res.redirect('home')
-		   			}
-				}
-			})
+			setTimeout(//tao ham dong bo hàm này chạy sau hàm trên
+			 function (){
+				models.User.findOne({'email' : email, 'password': pass1}).
+				exec(function(err, value){
+					console.log("value ccc11111111111")
+					if(err){
+		  	 			console.log(err);
+					}else{
+		   				if(value != null){
+		   					req.session.chat_id = value._id
+		   					res.redirect('home')
+		   				}
+					}
+				}) }, 500)//500miliseconds
 			
 		}else{
 			res.render("login_signup", {code_err: 1});
