@@ -63,7 +63,7 @@ router.route('/home')//dieu huong app
     var num_of_rq = req.query.num_of_user
     if(req.query.loaduser == 1)
     {
-		   models.User.find({})
+		 models.User.find({})
        .limit(parseInt(num_of_rq))//gioi han so nguoi can tim
        .skip((parseInt(num_of_rq) - 10))//bo qua so ban ghi tinh tu vi tri dau tien
        .exec(function(err, users)
@@ -74,7 +74,7 @@ router.route('/home')//dieu huong app
 		 })
     }else if(req.query.loaduser == 2)//tra ve mot nguoi dung random trong danh sach online
     {
-      var Length = users.length, Random =  RandomInt(Length, 0)//random 1 nguoi dua tren vi 
+      var Length = users.length, Random = RandomInt(Length, 0)//random 1 nguoi dua tren vi 
                                                             //tri cua nguoi dung trong danh sach
       if(Random == 0) Random = 1;//trường hợp skip bỏ qua 
       models.User.find({})
@@ -94,7 +94,7 @@ router.route('/home')//dieu huong app
 	}else if(req.query.loadmessagea)//req.query.loadmessagea la ma id nguoi dung hien tai muon load message
   {                              //req.query.loadmessageb la nguoi ma nguoi dung htai nhan tin cung
 
-    models1.Message.find({})
+    models1.Message.find({id_user_B: {$ne: null}})
     .populate({//truy van bo qua null  { "$exists": true, "$ne": null }....
        path: 'id_user_A',
        match: 
@@ -120,7 +120,7 @@ router.route('/home')//dieu huong app
      {
        if (err) return handleError(err);
        res.send(message)
-       //console.log(message)
+       console.log(message)
      });
 
   }else//kiem tra session da duoc khai bao moi chuyen qua trang khac
@@ -140,7 +140,7 @@ router.route('/home')//dieu huong app
             if (err) throw err;
          });
 
-		    res.render('home');
+		   res.render('home');
 		 }
 	}
 

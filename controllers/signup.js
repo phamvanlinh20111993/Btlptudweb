@@ -100,8 +100,8 @@ router.route('/logsg')
 			})
 
 			//luu lai
-			user_chat.save(function(err){
-				console.log("value ccccccc")
+			user_chat.save(function(err)
+			{
                 if(err){
                 	console.log(err)
                 }
@@ -119,8 +119,8 @@ router.route('/logsg')
 			setTimeout(//tao ham dong bo hàm này chạy sau hàm trên
 			 function (){
 				models.User.findOne({'email' : email, 'password': pass1}).
-				exec(function(err, value){
-					console.log("value ccc11111111111")
+				exec(function(err, value)
+				{
 					if(err){
 		  	 			console.log(err);
 					}else{

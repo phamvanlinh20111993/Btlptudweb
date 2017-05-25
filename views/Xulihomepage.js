@@ -115,6 +115,7 @@
                 }
                 th.style.color = "red";//doi mau tai vi tri kick
                 var themid = document.getElementById(id).value;
+                Div_content_message[0].innerHTML = ""//reset lai hop thoai chat
                 Partner_id = themid;//ma id cua doi phuong
                 Load_message(yid, themid, 15)// mặc định 15 tin nhắn(lịch sử chat) từ 2 người dùng
                 Event_user_typing.style.display = "none"
@@ -177,12 +178,14 @@
                   data:{loaduser: Id, valsearch: val, num_of_user: num_of_user_request},
                   success: function(data)
                   {
-                    if(data.length == 0 && val = ""){
-                      if(Id == 1)//lay nguoi dung
-                        user_request = false
-                    }
-
                     var Length = data.length, index;
+
+                    if(Length == 0 && val == ""){//data.lenght = 0 la khong ton tại nguoi dung nao
+                      if(Id == 1){//lay nguoi dung
+                        user_request = false
+                      }
+                    }
+                    
                     for(index = 0; index < Length; index++){
                       if((data[index].email).localeCompare(yemail) != 0){
                         Sub_div_infor_user_on[0].innerHTML += User_in_app(data[index].image, data[index].username,
@@ -250,13 +253,19 @@
                     if(Length == 0)//khong con tin nhan de load
                       message_request = false;
 
-                    for(index = 0; index < Length; index++){
+                    for(index = 0; index < Length; index++)
+                    {
                       if((data[index].id_user_A._id).localeCompare(yid) == 0)
                       {//tin nhan nguoi dung gui
-                        Create_message_send(data[index].content, Time_transfer(data[index].created_at))
-                      }else{//tin nhan duoc nhan
-                        Create_message_receive(data[index].content, data[index].id_user_B.username, 
-                         data[index].id_user_B.image, Time_transfer(data[index].created_at), data[index].id_user_B.age);
+                        if(data[index].id_user_A != null && data[index].id_user_B != null)//tuong tu nhu id_user_A
+                          Create_message_send(data[index].content, Time_transfer(data[index].created_at))
+                      }else
+                      {//tin nhan duoc nhan
+                        if(data[index].id_user_B != null){//server cần giải quyết vấn đề id_user_B
+                        //trả vể null - server bỏ qua các giá trị null, font k cần giải quyết
+                         Create_message_receive(data[index].content, data[index].id_user_B.username, 
+                          data[index].id_user_B.image, Time_transfer(data[index].created_at), data[index].id_user_B.age);
+                        }
                       }
                     }
                   }
@@ -264,7 +273,7 @@
               }
 
             //Bat su kien scroll de load tin nhan cho nguoi dung
-              var num_of_message_request = 1, Input_hidden_id_user, num_of_user_request = 0;
+              var num_of_message_request = 1, Input_hidden_id_user, num_of_user_request = 1;
               Div_Body_Scroll[0].addEventListener("scroll", function(){
                 var position =  Div_Body_Scroll[0].scrollTop;
                 if(position == 0){
