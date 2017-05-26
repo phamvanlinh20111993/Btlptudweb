@@ -106,19 +106,42 @@
                 var ind, Span_status_user_div, H5_status_user_div;
                 user_request = true;//khoi phuc trang thai load nguoi dung
                 message_request = true;//khoi phuc trang thai load tin nhan
+
                 //phuc hoi mau ve trang thi binh thuong
-                for(ind = 0; ind < Status_user_div.length; ind++){
+                for(ind = 0; ind < Status_user_div.length; ind++)
+                {
                   Span_status_user_div = Status_user_div[ind].getElementsByTagName("span")
                   H5_status_user_div = Status_user_div[ind].getElementsByTagName("h5")
                   Span_status_user_div[0].style.color = "#03DB2F";
                   H5_status_user_div[0].innerHTML = "";//nhan duoc thong bao thi tat di
                 }
+
                 th.style.color = "red";//doi mau tai vi tri kick
                 var themid = document.getElementById(id).value;
                 Div_content_message[0].innerHTML = ""//reset lai hop thoai chat
                 Partner_id = themid;//ma id cua doi phuong
                 Load_message(yid, themid, 15)// mặc định 15 tin nhắn(lịch sử chat) từ 2 người dùng
+
+                /*ẩn trang thái có ai đó đang nhập phím gửi tin nhắn cho bạn thì   Event_user_typing.style.display =
+                  "block" hiển thị báo cho người dùng biết. Khi chuyển người dùng khác để nhắn tin thì nó trở vể
+                  trạng thái "none"
+                 */
                 Event_user_typing.style.display = "none"
+                /*phải set vị trí scroll cho thanh hộp thoại Div_content_message[0].scrollTop = 1 bởi vì
+                  khi người dùng đang nhắn tin cho A và kéo scroll tới bottom hộp thoại chat sau đó chuyển sang
+                  nhắn tin với người dùng khác thì do mặc định scroll sẽ được mặc định Div_content_message[0].scrollTop = 0,
+                  do đó hàm Load_message() sẽ được gọi 2 lần đồng thời(Lần 1 khi kick vào người dùng B, và lần 2 
+                  khi hàm:
+                     Div_content_message[0].addEventListener("scroll", function(){ 
+                        var position = Div_content_message[0].scrollTop;//gia tri nay là 0-vấn đề
+                        if(position == 0){Load_user()}
+                     }),
+                  tin nhắn trong hộp thoại gấp đôi lên-lỗi. Do đó phải set cho  Div_content_message[0].scrollTop = 1;
+                  để hàm Load_user() chỉ chạy 1 lần mà thôi
+
+                */
+                Div_content_message[0].scrollTop = 10;
+                console.log(Div_content_message[0].scrollTop)
               }
 
               /*xet gia tri id cho nguoi dung
@@ -210,7 +233,6 @@
                     {
                       //load tin nhan tu csdl cho nguoi dung
                       Load_message(yid, Input_hidden_id_user[1].value, 15);
-                      console.log(Div_content_message[0].scrollHeight)
                       break;
                     }
                 }
@@ -274,18 +296,21 @@
                         }
                      // }
                     }
+
+                    Div_content_message[0].scrollTop = Div_content_message[0].scrollHeight;
                   }
                 })
-
               }
 
             //Bat su kien scroll de load tin nhan cho nguoi dung
               var num_of_message_request = 1, Input_hidden_id_user, num_of_user_request = 1;
-              Div_content_message[0].addEventListener("scroll", function(){
+        
+              Div_content_message[0].addEventListener("scroll", function(){ 
                 var position = Div_content_message[0].scrollTop;
-
+                console.log("fuck " + Div_content_message[0].scrollTop)
                 if(position == 0)//di chuyen tu duoi len tren
                 {
+                  document.getElementById("concac").innerHTML += "  cc "
                   num_of_message_request++;
                   for(var index = 0; index < Status_user_div.length; index++)
                   {
