@@ -20,7 +20,7 @@
               var Image_form_in_div = Image_upload_div[0].getElementsByClassName("panel-body chat-box-new")
               var Form_image = Image_form_in_div[0].getElementsByTagName("form")
               var Input_button_form_submit = Form_image[0].getElementsByTagName("input")
-              var Div_Body_Scroll = document.getElementsByClassName("panel-body chat-box-main")
+              var Div_content_message = document.getElementsByClassName("panel-body chat-box-main")
               var Event_user_typing = document.getElementById("nhapbanphim")
 
               //chon file de upload anh dai dien
@@ -196,23 +196,27 @@
                 })
               }
 
-              setTimeout(Load_user(1, "", 10), 500)//load danh sach hien thi nguoi dung
+              setTimeout(Load_user(1, "", 10), 1500)//load danh sach hien thi nguoi dung
              // setInterval(Load_user, 4000)
               setTimeout(function()
                {//tu dong load tin nhan tu server
-                var index,  Span_status_user_div, Input_hidden_id_user
-                for(index = 0; index < Status_user_div.length; index++){
+                var index, Span_status_user_div, Input_hidden_id_user;
+
+                for(index = 0; index < Status_user_div.length; index++)
+                {
                     Span_status_user_div = Status_user_div[index].getElementsByTagName("span")
                     Input_hidden_id_user = Status_user_div[index].getElementsByTagName("input")
                     if(Span_status_user_div[0].style.color ==  "red")
                     {
                       //load tin nhan tu csdl cho nguoi dung
-                      Load_message(yid, Input_hidden_id_user[1].value, 15)
-                      break
+                      Load_message(yid, Input_hidden_id_user[1].value, 15);
+                      console.log(Div_content_message[0].scrollHeight)
+                      break;
                     }
-                  }
-              }, 1500)//load sau 1,5s
-
+                }
+                //console.log(Div_content_message[0].scrollTop)
+              }, 400)//load sau 0.4s
+             
              //ham bat su kien nguoi dung tim kiem nguoi dung khác trong danh sach
               var Div_contain_search = Div_infor_user_on[0].getElementsByTagName("div")
               var Search_input_user = Div_contain_search[2].getElementsByTagName("input")
@@ -242,7 +246,7 @@
               function Load_message(usera, userb, num_of_message_request)
               {
                 var Length, index;
-
+            
                 $.ajax({
                   type: "GET",
                   url: "/user/home",
@@ -255,30 +259,36 @@
 
                     for(index = 0; index < Length; index++)
                     {
-                      if((data[index].id_user_A._id).localeCompare(yid) == 0)
-                      {//tin nhan nguoi dung gui
-                        if(data[index].id_user_A != null && data[index].id_user_B != null)//tuong tu nhu id_user_A
+                     // if(data[index].id_user_A != null && data[index].id_user_B != null)
+                     // {//server cần giải quyết vấn đề id_user_B va id_user_B khong bi null
+                         //trả vể null - server bỏ qua các giá trị null, font k cần giải quyết
+                        if((data[index].id_user_A._id).localeCompare(yid) == 0)
+                        {//tin nhan nguoi dung gui
                           Create_message_send(data[index].content, Time_transfer(data[index].created_at))
-                      }else
-                      {//tin nhan duoc nhan
-                        if(data[index].id_user_B != null){//server cần giải quyết vấn đề id_user_B
-                        //trả vể null - server bỏ qua các giá trị null, font k cần giải quyết
-                         Create_message_receive(data[index].content, data[index].id_user_B.username, 
-                          data[index].id_user_B.image, Time_transfer(data[index].created_at), data[index].id_user_B.age);
+                        }else
+                        {//tin nhan duoc nhan
+                          if((data[index].id_user_B).localeCompare(yid) == 0){
+                           Create_message_receive(data[index].content, data[index].id_user_A.username, 
+                            data[index].id_user_A.image, Time_transfer(data[index].created_at), data[index].id_user_A.age);
+                          }
                         }
-                      }
+                     // }
                     }
                   }
                 })
+
               }
 
             //Bat su kien scroll de load tin nhan cho nguoi dung
               var num_of_message_request = 1, Input_hidden_id_user, num_of_user_request = 1;
-              Div_Body_Scroll[0].addEventListener("scroll", function(){
-                var position =  Div_Body_Scroll[0].scrollTop;
-                if(position == 0){
-                   num_of_message_request++;
-                  for(var index = 0; index < Status_user_div.length; index++){
+              Div_content_message[0].addEventListener("scroll", function(){
+                var position = Div_content_message[0].scrollTop;
+
+                if(position == 0)//di chuyen tu duoi len tren
+                {
+                  num_of_message_request++;
+                  for(var index = 0; index < Status_user_div.length; index++)
+                  {
                     Span_status_user_div = Status_user_div[index].getElementsByTagName("span")
                     Input_hidden_id_user = Status_user_div[index].getElementsByTagName("input")
                     if(Span_status_user_div[0].style.color ==  "red")
@@ -290,7 +300,6 @@
                       break
                     }
                   }
-                  
                 }
               })
 
@@ -307,7 +316,6 @@
             var Chatbox = document.getElementsByClassName("chat-box-footer");
             var Input_text_submit = Chatbox[0].getElementsByTagName("input");
             var Input_button_submit = Chatbox[0].getElementsByTagName("button");
-            var Div_content_message = document.getElementsByClassName("panel-body chat-box-main")
 
             //Nguoi dung nhan nut enter
             Input_text_submit[0].addEventListener("keyup", function(e)
@@ -317,7 +325,8 @@
                 {
                   socket.emit('chat', Message_to_server(yid, Partner_id, this.value))
                   Create_message_send(this.value, Time_stand())
-                  Div_content_message[0].scrollTop = Div_content_message[0].scrollHeight;//dat scroll trong the div luon o cuoi the div 
+                  //dat scroll trong the div luon o cuoi the div 
+                  Div_content_message[0].scrollTop = Div_content_message[0].scrollHeight;
                   this.value = "";
                 }
               }else{
@@ -502,13 +511,15 @@
               Talking_chat_button[1].className = "btn btn-default"
               Talking_chat_button[0].className = "btn btn-default active"
               if(count_click_talkingbylist == 0){
-                Load_user(1, "", 30)//hien thi 20 nguoi trong danh sach
+                Load_user(1, "", 10)//hien thi 20 nguoi trong danh sach
                 count_click_talkingbylist++
               }
             })
 
             //Talking random
-            Talking_chat_button[1].addEventListener("click", function(){
+            Talking_chat_button[1].addEventListener("click", function()
+            {
+              Sub_div_infor_user_on[0].innerHTML = "";//reset hop thoai nguoi dung trong ds online
               Talking_chat_button[0].className = "btn btn-default"
               Talking_chat_button[1].className = "btn btn-default active"
               Load_user(2, "", 0)
