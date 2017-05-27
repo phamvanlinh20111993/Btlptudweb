@@ -121,8 +121,8 @@
               {
                 var ind, Span_status_user_div, H5_status_user_div;
                 user_request = true;//khoi phuc trang thai load nguoi dung
-                message_request = true;//khoi phuc trang thai load tin nhan
-
+                no_message_for_you = true;//khoi phuc trang thai co the load tin nhan
+                num_of_message_request = 1;//so luong tin nhan tra ve 1
                 //phuc hoi mau ve trang thi binh thuong
                 for(ind = 0; ind < Status_user_div.length; ind++)
                 {
@@ -137,6 +137,8 @@
                 Div_content_message[0].innerHTML = ""//reset lai hop thoai chat
                 Partner_id = themid;//ma id cua doi phuong
                 Load_message(yid, themid, 15, function(data){
+                  if(data.length < 15) 
+                    no_message_for_you = false;
                   Show_message(data)
                   Div_content_message[0].scrollTop = Div_content_message[0].scrollHeight;
                 })// mặc định 15 tin nhắn(lịch sử chat) từ 2 người dùng
@@ -242,6 +244,7 @@
                     {
                       //load tin nhan tu csdl cho nguoi dung
                       Load_message(yid, Input_hidden_id_user[1].value, 15, function(data){
+                        if(data.length < 15) no_message_for_you = false;
                         Show_message(data)
                         Div_content_message[0].scrollTop = Div_content_message[0].scrollHeight;
                       });
@@ -296,8 +299,6 @@
               function Show_message(data)
               {
                 var Length = data.length;
-                if(Length == 0)//khong con tin nhan de load
-                  message_request = false;
 
                 for(index = 0; index < Length; index++)
                 {
@@ -320,10 +321,11 @@
 
             //Bat su kien scroll de load tin nhan cho nguoi dung
               var num_of_message_request = 1, Input_hidden_id_user, num_of_user_request = 1;
-        
+              var no_message_for_you = true;
+
               Div_content_message[0].addEventListener("scroll", function(){ 
                 var position = Div_content_message[0].scrollTop;
-                if(position == 0 && you_can_using_scroll == true)//di chuyen tu duoi len tren
+                if(position == 0 && you_can_using_scroll && no_message_for_you)//di chuyen tu duoi len tren
                 {
                   num_of_message_request++;
                   for(var index = 0; index < Status_user_div.length; index++)
@@ -334,18 +336,19 @@
                     {
                       //load tin nhan tu csdl cho nguoi dung
                       Div_content_message[0].innerHTML = "";
-                      if(message_request)//neu van con tin nhan giua 2 nguoi 
-                        Load_message(yid, Input_hidden_id_user[1].value, num_of_message_request*15, function(data){
-                          Show_message(data)
-                          /*set  you_can_using_scroll = false de phong nguoi dung chuyen sang nguoi dung 
-                           khac thi goi 2 lan Load_message()
-                          */
-                          Div_content_message[0].scrollTop = 6;
-                        })
+                      Load_message(yid, Input_hidden_id_user[1].value, num_of_message_request*15, function(data){
+                        Show_message(data)
+                        if(data.length < num_of_message_request*15)
+                          no_message_for_you = false;
+
+                        /*set  you_can_using_scroll = false de phong nguoi dung chuyen sang nguoi dung 
+                          khac thi goi 2 lan Load_message()
+                        */
+                        Div_content_message[0].scrollTop = 6;
+                      })
                       break;
                     }
                   }
-                 
                  
                 }
 

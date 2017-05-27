@@ -76,7 +76,7 @@ router.route('/home')//dieu huong app
   			   res.send(users)
 		 })
     }else if(req.query.loaduser == 2)//tra ve mot nguoi dung random trong danh sach online
-    {
+    {// có 1 vấn đề đặt ra là hàm random trả về người dùng hiện tại.Người dùng sẽ nt vs chính mình?            
 
       var Length_of_document;
       models.User.find().count(function(err, count){
@@ -104,37 +104,63 @@ router.route('/home')//dieu huong app
     }
 
 	}else if(req.query.loadmessagea)//req.query.loadmessagea la ma id nguoi dung hien tai muon load message
-  {                              //req.query.loadmessageb la nguoi ma nguoi dung htai nhan tin cung
+  {                              //req.query.loadmessageb la nguoi ma nguoi dung htai đang nhan tin cung
 
-    models1.Message.find({$or:[{$and:[{'id_user_A': req.query.loadmessagea}, {'id_user_B': req.query.loadmessageb}]},
-     {$and:[{'id_user_A': req.query.loadmessageb}, {'id_user_B': req.query.loadmessagea}]}]})
-    .populate({//truy van bo qua null  { "$exists": true, "$ne": null }....
-       path: 'id_user_A',
-       match: 
-       {
-        $or:[{'_id': req.query.loadmessagea}, 
-            {'_id': req.query.loadmessageb}
-        ]},
-        select: {'password': 0, 'updated_at': 0, 'status': 0} //bo qua ca truong nay
-       })
-    /*.populate({
-       path: 'id_user_B',
-       match:
-       {
-         $or:[{'_id': req.query.loadmessageb}, 
-            {'_id': req.query.loadmessagea}
-         ]},
-        select: {'password': 0, 'updated_at': 0, 'status': 0, 'username': 0, 'email': 0, 'image': 0, 'age': 0, 'created_at': 0} //bo qua ca truong nay
-       }) */
-    .sort({'created_at': 1})//sap xep tang dan theo thoi gian
-    .limit(parseInt(req.query.num))//gioi han so ban ghi
-    .skip(0)//khong bo qua ban ghi nao
-    .exec(function(err, message)
-     {
-       if (err) 
-         return handleError(err);
-       res.send(message)
-     });
+
+      /* mỗi lần người dùng thanh scroll trong hôp thoại chat thì nếu người dùng cứ request lên liên tục 
+       thì đó không phải là 1 ý tưởng tốt. Do đó cần truy cấn csdl tìm ra số lượng tin nhắn hiện tại của
+       người dùng với đối phương. do mỗi lần request, số lương tin nhắn cần hiển thị sẽ tăng dần lên, tới
+       1 thời điểm nào đó thì số lượng tin nhắn cần hiện thị = số bản ghi thực trong bản ghi, khi đó hệ thống
+       sẽ không trả về dữ liệu nữa
+      */
+
+      var Count_message = 0;//số lương tin nhắn hiện có
+
+      models1.Message.find({$or:[{$and:[{'id_user_A': req.query.loadmessagea},
+       {'id_user_B': req.query.loadmessageb}]},{$and:[{'id_user_A': req.query.loadmessageb},
+       {'id_user_B': req.query.loadmessagea}]}]}).count(function(err, num)
+      {
+         Count_message = num;
+      })
+
+      setTimeout(function(){//giai quyet van de giua 2 ham async, giai phap tam thoi
+
+          console.log("so luong tin nhan la: " + Count_message + " " + req.query.num)
+         if(Count_message > (req.query.num - 15))
+         {
+            models1.Message.find({$or:[{$and:[{'id_user_A': req.query.loadmessagea},
+            {'id_user_B': req.query.loadmessageb}]},{$and:[{'id_user_A': req.query.loadmessageb},
+            {'id_user_B': req.query.loadmessagea}]}]})
+            .populate({//truy van bo qua null  { "$exists": true, "$ne": null }....
+               path: 'id_user_A',
+               match: 
+               {
+                  $or:[{'_id': req.query.loadmessagea}, 
+                     {'_id': req.query.loadmessageb}
+               ]},
+               select: {'password': 0, 'updated_at': 0, 'status': 0} //bo qua ca truong nay
+            })
+            /*.populate({
+                  path: 'id_user_B',
+                  match:
+                  {
+                     $or:[{'_id': req.query.loadmessageb}, 
+                     {'_id': req.query.loadmessagea}
+                  ]},
+                  select: {'password': 0, 'updated_at': 0, 'status': 0, 'username': 0, 'email': 0, 'image': 0, 'age': 0, 'created_at': 0} //bo qua ca truong nay
+               }) */
+            .sort({'created_at': 1})//sap xep tang dan theo thoi gian
+            .limit(parseInt(req.query.num))//gioi han so ban ghi
+            .skip(0)//khong bo qua ban ghi nao
+            .exec(function(err, message)
+            {
+               if (err) 
+               return handleError(err);
+               res.send(message)
+            });
+         }
+
+      }, 600)
 
   }else//kiem tra session da duoc khai bao moi chuyen qua trang khac
   {
