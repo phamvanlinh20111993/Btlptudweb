@@ -113,7 +113,7 @@
         
               //ham bieu dien nguoi dung tren trang web
               //Load noi dung tin nhan tu server
-              var Partner_id = "";
+              var Partner_id = "", you_can_using_scroll = false;
               /*Khi nguoi dung kick vao bat ki nguoi dung trong danh sach online khac thi mau tren ten cua nguoi
                dung do bi thay doi(cụ thể là màu đỏ), tham số th là 1 html DOM-đại diện cho thẻ span chứa người
                Dùng. id là tham số đại diện cho vị trí của người dùng trong HTML DOM
@@ -137,28 +137,16 @@
                 var themid = document.getElementById(id).value;
                 Div_content_message[0].innerHTML = ""//reset lai hop thoai chat
                 Partner_id = themid;//ma id cua doi phuong
-                Load_message(yid, themid, 15)// mặc định 15 tin nhắn(lịch sử chat) từ 2 người dùng
+                Load_message(yid, themid, 15, function(data){
+                  Show_message(data)
+                  Div_content_message[0].scrollTop = Div_content_message[0].scrollHeight;
+                })// mặc định 15 tin nhắn(lịch sử chat) từ 2 người dùng
 
                 /*ẩn trang thái có ai đó đang nhập phím gửi tin nhắn cho bạn thì   Event_user_typing.style.display =
                   "block" hiển thị báo cho người dùng biết. Khi chuyển người dùng khác để nhắn tin thì nó trở vể
                   trạng thái "none"
                  */
                 Event_user_typing.style.display = "none"
-                /*phải set vị trí scroll cho thanh hộp thoại Div_content_message[0].scrollTop = 1 bởi vì
-                  khi người dùng đang nhắn tin cho A và kéo scroll tới bottom hộp thoại chat sau đó chuyển sang
-                  nhắn tin với người dùng khác thì do mặc định scroll sẽ được mặc định Div_content_message[0].scrollTop = 0,
-                  do đó hàm Load_message() sẽ được gọi 2 lần đồng thời(Lần 1 khi kick vào người dùng B, và lần 2 
-                  khi hàm:
-                     Div_content_message[0].addEventListener("scroll", function(){ 
-                        var position = Div_content_message[0].scrollTop;//gia tri nay là 0-vấn đề
-                        if(position == 0){Load_user()}
-                     }),
-                  tin nhắn trong hộp thoại gấp đôi lên-lỗi. Do đó phải set cho  Div_content_message[0].scrollTop = 1;
-                  để hàm Load_user() chỉ chạy 1 lần mà thôi
-
-                */
-                Div_content_message[0].scrollTop = 10;
-                console.log(Div_content_message[0].scrollTop)
               }
 
               /*xet gia tri id cho nguoi dung
@@ -254,11 +242,13 @@
                     if(Span_status_user_div[0].style.color ==  "red")
                     {
                       //load tin nhan tu csdl cho nguoi dung
-                      Load_message(yid, Input_hidden_id_user[1].value, 15);
+                      Load_message(yid, Input_hidden_id_user[1].value, 15, function(data){
+                        Show_message(data)
+                        Div_content_message[0].scrollTop = Div_content_message[0].scrollHeight;
+                      });
                       break;
                     }
                 }
-                //console.log(Div_content_message[0].scrollTop)
               }, 400)//load sau 0.4s
              
              //ham bat su kien nguoi dung tim kiem nguoi dung khác trong danh sach
@@ -287,7 +277,7 @@
                 người mà người dùng sẽ nhắn tin cùng, tham số còn lại num_of_message_request để load 1 số lượng tin
                 nhắn mà người dùng yêu cầu(mặc định là 15 tin nhắn)
               */
-              function Load_message(usera, userb, num_of_message_request)
+              function Load_message(usera, userb, num_of_message_request, callback)
               {
                 var Length, index;
             
@@ -297,31 +287,36 @@
                   data:{loadmessagea: usera, loadmessageb: userb, num: num_of_message_request},
                   success: function(data)//hien thi message
                   {
-                    Length = data.length;
-                    if(Length == 0)//khong con tin nhan de load
-                      message_request = false;
-
-                    for(index = 0; index < Length; index++)
-                    {
-                     // if(data[index].id_user_A != null && data[index].id_user_B != null)
-                     // {//server cần giải quyết vấn đề id_user_B va id_user_B khong bi null
-                         //trả vể null - server bỏ qua các giá trị null, font k cần giải quyết
-                        if((data[index].id_user_A._id).localeCompare(yid) == 0)
-                        {//tin nhan nguoi dung gui
-                          Create_message_send(data[index].content, Time_transfer(data[index].created_at))
-                        }else
-                        {//tin nhan duoc nhan
-                          if((data[index].id_user_B).localeCompare(yid) == 0){
-                           Create_message_receive(data[index].content, data[index].id_user_A.username, 
-                            data[index].id_user_A.image, Time_transfer(data[index].created_at), data[index].id_user_A.age);
-                          }
-                        }
-                     // }
-                    }
-
-                    Div_content_message[0].scrollTop = Div_content_message[0].scrollHeight;
+                    if(typeof callback == "function")
+                      callback(data);//tra ve du lieu
                   }
                 })
+              }
+
+              //hien thi du lieu tin nhan
+              function Show_message(data)
+              {
+                var Length = data.length;
+                if(Length == 0)//khong con tin nhan de load
+                  message_request = false;
+
+                for(index = 0; index < Length; index++)
+                {
+                  // if(data[index].id_user_A != null && data[index].id_user_B != null)
+                  // {//server cần giải quyết vấn đề id_user_B va id_user_B khong bi null
+                  //trả vể null - server bỏ qua các giá trị null, font k cần giải quyết
+                  if((data[index].id_user_A._id).localeCompare(yid) == 0)
+                  {//tin nhan nguoi dung gui
+                    Create_message_send(data[index].content, Time_transfer(data[index].created_at))
+                  }else
+                  {//tin nhan duoc nhan
+                    if((data[index].id_user_B).localeCompare(yid) == 0){
+                      Create_message_receive(data[index].content, data[index].id_user_A.username, 
+                      data[index].id_user_A.image, Time_transfer(data[index].created_at), data[index].id_user_A.age);
+                    }
+                  }
+                     // }
+                }
               }
 
             //Bat su kien scroll de load tin nhan cho nguoi dung
@@ -329,10 +324,8 @@
         
               Div_content_message[0].addEventListener("scroll", function(){ 
                 var position = Div_content_message[0].scrollTop;
-                console.log("fuck " + Div_content_message[0].scrollTop)
-                if(position == 0)//di chuyen tu duoi len tren
+                if(position == 0 && you_can_using_scroll == true)//di chuyen tu duoi len tren
                 {
-                  document.getElementById("concac").innerHTML += "  cc "
                   num_of_message_request++;
                   for(var index = 0; index < Status_user_div.length; index++)
                   {
@@ -343,11 +336,31 @@
                       //load tin nhan tu csdl cho nguoi dung
                       Div_content_message[0].innerHTML = "";
                       if(message_request)//neu van con tin nhan giua 2 nguoi 
-                        Load_message(yid, Input_hidden_id_user[1].value, num_of_message_request*15)
-                      break
+                        Load_message(yid, Input_hidden_id_user[1].value, num_of_message_request*15, function(data){
+                          Show_message(data)
+                        })
+                      break;
                     }
                   }
                 }
+
+                //tinh the bat buoc
+                /*phải tạo ra 1 biến global you_can_using_scroll = false bởi vì
+                  khi người dùng đang nhắn tin cho A và kéo scroll tới bottom hộp thoại chat sau đó chuyển sang
+                  nhắn tin với người dùng khác thì do mặc định scroll sẽ được mặc định Div_content_message[0].scrollTop = 0,
+                  do đó hàm Load_message() sẽ được gọi 2 lần đồng thời(Lần 1 khi kick vào người dùng B, và lần 2 
+                  khi hàm:
+                     Div_content_message[0].addEventListener("scroll", function(){ 
+                        var position = Div_content_message[0].scrollTop;//gia tri nay là 0-vấn đề
+                        if(position == 0){Load_user()}
+                     }),
+                  tin nhắn trong hộp thoại gấp đôi lên-lỗi. Do đó phải set cho thêm 1 biến  you_can_using_scroll = false;
+                  để hàm Load_user() chỉ chạy 1 lần mà thôi
+                */
+
+                if(position > 10){
+                   you_can_using_scroll = false;
+                }else  you_can_using_scroll = true
               })
 
             //Ham nay se ghep ma nguoi gui va ma nguoi dung vao trong tin nhan theo quy tac
@@ -399,7 +412,8 @@
             socket.on('typing...', function(data)
             {
               Id_send = data.substring(0, 24)//ma nguoi nhan
-              for(ind = 0; ind < Status_user_div.length; ind++){
+              for(ind = 0; ind < Status_user_div.length; ind++)
+              {
                 Span_status_user_div = Status_user_div[ind].getElementsByTagName("span")
                 //lay ma nguoi ma nguoi dung dang nhan tin cung kiem tra xem co phai nguoi nhan khong
                 Id_status_user_div = Status_user_div[ind].getElementsByTagName("input")
@@ -410,7 +424,7 @@
                   Event_user_typing.style.display = "block";
                   setTimeout(function(){
                     Event_user_typing.style.display = "none";
-                  }, 7000)
+                  }, 10000)
                   break;
                 }
               }
@@ -497,7 +511,7 @@
 
             function Notify_message(anotherid)//tham so la id cua nguoi gui tin nhan
             {
-              var index, Span_status_user_div, H5_status_user_div, Input_hidden_id_user;
+               var index, Span_status_user_div, H5_status_user_div, Input_hidden_id_user;
                 //phuc hoi mau ve trang thi binh thuong
                 for(index = 0; index < Status_user_div.length; index++){
                   Span_status_user_div = Status_user_div[index].getElementsByTagName("span")
@@ -540,9 +554,9 @@
                   {//tao ra 1 message hien thi tren cho nguoi dung
                     Image_status_user_div = Status_user_div[index].getElementsByTagName("img")
                   //cac gia tri tham so tuong ung la 1- noi dung hoi thoai, 2- ten nguoi gui, 3-anh dai dien nguoi gui, 4- tuoi nguoi gui
-                     Event_user_typing.style.display = "none";
+                    Event_user_typing.style.display = "none";
                     Create_message_receive(data.substring(48, data.length), Span_status_user_div[0].innerHTML, 
-                      Image_status_user_div[0].src, Time_stand(), Input_hidden_status_user[2].value, receive_id)
+                    Image_status_user_div[0].src, Time_stand(), Input_hidden_status_user[2].value, receive_id)
                     Div_content_message[0].scrollTop = Div_content_message[0].scrollHeight;//dieu chinh thanh scroll 
                   }
                 }
