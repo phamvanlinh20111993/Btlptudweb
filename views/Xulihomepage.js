@@ -39,6 +39,10 @@
               var Input_button_form_submit = Form_image[0].getElementsByTagName("input")
               var Div_content_message = document.getElementsByClassName("panel-body chat-box-main")
               var Event_user_typing = document.getElementById("nhapbanphim")
+              var Div_infor_user_on = document.getElementsByClassName("chat-box-online-div")
+              var Sub_div_infor_user_on0 = Div_infor_user_on[0].getElementsByClassName("chat-box-online-head")
+              var Sub_div_infor_user_on = Div_infor_user_on[0].getElementsByClassName("panel-body chat-box-online")
+              var Status_user_div = Sub_div_infor_user_on[0].getElementsByClassName("chat-box-online-left")
 
               //chon file de upload anh dai dien
               Input_button_form_submit[1].addEventListener("click", function(){
@@ -63,11 +67,6 @@
                   var Length = String.length;
                   return String.substring(Length - 5, Length)
               }
-
-              var Div_infor_user_on = document.getElementsByClassName("chat-box-online-div")
-              var Sub_div_infor_user_on0 = Div_infor_user_on[0].getElementsByClassName("chat-box-online-head")
-              var Sub_div_infor_user_on = Div_infor_user_on[0].getElementsByClassName("panel-body chat-box-online")
-              var Status_user_div = Sub_div_infor_user_on[0].getElementsByClassName("chat-box-online-left")
 
               //ham ve lai so nguoi dung da on hay off
               //các tham số data là mã của người dùng đang nhắn tin cùng
@@ -338,10 +337,16 @@
                       if(message_request)//neu van con tin nhan giua 2 nguoi 
                         Load_message(yid, Input_hidden_id_user[1].value, num_of_message_request*15, function(data){
                           Show_message(data)
+                          /*set  you_can_using_scroll = false de phong nguoi dung chuyen sang nguoi dung 
+                           khac thi goi 2 lan Load_message()
+                          */
+                          Div_content_message[0].scrollTop = 6;
                         })
                       break;
                     }
                   }
+                 
+                 
                 }
 
                 //tinh the bat buoc
@@ -358,9 +363,12 @@
                   để hàm Load_user() chỉ chạy 1 lần mà thôi
                 */
 
-                if(position > 10){
+                if(position > 5){
                    you_can_using_scroll = false;
-                }else  you_can_using_scroll = true
+                }else{
+                  you_can_using_scroll = true;
+
+                }  
               })
 
             //Ham nay se ghep ma nguoi gui va ma nguoi dung vao trong tin nhan theo quy tac
