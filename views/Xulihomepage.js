@@ -16,6 +16,23 @@
                 return false;
               }
 
+              //ham chuyen doi thoi gian so voi hien tai
+              //tham số đầu vào Date_time là thời gian trước thời gian hiện tại, là IOSdate trong csdl
+              function Change_date(Date_time)
+              {
+                  var second, d, d1, date_now, text; 
+                  d = new Date();//lay thoi gian hien tai
+                  d1 = new Date(Date_time);//;lay thoi gian da offline la thoi gian IOStime
+                  second = parseInt((d - d1)/1000);//thoi gian hien tai va thoi gian da dang
+                  if(second < 60) text = "Vừa xong";
+                  else if(second > 60 && second < 3600)            text =parseInt(second/60)+" Phút trước";
+                  else if(second >= 3600 && second < 86400)        text = "Khoảng "+parseInt(second/3600)+" Tiếng trước"; 
+                  else if(second >= 86400 && second < 2592000)     text = parseInt(second/86400)+" Ngày trước"; 
+                  else if(second >= 2592000 && second < 946080000) text = parseInt(second/2592000)+" Tháng trước";
+                  else                                             text = "Không xác định";     
+                  return text;                               
+              }
+
               var Image_upload_div = document.getElementsByClassName("chat-box-new-div")
               var Image_form_in_div = Image_upload_div[0].getElementsByClassName("panel-body chat-box-new")
               var Form_image = Image_form_in_div[0].getElementsByTagName("form")
@@ -151,7 +168,7 @@
               thái on hay offline của người dùng
               */
               var pos = 0;
-              function User_in_app(image, name, email, age, id, status)
+              function User_in_app(image, name, email, age, id, status, date)
               {
                 var Content = "";
                 Content += '<div class="chat-box-online-left">';
@@ -163,17 +180,21 @@
                 }else{
                   Content +=  '<span data-toggle="tooltip" data-placement="right" title="'+email+'" style= "cursor: pointer;" onclick="Chat(this,'+pos+')"> - ' + name + '</span>' + '  .';
                 }
-                if(status == 1) Content += '<p>On</p><h5></h5>';
+                if(status == 1) Content += '<p style="color:blue;">On</p><h5></h5>';
                 else            Content += '<p>Off</p><h5></h5>';
                   
                 Content +=  '<br />';
-                Content +=  '( <small>Active from 3 hours</small> )';
+
+                if(status == 0)
+                 Content +=  '( <small style="color:black;">'+Change_date(date)+'</small> )';
+
                 Content += '<input type="hidden" value = "'+email+'" >';//an dia chi email
                 Content += '<input type="hidden" id = "'+pos+'" value = "'+id+'" >';//an id nguoi dung
                 Content += '<input type="hidden" value = "'+age+'">';//an do tuoi
                 Content +=  '</div>';
                 Content +=  '<hr class="hr-clas-low" />';
                 pos++;
+
                 return Content;
               }
 
@@ -209,10 +230,11 @@
                       }
                     }
                     
-                    for(index = 0; index < Length; index++){
+                    for(index = 0; index < Length; index++)
+                    {
                       if((data[index].email).localeCompare(yemail) != 0){
                         Sub_div_infor_user_on[0].innerHTML += User_in_app(data[index].image, data[index].username,
-                         data[index].email, data[index].age, data[index]._id, data[index].status)
+                         data[index].email, data[index].age, data[index]._id, data[index].status, data[index].updated_at)
                       }
                     }  
                   }
@@ -533,6 +555,8 @@
             var count_click_talkingbylist = 0;
             //Talking by list
             Talking_chat_button[0].addEventListener("click", function(){
+              Div_content_message[0].innerHTML = "";//reset hop thoai chat
+              Sub_div_infor_user_on[0].innerHTML = "";//reset hop thoai nguoi dung trong ds online
               Talking_chat_button[1].className = "btn btn-default"
               Talking_chat_button[0].className = "btn btn-default active"
               if(count_click_talkingbylist == 0){

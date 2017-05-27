@@ -56,20 +56,23 @@ function RandomInt(max, min)
 router.route('/home')//dieu huong app
 .get(function(req, res)
 {
-	//load danh sach nguoi dung tu csdl
+	//load danh sach nguoi dung tu csdl, cần có độ ưu tiên hiển thị những người online trước, sau đó
+   //là những người offline với thòi gian online gần nhất với thời điểm hiện tại.Như vậy sort field
+   //by status(online hay offline) và time(thời gian off gần nhất)
 	if(req.query.loaduser)
 	{
     //load gia tri nguoi dung ban dau
     var num_of_rq = req.query.num_of_user
     if(req.query.loaduser == 1)
     {
-		 models.User.find({})
+		 models.User.find({}, {created_at: 0, password: 0, __v: 0})
+       .sort({status: -1, updated_at: -1})
        .limit(parseInt(num_of_rq))//gioi han so nguoi can tim
        .skip((parseInt(num_of_rq) - 10))//bo qua so ban ghi tinh tu vi tri dau tien
        .exec(function(err, users)
        {
 			   if (err) throw err;
-  			 //  console.log(users);
+  			   console.log(users);
   			   res.send(users)
 		 })
     }else if(req.query.loaduser == 2)//tra ve mot nguoi dung random trong danh sach online
@@ -273,10 +276,12 @@ io.on('connection', function(client)
             client.emit('offline', Useronoroffline_email[index].concat("55555"))
             client.broadcast.emit('offline', Useronoroffline_email[index].concat("55555"))
             //luu trang thai nguoi dung vao csdl(trang thai offline)
-            models.User.findOneAndUpdate({'email': Useronoroffline_email[index]}, {'status': 0},
+            models.User.findOneAndUpdate({'email': Useronoroffline_email[index]}, 
+               {"$set":{'status': 0, 'updated_at': new Date().toISOString()}},//cap nhat thoi gian offline
             function(err, user) {
               if (err) throw err;
             });
+            console.log(new Date().toISOString())
             //xoa nguoi offline khoi danh danh nguoi dung online
             Useronoroffline_email.splice(index, 1)
             SocketID.splice(index, 1)  
