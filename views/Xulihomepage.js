@@ -325,6 +325,7 @@
 
               Div_content_message[0].addEventListener("scroll", function(){ 
                 var position = Div_content_message[0].scrollTop;
+                console.log(position)
                 if(position == 0 && you_can_using_scroll && no_message_for_you)//di chuyen tu duoi len tren
                 {
                   num_of_message_request++;

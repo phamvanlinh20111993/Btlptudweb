@@ -128,6 +128,9 @@ router.route('/home')//dieu huong app
           console.log("so luong tin nhan la: " + Count_message + " " + req.query.num)
          if(Count_message > (req.query.num - 15))
          {
+            var Skip_field = Count_message - req.query.num;
+            if(Skip_field < 15) Skip_field = 0;
+            console.log("so ban ghi bi bo qua la: " + Skip_field )
             models1.Message.find({$or:[{$and:[{'id_user_A': req.query.loadmessagea},
             {'id_user_B': req.query.loadmessageb}]},{$and:[{'id_user_A': req.query.loadmessageb},
             {'id_user_B': req.query.loadmessagea}]}]})
@@ -151,7 +154,7 @@ router.route('/home')//dieu huong app
                }) */
             .sort({'created_at': 1})//sap xep tang dan theo thoi gian
             .limit(parseInt(req.query.num))//gioi han so ban ghi
-            .skip(0)//khong bo qua ban ghi nao
+            .skip(Skip_field)// bo qua Skip_field  ban ghi nao
             .exec(function(err, message)
             {
                if (err) 
