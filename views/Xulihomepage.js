@@ -2,7 +2,8 @@
               //tham số val là đường dẫn của người dùng có chứa tên file và kiểu file 
               function TypeofFile(val)
               {
-                var type = val.slice((Math.max(0, val.lastIndexOf(".")) || Infinity) + 1);//lay kieu file vi du helo.jpg se lay duoi file la jpg hoac neu file la abc.adf.acc lay duoc duoi file la acc
+                //lay kieu file vi du helo.jpg se lay duoi file la jpg hoac neu file la abc.adf.acc lay duoc duoi file la acc
+                var type = val.slice((Math.max(0, val.lastIndexOf(".")) || Infinity) + 1);
                 switch(type.toString().toLowerCase())
                 {
                   case "jpg":
@@ -321,7 +322,7 @@
 
             //Bat su kien scroll de load tin nhan cho nguoi dung
               var num_of_message_request = 1, Input_hidden_id_user, num_of_user_request = 1;
-              var no_message_for_you = true;
+              var no_message_for_you = true, Storage = "", position_scroll = 0;
 
               Div_content_message[0].addEventListener("scroll", function(){ 
                 var position = Div_content_message[0].scrollTop;
@@ -333,19 +334,24 @@
                   {
                     Span_status_user_div = Status_user_div[index].getElementsByTagName("span")
                     Input_hidden_id_user = Status_user_div[index].getElementsByTagName("input")
-                    if(Span_status_user_div[0].style.color ==  "red")
-                    {
-                      //load tin nhan tu csdl cho nguoi dung
+                    if(Span_status_user_div[0].style.color ==  "red")//người dùng phải đang nói chuyện với
+                    {                                                //một người dùng cụ thể nào đó                                                            
+                      //luu tru so luong tin nhan hien thi hien tai
+                      //load tin nhan tu csdl cho nguoi dung, reset lai hop thoai
+                      Storage = Div_content_message[0].innerHTML;
+
+                      //gan vi tri cua so luong tin nhan truoc
+                      position_scroll = Div_content_message[0].scrollHeight
                       Div_content_message[0].innerHTML = "";
-                      Load_message(yid, Input_hidden_id_user[1].value, num_of_message_request*15, function(data){
-                        Show_message(data)
+                      Load_message(yid, Input_hidden_id_user[1].value, num_of_message_request*15, function(data)
+                      {
+                        Show_message(data)//hien thi tin nhan tu qua khu
+                        Div_content_message[0].innerHTML += Storage ;//lay so luong tin nhan truoc do ra
                         if(data.length < num_of_message_request*15)
                           no_message_for_you = false;
-
-                        /*set  you_can_using_scroll = false de phong nguoi dung chuyen sang nguoi dung 
-                          khac thi goi 2 lan Load_message()
-                        */
-                        Div_content_message[0].scrollTop = 6;
+                        //sau khi load thêm số luong tin nhắn scroll thay đổi cần giữ lại vị trí trước đó(trước
+                        // khi thay đổi)
+                        Div_content_message[0].scrollTop = (Div_content_message[0].scrollHeight - position_scroll);
                       })
                       break;
                     }

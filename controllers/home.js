@@ -72,7 +72,7 @@ router.route('/home')//dieu huong app
        .exec(function(err, users)
        {
 			   if (err) throw err;
-  			   console.log(users);
+  			 // console.log(users);
   			   res.send(users)
 		 })
     }else if(req.query.loaduser == 2)//tra ve mot nguoi dung random trong danh sach online
@@ -82,6 +82,7 @@ router.route('/home')//dieu huong app
       models.User.find().count(function(err, count){
          Length_of_document = count
       });
+
       setTimeout(function(){
          var Random = RandomInt(parseInt(Length_of_document), 0)//random 1 nguoi dua tren vi 
                                        //tri cua nguoi dung trong danh sach
@@ -96,7 +97,7 @@ router.route('/home')//dieu huong app
             console.log(user)
             res.send(user)
          }) 
-         }, 300);   
+         }, 300);   //request sau 300ms
     }else//load nguoi dung voi gia tri tim kiem value duoc nhap boi nguoi dung
     {
       var val = req.query.valsearch
@@ -123,14 +124,19 @@ router.route('/home')//dieu huong app
          Count_message = num;
       })
 
+      //Hệ thống chỉ trả về mỗi lần request của người dùng 15 tin nhắn bắt đầu từ những tin nhắn mới nhất trở về
+      //trước
       setTimeout(function(){//giai quyet van de giua 2 ham async, giai phap tam thoi
 
           console.log("so luong tin nhan la: " + Count_message + " " + req.query.num)
          if(Count_message > (req.query.num - 15))
          {
             var Skip_field = Count_message - req.query.num;
-            if(Skip_field < 15) Skip_field = 0;
-            console.log("so ban ghi bi bo qua la: " + Skip_field )
+            var Limit_field = Skip_field + 15;
+            if(Skip_field < 0) Skip_field = 0;
+
+            console.log("so ban ghi bi bo qua la: " + Skip_field)
+            console.log("gioi han " + Limit_field)
             models1.Message.find({$or:[{$and:[{'id_user_A': req.query.loadmessagea},
             {'id_user_B': req.query.loadmessageb}]},{$and:[{'id_user_A': req.query.loadmessageb},
             {'id_user_B': req.query.loadmessagea}]}]})
@@ -143,22 +149,14 @@ router.route('/home')//dieu huong app
                ]},
                select: {'password': 0, 'updated_at': 0, 'status': 0} //bo qua ca truong nay
             })
-            /*.populate({
-                  path: 'id_user_B',
-                  match:
-                  {
-                     $or:[{'_id': req.query.loadmessageb}, 
-                     {'_id': req.query.loadmessagea}
-                  ]},
-                  select: {'password': 0, 'updated_at': 0, 'status': 0, 'username': 0, 'email': 0, 'image': 0, 'age': 0, 'created_at': 0} //bo qua ca truong nay
-               }) */
+            .skip(Skip_field)// bo qua Skip_field ban ghi
+            .limit(Limit_field)//gioi han so ban ghi
             .sort({'created_at': 1})//sap xep tang dan theo thoi gian
-            .limit(parseInt(req.query.num))//gioi han so ban ghi
-            .skip(Skip_field)// bo qua Skip_field  ban ghi nao
             .exec(function(err, message)
             {
                if (err) 
                return handleError(err);
+               console.log("so luong tin nhan tra ve: " + message.length)
                res.send(message)
             });
          }
