@@ -234,7 +234,7 @@
               setTimeout(Load_user(1, "", 10), 1500)//load danh sach hien thi nguoi dung
              // setInterval(Load_user, 4000)
               setTimeout(function()
-               {//tu dong load tin nhan tu server
+              {//tu dong load tin nhan tu server
                 var index, Span_status_user_div, Input_hidden_id_user;
 
                 for(index = 0; index < Status_user_div.length; index++)
@@ -326,7 +326,7 @@
 
               Div_content_message[0].addEventListener("scroll", function(){ 
                 var position = Div_content_message[0].scrollTop;
-                console.log(position)
+               
                 if(position == 0 && you_can_using_scroll && no_message_for_you)//di chuyen tu duoi len tren
                 {
                   num_of_message_request++;
@@ -478,7 +478,7 @@
             function Time_stand()
             {
               dt = new Date();
-              var  time = dt.getHours() + ":" + dt.getMinutes() +", "+ dt.getDate()+ "/" + (dt.getMonth() + 1) + "/" + dt.getFullYear();
+              var  time = dt.getHours() + ":" + dt.getMinutes() + ":" + dt.getSeconds() + ", "+ dt.getDate()+ "/" + (dt.getMonth() + 1) + "/" + dt.getFullYear();
               return time;
             }
 
@@ -486,7 +486,7 @@
              function Time_transfer(ISOdate)
             {
               dt = new Date(ISOdate)
-              var  time = dt.getHours() + ":" + dt.getMinutes() +", "+ dt.getDate()+ "/" + (dt.getMonth() + 1) + "/" + dt.getFullYear();
+              var  time = dt.getHours() + ":" + dt.getMinutes() + ":" + dt.getSeconds() + ", "+ dt.getDate()+ "/" + (dt.getMonth() + 1) + "/" + dt.getFullYear();
               return time;
             }
 
@@ -494,7 +494,7 @@
             //tham số content là nội dung tin nhắn, time là thời gian đăng
             function Create_message_send(content, time)
             {
-              var Content =  "<div class='chat-box-left' style= 'word-break: break-all;'>" + content;
+              var Content =  "<div class='chat-box-left' style= 'word-break:break-all;background-color:#c9e0e0;'>" + content;
               Content += "</div><div class='chat-box-name-left'>";
               Content += "<img src='"+ yimage +"' alt='bootstrap Chat box user image' class='img-circle' data-placement='top' title='"+yage+" tuổi'/>";
               Content +=  "- " + yname;
@@ -510,7 +510,7 @@
              */
             function Create_message_receive(content, user_send, image, time, age)
             {
-              var Content = "<div class='chat-box-right' style= 'word-break: break-all;'>";
+              var Content = "<div class='chat-box-right' style='word-break:break-all;background-color:#d8d2d2;'>";
               Content += content + "</div>";
               Content += "<div class='chat-box-name-right'>";
               Content += "<img src='"+image+"' alt='bootstrap Chat box user image' class='img-circle' data-placement='top' title='"+age+" tuổi'/>";
