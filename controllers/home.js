@@ -101,8 +101,21 @@ router.route('/home')//dieu huong app
          }, 300);   //request sau 300ms
     }else//load nguoi dung voi gia tri tim kiem value duoc nhap boi nguoi dung
     {
-      var val = req.query.valsearch
-      console.log(val)
+      //tim kiếm giá trị gần đúng theo email hoặc tên người dùng
+      var valu = req.query.valsearch
+      models.User.find(
+      {
+        $or:[//tim kiem gia tri gan dung voi gia tri $options: 'i' khong phan biet hoa thuong
+          {username:{'$regex' : '.*' +valu+ '$.*i', $options: 'i'}}, {email: {'$regex' : '.*' +valu+ '.*', $options: 'i'}}
+        ]
+      })
+      .limit(parseInt(req.query.num))//tim kiem req.query.num nguoi gan dung nhat
+      .exec(function(err, users)
+      {
+        if (err) throw err;
+       // console.log(users)
+        res.send(users)
+      })
     }
 
 	}else if(req.query.loadmessagea)//req.query.loadmessagea la ma id nguoi dung hien tai muon load message
@@ -114,7 +127,6 @@ router.route('/home')//dieu huong app
        1 thời điểm nào đó thì số lượng tin nhắn cần hiện thị = số bản ghi thực trong bản ghi, khi đó hệ thống
        sẽ không trả về dữ liệu nữa
       */
-
       var Count_message = 0;//số lương tin nhắn hiện có
 
       models1.Message.find({$or:[{$and:[{'id_user_A': req.query.loadmessagea},
@@ -132,8 +144,12 @@ router.route('/home')//dieu huong app
          if(Count_message > (req.query.num - 15))
          {
             var Skip_field = Count_message - req.query.num;
-            var Limit_field = Skip_field + 15;
-            if(Skip_field < 0) Skip_field = 0;
+            var Limit_field = 15;
+            
+            if(Skip_field < 0){
+              Limit_field = 15 + Skip_field;
+              Skip_field = 0;
+            }
 
             console.log("so ban ghi bi bo qua la: " + Skip_field)
             console.log("gioi han " + Limit_field)
@@ -248,6 +264,7 @@ router.route('/home')//dieu huong app
       Awarning.save(function(err){
         if(err) 
           console.log("Loi luu canh bao nguoi dung: " + err)
+        res.send("Cảnh báo thành công. Hệ thống sẽ xử lí yêu cầu của bạn sớm nhất có thể.")
       })
   }
 

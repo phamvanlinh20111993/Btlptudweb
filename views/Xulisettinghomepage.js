@@ -23,19 +23,27 @@
 
      //ham gui tin hieu den server ve viec cap nhat thong tin cua nguoi dung
      //tham so Update_infor la 1 mang chua các thong tin update của người dùng
+     //có tham số chỉ cho phép cập nhật 1 lần duy nhất, vì server không thể xử lí quá nhiều yêu cầu
+     var Count_update_infor_user = 0;
      function Update_infor_user(Update_info)
      {	
-     		//su dung ajax
-     		Update_info[0] = yid;//lay ma phan biet nguoi dung
-     		$.ajax({
-     			type: "PUT",
-     			url: "/user/home",
-     			data:{ update_user_info: JSON.stringify(Update_info)},//chuyen mang thanh string upload len server
-     			success: function(data){
-     				alert(data)
-     				$('#myModal').modal('hide');//an modal boostrap
-     			}
-     		})
+     		if(Count_update_infor_user == 0){//chỉ cho phép cập nhật 1 lần
+     			//su dung ajax
+     			Update_info[0] = yid;//lay ma phan biet nguoi dung
+     			$.ajax({
+     				type: "PUT",
+     				url: "/user/home",
+     				data:{ update_user_info: JSON.stringify(Update_info)},//chuyen mang thanh string upload len server
+     				success: function(data){
+     					alert(data)
+     					$('#myModal').modal('hide');//an modal boostrap
+     				}
+     			})
+     		}else{
+     			alert("Bạn đã cập nhật thông tin. Thời gian update tiếp theo phải sau 90 ngày nữa.")
+     			$('#myModal').modal('hide');//an modal boostrap
+     		}
+     		Count_update_infor_user++;
      }
 
      //ham canh bao nguoi dung, voi gia tri la các giá trị cảnh báo
@@ -48,10 +56,25 @@
      			data:{warning_someone: who_warning, warning: value},
      			success: function(data){
      				alert(data)
-     				
+     				$('#myModal1').modal('hide');
      			}
      		})
      }
+
+    //tắt chat với 1 số người, với 2 tham sô là 
+    //you là mã số của bạn, someone là mã số người bạn muốn tắt chat
+    function TurnOfChat_someone(you, someone)
+    {
+    	//su dung ajax
+     		$.ajax({
+     			type: "POST",
+     			url: "/user/home",
+     			data:{you_turnofchat: you, who_was_block: someone},
+     			success: function(data){
+     				alert(data)
+     			}
+     		})
+    }
 
     //tat hop thoai chat voi nguoi dung dang nhan tin hien tai
 	function TurnOfChat()
@@ -73,10 +96,7 @@
 
 		var r = confirm("Bạn chắc chắn tắt chat với "+ user_name + ", Nếu tắt chat thì sau 60 ngày mới khôi phục được ???")
 		if(r == true){
-
 			alert("Ok da xong")
-		}else{
-			alert("A y kidding me")
 		}
 
 	}
@@ -427,8 +447,8 @@
 			Update_infos[2] = Change_your_profile_body_textarea[0].value;;//gia tri sau khi nhap,sở thích
 			var index42;
 			//cap nhat thay doi gioi tinh
-			for(index42 = 7; index42 < 10; index42++){
-				if(Change_your_profile_body_input[index42].checked == true){
+			for(index42 = 6; index42 < 9; index42++){
+				if(Change_your_profile_body_input[index42].checked){
 					Update_infos[3] = Change_your_profile_body_input[index42].value
 					break
 				}

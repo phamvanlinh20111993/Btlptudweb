@@ -85,7 +85,7 @@
                   }
               }
 
-
+              //su dung socket.io
               var socket = io.connect('http://127.0.0.1:5556');
               socket.on('connect', function(data) {
                 //ban dau la khi nguoi dung ket noi         
@@ -231,7 +231,7 @@
                 })
               }
 
-              setTimeout(Load_user(1, "", 10), 1500)//load danh sach hien thi nguoi dung
+              setTimeout(Load_user(1, "", 10), 2000)//load danh sach hien thi nguoi dung
              // setInterval(Load_user, 4000)
               setTimeout(function()
               {//tu dong load tin nhan tu server
@@ -258,10 +258,12 @@
               var Div_contain_search = Div_infor_user_on[0].getElementsByTagName("div")
               var Search_input_user = Div_contain_search[2].getElementsByTagName("input")
               var Search_button_user = Div_contain_search[2].getElementsByTagName("button")
+
               //kick enter tim kiem
               Search_input_user[0].addEventListener("keyup", function(e){
-                if(Search_input_user[0].value.length > 2 && e.keyCode == 13){
-                  Load_user(5, Search_input_user[0].value, 100);
+                if(Search_input_user[0].value.length > 1 && e.keyCode == 13){
+                  Sub_div_infor_user_on[0].innerHTML = ""
+                  Load_user(5, Search_input_user[0].value, 12);//lay 12 nguoi gan nhat
                   Search_input_user[0].value = "";
                 }
               })
@@ -269,7 +271,8 @@
               //khi nguoi dung nhan nut search
               Search_button_user[0].addEventListener("click", function(){
                 if(Search_input_user[0].value.length > 1){
-                  Load_user(5, Search_input_user[0].value, 100)
+                  Sub_div_infor_user_on[0].innerHTML = ""
+                  Load_user(5, Search_input_user[0].value, 12)
                   Search_input_user[0].value = "";
                 }
               }) 
@@ -347,7 +350,7 @@
                       {
                         Show_message(data)//hien thi tin nhan tu qua khu
                         Div_content_message[0].innerHTML += Storage ;//lay so luong tin nhan truoc do ra
-                        if(data.length < num_of_message_request*15)
+                        if(data.length < 15) //gia tri trk thay doi data.length < num_of_message_request*15
                           no_message_for_you = false;
                         //sau khi load thêm số luong tin nhắn scroll thay đổi cần giữ lại vị trí trước đó(trước
                         // khi thay đổi)
@@ -377,8 +380,8 @@
                    you_can_using_scroll = false;
                 }else{
                   you_can_using_scroll = true;
-
                 }  
+
               })
 
             //Ham nay se ghep ma nguoi gui va ma nguoi dung vao trong tin nhan theo quy tac
