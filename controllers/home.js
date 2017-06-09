@@ -8,6 +8,7 @@ var server = require('http').createServer(app)
 var io = require('socket.io')(server)
 var models = require('../models/user')
 var models1 = require('../models/message')
+var models2 = require('../models/warning')
 var md5 = require('md5')
 var fs = require('fs');
 var num_of_user_online = 0;
@@ -107,7 +108,6 @@ router.route('/home')//dieu huong app
 	}else if(req.query.loadmessagea)//req.query.loadmessagea la ma id nguoi dung hien tai muon load message
   {                              //req.query.loadmessageb la nguoi ma nguoi dung htai đang nhan tin cung
 
-
       /* mỗi lần người dùng thanh scroll trong hôp thoại chat thì nếu người dùng cứ request lên liên tục 
        thì đó không phải là 1 ý tưởng tốt. Do đó cần truy cấn csdl tìm ra số lượng tin nhắn hiện tại của
        người dùng với đối phương. do mỗi lần request, số lương tin nhắn cần hiển thị sẽ tăng dần lên, tới
@@ -147,7 +147,7 @@ router.route('/home')//dieu huong app
                   $or:[{'_id': req.query.loadmessagea}, 
                      {'_id': req.query.loadmessageb}
                ]},
-               select: {'password': 0, 'updated_at': 0, 'status': 0} //bo qua ca truong nay
+               select: {'password': 0, 'updated_at': 0, 'status': 0, 'Update_info': 0} //bo qua ca truong nay
             })
             .skip(Skip_field)// bo qua Skip_field ban ghi
             .limit(Limit_field)//gioi han so ban ghi
@@ -168,20 +168,21 @@ router.route('/home')//dieu huong app
 		if(!req.session.name){//nguoi dung chua dang nhap
 			res.redirect('logsg');
 		}else
-      {
-         //luu lai session
-         req.session.save(function(err) {
+    {
+        //luu lai session
+        req.session.save(function(err) {
             // session saved 
-               if(err) console.log(err)
-         })
-      //luu trang thai cua nguoi dung tren csdl de tien theo doi
-         models.User.findOneAndUpdate({'email': req.session.email}, {'status': 1},
-         function(err, user) {
-            if (err) throw err;
-         });
+          if(err) console.log(err)
+        })
 
-		   res.render('home');
-		 }
+       //luu trang thai cua nguoi dung tren csdl de tien theo doi
+        models.User.findOneAndUpdate({'email': req.session.email}, {'status': 1},
+        function(err, user) {
+            if (err) throw err;
+        });
+
+		    res.render('home');
+		}
 	}
 
 })
@@ -233,11 +234,80 @@ router.route('/home')//dieu huong app
  		});
 	}
 
+  //nhan query canh bao nguoi dung
+  if(req.body.warning_someone)
+  {
+      console.log("Da chay " + req.body.warning_someone + "  " + req.body.warning)
+      // luu du lieu vao co so du lieu
+      var Awarning = new models2.Warning({
+        who_warn: req.session.chat_id,
+        who_was_warn: req.body.warning_someone,
+        code_warn:req.body.warning, // gia tri canh bao
+      })
+
+      Awarning.save(function(err){
+        if(err) 
+          console.log("Loi luu canh bao nguoi dung: " + err)
+      })
+  }
+
 }).put(function(req, res)
 {
   //nguoi dung quen mat khau va yeu cau nhap lai mat khau trong qua trinh dang nhap
   if(typeof req.body.repassword != 'undefined'){
     res.render('home');
+  }
+
+  //nhan du lieu cap nhat thong tin nguoi dung
+  if(req.body.update_user_info)
+  {
+    /*  mảng này tương ứng có các giá trị sau Update_info[0]- tương ứng là mã người dùng
+      Update_info[1]- tương ứng là giá trị cập nhật tên người dùng
+      Update_info[2]- tương ứng là sở thích người dùng
+      Update_info[3]- tương ứng là giới tính
+      Update_info[4]- tương ứng là mật khẩu
+    */
+    var Update_info = JSON.parse(req.body.update_user_info)
+    var Information = "";
+
+    /* Việc cập nhật thông tin không thể tùy tiện, chỉ cho phép update 3 tháng(90 ngày) 1 lần, đầu tiên, 
+      cần truy vấn kiểm tra xem nguoif dùng đã cập nhật bao giờ chưa */
+    models.User.find({"_id": Update_info[0]})
+    .select({"update_infor": 1, "_id": 0})// lay truong cap nhat password
+    .exec(function(err, user){
+      Information = user
+    });
+
+    //neu do dai user la 1 thi nguoi dung chua cap nhat bao gio
+    //neu la user la 2 thi nguoi dung da cap nhat roi, can kiem tra thoi gian xem co lon hon 3 thang khong
+    setTimeout(function()
+    {
+        if(typeof Information[0].update_infor == 'undefined'){
+          models.User.findOneAndUpdate({"_id": Update_info[0]}, 
+            {"$set": {'username': Update_info[1], 'password': md5(Update_info[4]), 'sex': Update_info[3], 'hobbies': Update_info[2], 'update_infor': new Date()}},
+          function(err, user) {
+            if(err)  throw err;
+            res.send("Đã cập nhật thành công.")
+          });
+        }else
+        {
+          var Date_now = new Date();
+          var Date_update = new Date(Information[0].update_infor)//chinh thoi gian IOSdate sang standard Date
+          if((Date_now - Date_update) < 24*3600*90*1000){
+             res.send("Bạn đã cập nhật thông tin. Thời gian update tiếp theo phải sau 90 ngày nữa.")
+          }else
+          {
+            models.User.findOneAndUpdate({"_id": Update_info[0]}, 
+            {"$set": {'username': Update_info[1], 'password': md5(Update_info[4]), 'sex': Update_info[3], 'hobbies': Update_info[2], 'update_infor': new Date()}},
+            function(err, user) {
+              if(err)  throw err;
+              res.send("Đã cập nhật thành công.")
+            });
+          }
+        }
+
+    }, 500)
+
   }
 
 }).delete(function(req, res){
@@ -304,7 +374,7 @@ io.on('connection', function(client)
             client.broadcast.emit('offline', Useronoroffline_email[index].concat("55555"))
             //luu trang thai nguoi dung vao csdl(trang thai offline)
             models.User.findOneAndUpdate({'email': Useronoroffline_email[index]}, 
-               {"$set":{'status': 0, 'updated_at': new Date().toISOString()}},//cap nhat thoi gian offline
+               {"$set": {'status': 0, 'updated_at': new Date().toISOString()}},//cap nhat thoi gian offline
             function(err, user) {
               if (err) throw err;
             });

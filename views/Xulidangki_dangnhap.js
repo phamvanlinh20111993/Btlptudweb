@@ -128,6 +128,28 @@
         })
      }
 
+     //kiem tra tinh hop le cua ten nguoi dung
+     function Check_error_name(val)
+     {
+        var string = "";
+
+        if(val !="")
+        {
+          if(val.length > 4){//ten su dung chua noi dung tho tuc
+            var obscene = ["địt", "dit", "đit", "lồn", "lon", "lòn", "lôn", "lon'", "chịch", "chich", "buồi", "buoi", "buôi", "fuck", "bitch", "bop vu", "bop vú", "bóp vu", "bóp vú", "vcl", "đm", "dm", "ngu", "đít","lỗ l", "cl", "liem chim", "liếm chim", "blow job", "mút cu", "cặc", "căc", "vl", "con cac"];
+            for(var pos = 0; pos < obscene.length; pos++)
+            {
+              if(val.includes(obscene[pos]) == true){
+                string  = "Tên của bạn chứa nội dung vô văn hóa.";
+                break;
+              }
+            }
+          }else   string  = "Tên chứa ít nhất 4 kí tự";
+        }else   string  = "Không để trống tên của bạn.";
+
+        return string;
+     }
+
      //Bat loi nguoi dung tuong ung voi moi truong index(input tuong ung)
      function Error_Event(index, val, iput)//gia tri nhap trong form dang nhap
      {
@@ -143,16 +165,7 @@
              break;
 
           case 1://test name
-            if(val !=""){//ten su dung chua noi dung tho tuc
-              var obscene = ["địt", "dit", "đit", "lồn", "lon", "lòn", "lôn", "lon'", "chịch", "chich", "buồi", "buoi", "buôi", "fuck", "bitch", "bop vu", "bop vú", "bóp vu", "bóp vú", "vcl", "đm", "dm", "ngu", "đít","lỗ l", "cl", "liem chim", "liếm chim", "blow job", "mút cu", "cặc", "căc", "vl", "con cac"];
-              for(var pos = 0; pos < obscene.length; pos++)
-              {
-                if(val.includes(obscene[pos]) == true){
-                  string  = "Tên của bạn chứa nội dung vô văn hóa.";
-                  break;
-                }
-              }
-            }else   string  = "Không để trống tên của bạn.";
+            string = Check_error_name(val)
             break;
 
           case 2:
@@ -337,6 +350,7 @@
            var Input = Signin_form[0].getElementsByTagName("input");
            var Btt = Signin_form[0].getElementsByTagName("button");
 
+           //khi nuoi dung nhan vao nut Sign in
            Btt[0].addEventListener("click", function(){
               if(Validate_Email(Input[0].value) == false){
                   Create_node(Signin_form[0], 0, "Địa chỉ email không đúng.", 1);
@@ -347,6 +361,34 @@
                 Signin_form[0].submit();
               } 
            })
+
+          //bat su kien khi nguoi dung nhan enter dang nhap vao he thong, co 2 the can bat su kien la
+          //the nhap email va the nhap password
+
+          //bat su kien nhap email
+          Input[0].addEventListener("keyup", function(e){
+              if(e.keyCode == 13){ //khi nguoi dung an enter
+                if(Validate_Email(Input[0].value) == false){
+                  Create_node(Signin_form[0], 0, "Địa chỉ email không đúng.", 1);
+                }else{
+                  //tien hanh vao chuyen con tro vao o nhap tiep theo
+                  Input[1].focus();
+                }
+              }
+
+          })
+
+          //bat su kien nhap vao password
+          Input[1].addEventListener("keyup", function(e){
+            if(e.keyCode == 13){ //khi nguoi dung an enter
+              if(parseInt(Input[1].value.length) < 6)//ham kiem tra gia tri dang nhap truoc khi submit
+              {
+                Create_node(Signin_form[0], 1, "Mật khẩu tối thiểu 6 kí tự.", 1);
+              }else{
+                Signin_form[0].submit();
+              } 
+            }
+          })
 
            //xu li viec nguoi dung quen mat khau, tao 1 form dang nhap rieng de xac thuc
            var ForgotpasswordForm = document.getElementById("pwdModal");

@@ -166,7 +166,7 @@
                 if(pos == 0){
                   Partner_id = id;//mac dinh id nhan tin la nguoi dau tien trong danh sach
                   //thay doi the span mac dinh la do la nguoi mac dinh se nhan tin
-                  Content +=  '<span data-toggle="tooltip" data-placement="right" title="'+email+'" style= "cursor: pointer;color:red;" onclick="Chat(this,'+pos+')"> - ' + name + '</span>' + '  .';
+                  Content +=  '<span data-toggle="tooltip" data-placement="right" title="'+email+'" style= "cursor: pointer;color:red;" onclick="Chat(this,'+pos+')"> - ' + name + '</span> ';
                 }else{
                   Content +=  '<span data-toggle="tooltip" data-placement="right" title="'+email+'" style= "cursor: pointer;" onclick="Chat(this,'+pos+')"> - ' + name + '</span>' + '  .';
                 }

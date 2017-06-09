@@ -24,7 +24,7 @@ warn.pre('save', function(next){
 		this.created_at = crrD;
 		next()
 	}
-}
+})
 
 var Warning = mongoose.model('Warning', warn)
 

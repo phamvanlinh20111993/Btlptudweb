@@ -41,6 +41,12 @@
 
 <body>
 
+    <noscript>
+      <div class="alert alert-warning">
+        <strong>Cảnh báo!</strong> Bạn đã tắt javascript trên trang web này. Ứng dụng này sử dụng javacript
+      để xây dựng và phát triển, do đó ứng dụng này sẽ không thể hoạt động được. Vui lòng bật lại script. Thân ái.
+      </div>
+    </noscript>
     <!-- Người dùng muốn giới thiệu về bản thân mình hơn   -->
     <div id="myModal" class="modal fade" role="dialog">
       <div class="modal-dialog">
@@ -53,45 +59,65 @@
           </div>
 
           <div class="modal-body">
-            <div class="input-group" data-toggle="tooltip" title="Chỉnh sửa tên">
-              <input id="name" type="text" class="form-control" name="name" placeholder="User name" value="<%=session.name%>">
-              <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>   
+              <div class="input-group" data-toggle="tooltip" title="Chỉnh sửa tên">
+               <input id="name" type="text" class="form-control" name="name" placeholder="User name" value="<%=session.name%>">
+                <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>   
+              </div>
+              <p class="tagp"></p>
+              </br>
+
+              <div class="input-group">
+                <label class="checkbox-inline"><input type="checkbox" value="12345">Change pass</label>
+                <label class="checkbox-inline"><input type="checkbox" value="54321" checked="">Not change</label>
+              </div>
+              </br>
+
+              <div class="input-group" data-toggle="tooltip" title="Nhập mật khẩu hiện tại">
+                <span class="input-group-addon">Cur-pass</span>
+                <input id="password" type="password" class="form-control" name="pass" placeholder="current password" disabled="true">
+              </div>            
+              <p class="tagp"></p>
+              <br>
+
+              <div class="input-group" data-toggle="tooltip" title="Nhập mật khẩu mới">
+                <input id="password" type="password" class="form-control" name="pass" placeholder="new password" value="" disabled="true">
+                <span class="input-group-addon" data-toggle="tooltip" title="Hiển thị password" onclick="Show_password(this);"><i class="glyphicon glyphicon-eye-open"></i></span>
+              </div>            
+              <p class="tagp"></p>
+              <br>
+
+              <div class="input-group" data-toggle="tooltip" title="Nhập lại mật khẩu mới">
+               <span class="input-group-addon">Re-type</span>
+                <input id="password" type="password" class="form-control" name="pass" placeholder="enter confirm new pass" disabled="true">
+              </div>
+              <p class="tagp"></p>
+              <br>
+
+              <div class="form-group">
+                <label for="comment">Hobbies:</label>
+                 <textarea class="form-control" rows="2" id="comment" placeholder="Thêm sở thích của bạn ở đây"></textarea>
+              </div>
+              <p class="tagp"></p>
+
+              <div class="radio">
+                <label><input type="radio" name="optradio" value = "boy">Boy thẳng</label>
+              </div>
+
+              <div class="radio">
+                <label><input type="radio" name="optradio" value = "girl">Girl chuẩn</label>
+              </div>
+
+              <div class="radio">
+                <label><input type="radio" name="optradio" value = "unknown" checked>Không xác định</label>
+              </div>
+              </br>
+
+              <button type="button" class="btn btn-success">Xong</button>
             </div>
-            <p class="tagp"></p>
-             </br>
 
-            <div class="input-group" data-toggle="tooltip" title="Chỉnh sửa tuổi">
-              <input id="Age" type="number" class="form-control" name="Age" placeholder="Age" value="<%= session.age %>" min="16" max="60">
-              <span class="input-group-addon" ><i class="glyphicon glyphicon-eye-open"></i></span>
+            <div class="modal-footer">
+              <button class="btn btn-default" data-dismiss="modal">Close</button>
             </div>
-            <p class="tagp"></p>
-            <br>
-
-            <div class="input-group">
-              <span class="input-group-addon">Hobies</span>
-              <input id="msg" type="text" class="form-control" name="msg" placeholder="Infor your hobbies...">
-           </div>
-           <p class="tagp"></p>
-
-            <div class="radio">
-              <label><input type="radio" name="optradio">Boy thẳng</label>
-            </div>
-
-            <div class="radio">
-              <label><input type="radio" name="optradio">Girl chuẩn</label>
-            </div>
-
-            <div class="radio">
-              <label><input type="radio" name="optradio" checked>Không xác định</label>
-            </div>
-            </br>
-
-            <button type="button" class="btn btn-success">Xong</button>
-          </div>
-
-          <div class="modal-footer">
-            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-          </div>
         </div>
 
       </div>
@@ -108,21 +134,20 @@
             <h4 class="modal-title">Cảnh báo người này vì: </h4>
           </div>
           <div class="modal-body">
-           
             <div class="checkbox">
-              <label><input type="checkbox" value="AB111" name="A">Lời lẽ xúc phạm, đe dọa, phản động</label>
+              <label><input type="checkbox" value="AB111" name="AAA">Lời lẽ xúc phạm, đe dọa, phản động</label>
             </div>
             <div class="checkbox">
-              <label><input type="checkbox" value="AB222" name="A">Cảm thấy ghét</label>
+              <label><input type="checkbox" value="AB222" name="ABB">Cảm thấy ghét</label>
             </div>
             <div class="checkbox">
-              <label><input type="checkbox" value="AB333" name="A">Kẻ biến thái</label>
+              <label><input type="checkbox" value="AB333" name="ACC">Kẻ biến thái</label>
             </div>
              <div class="checkbox">
-              <label><input type="checkbox" value="AB333" name="A">Tục tĩu, vô duyên</label>
+              <label><input type="checkbox" value="AB444" name="ADD">Tục tĩu, vô duyên</label>
             </div>
             <div class="checkbox">
-               <label><input type="checkbox" value="AB444" name="A">Không thích người này</label>
+               <label><input type="checkbox" value="AB555" name="AEE">Không thích người này</label>
             </div>
 
             </br>
@@ -133,6 +158,7 @@
             </div>
             <button type="button" class="btn btn-warning">Warning</button>
           </div>
+
           <div class="modal-footer">
              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
           </div>
@@ -215,9 +241,18 @@
               <span class="glyphicon glyphicon-comment" style="font-size: 150%;margin-top: 70%;margin-left: 40%;"></span>
              </a>
                 <ul class="dropdown-menu">
-                  <li><a href="#">A nhắn tin cho bạn</a></li>
-                  <li><a href="#">A nhắn tin cho bạn</a></li>
-                  <li><a href="#">A nhắn tin cho bạn</a></li>
+                  <li>
+                    <div style="min-height: 100px;">
+                      <div>
+                        <a href="#">A nhắn tin cho bạn </a>
+                        <p style="font-style: italic;font-size: 95%;">12:24, 24/6/2017</p>
+                      </div>
+                      <div>
+                        <a href="#">B nhắn tin cho bạn </a>
+                        <p style="font-style: italic;font-size: 95%;">8:24, 21/6/2017</p>
+                      </div>
+                    </div>
+                  </li>
                 </ul>
               </div>
             </li>
@@ -271,8 +306,8 @@
                         <span class="sr-only">Toggle Dropdown</span>
                         </button>
                           <ul class="dropdown-menu" role="menu">
-                            <li><a href="#" data-toggle="modal" data-target="#myModal"><span class="fa fa-book fa-fw"></span>&nbsp;Cập nhật thông tin</a></li>
-                            <li><a href="#" onclick="TurnOfChat()"><span class="fa fa-comments-o"></span>&nbsp;Tắt chat</a></li>
+                            <li><a href="#" data-toggle="modal" data-target="#myModal"><span class="fa fa-book fa-fw" onclick="UpdateProfile()"></span>&nbsp;Cập nhật thông tin</a></li>
+                            <li><a href="#" onclick="TurnOfChat()"><span class="fa fa-comments-o"></span>&nbsp;Tắt/Bật chat</a></li>
                             <li><a href="#" data-toggle="modal" data-target="#myModal1"><span class="fa fa-lock"></span>&nbsp;Cảnh báo</a></li>
                             <li class="divider"></li>
                             <li><a href="#" data-toggle="modal" data-target="#myModal2"><span class="fa fa-circle-o-notch"></span>&nbsp;Setting</a></li>
@@ -368,6 +403,7 @@
         var yemail = "<%= session.email  %>";//dia chi email
         var yage = "<%= session.age  %>";//tuoi
         var yid = "<%= session.chat_id %>";//ma chat cua nguoi dung trung voi ma Oject trong csdl
+        var ypass = "<%= session.password  %>";//mat khau cua nguoi dung
 
       //ham nay se yeu cau server gui ma xac thuc email den cho nguoi dung 
     /* function Request_log_out()
