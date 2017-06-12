@@ -70,7 +70,15 @@ router.route('/login')
     				}
     				//tao mot ma chat duy nhat cho nguoi dung la ma luu mac dinh trong csdl
     				req.session.chat_id = value._id
-			 		res.redirect('home');
+    				console.log(value)
+    				console.log(value.age)
+    				console.log(value.Admin)
+    				//if(typeof value.Admin != 'undefined'){
+    				if(value.email == "duanwebptudweb@gmail.com"){//tai khoan admin
+    					res.redirect('admin');
+    				}else{
+			 			res.redirect('home');
+    				}
 			 		delete code_err;//xóa mãi lỗi ẩn giao diện
 		   		}else{
 		   	   		code_err = 0;

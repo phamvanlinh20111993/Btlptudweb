@@ -56,10 +56,12 @@ app.use(function(req, res, next){
 var login = require('./controllers/login')
 var signup = require('./controllers/signup')
 var home = require('./controllers/home')
+var admin = require('./controllers/admin')
 
 app.use('/user', login)
 app.use('/user', signup)
 app.use('/user', home)
+app.use('/user', admin)
 
 server.listen(port, function(){
 	console.log('Server dang chay tai cong %s!',port)

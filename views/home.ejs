@@ -16,6 +16,7 @@
     <link href="/assets/css/font-awesome.css" rel="stylesheet" />
     <!-- CUSTOM STYLE CSS -->
     <link href="/assets/css/style.css" rel="stylesheet" />
+    <link rel="shortcut icon" href="https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcQdgTzmbD2VzfylBIdYhyXCmwNUV6W0N2M3_JzYdiS9SlLv-d7DHA">
     <script src="http://127.0.0.1:5556/socket.io/socket.io.js"></script>
   <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
@@ -34,6 +35,11 @@
     .tagp{
       color: red;
       font-size: 103%
+    }
+
+    .not_underline:hover{
+      text-decoration: none;
+      color: green;
     }
   </style>
  
@@ -230,7 +236,7 @@
     </div>
 
 
-    <nav class="navbar navbar-light" style="background-color: #e3f2fd;height: 58px;">
+    <nav class="navbar navbar-light" style="background-color: #e3f2fd;height: 51px;">
       <div class="container-fluid">
        <div class="navbar-header">
           <a class="navbar-brand" href="#" style="color: red;">Web App NodeJs</a>
@@ -238,8 +244,8 @@
         <ul class="nav navbar-nav">
            <li><a href="#">Introduce</a></li>
             <li><a href="#">About us</a></li>
-            <li class="active" data-toggle="tooltip" title="Thông báo từ quản trị viên"><a href="#" data-target="#myModal3" data-toggle="modal">
-            <span class="glyphicon glyphicon-globe" style="font-size: 130%;"></span></a></li>
+            <li class="active" data-toggle="tooltip" title="Thông báo từ quản trị viên"><a href="#" data-target="#myModal3" data-toggle="modal" style="margin-top: 2%;">
+            <span class="glyphicon glyphicon-globe" style="font-size: 115%;"></span></a></li>
             <li data-toggle="tooltip" title="Nhận tin nhắn từ người dùng khác"><div class="dropdown" >
              <a href="#" data-toggle="dropdown">
               <span class="glyphicon glyphicon-comment" style="font-size: 150%;margin-top: 70%;margin-left: 40%;"></span>
@@ -266,8 +272,8 @@
           <li>
             <form class="form-horizontal" method="post" action="/user/home" style="margin-top: 7%;">
              <input type = "hidden" name = "request_log_out" value = 1 >
-              <span class="glyphicon glyphicon-log-out"></span> 
-              <button name="logout" class="btn btn-link" style="margin-left: -15%;">&nbsp;Log out</button>
+              <span class="glyphicon glyphicon-log-out" style="margin-top: 4%;"></span> 
+              <button name="logout" class="btn btn-link not_underline" style="margin-left: -15%;">&nbsp;Log out</button>
             </form>
           </li>
 

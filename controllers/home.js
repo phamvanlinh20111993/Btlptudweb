@@ -66,7 +66,8 @@ router.route('/home')//dieu huong app
     var num_of_rq = req.query.num_of_user
     if(req.query.loaduser == 1)
     {
-		 models.User.find({}, {created_at: 0, password: 0, __v: 0})
+      //bo qua email cua admin, admin khong chat trong app
+		 models.User.find({'Admin': {$ne: 1}}, {created_at: 0, password: 0, __v: 0})
        .sort({status: -1, updated_at: -1})
        .limit(parseInt(num_of_rq))//gioi han so nguoi can tim
        .skip((parseInt(num_of_rq) - 10))//bo qua so ban ghi tinh tu vi tri dau tien
@@ -140,7 +141,7 @@ router.route('/home')//dieu huong app
       //trước
       setTimeout(function(){//giai quyet van de giua 2 ham async, giai phap tam thoi
 
-          console.log("so luong tin nhan la: " + Count_message + " " + req.query.num)
+         console.log("so luong tin nhan la: " + Count_message + " " + req.query.num)
          if(Count_message > (req.query.num - 15))
          {
             var Skip_field = Count_message - req.query.num;
