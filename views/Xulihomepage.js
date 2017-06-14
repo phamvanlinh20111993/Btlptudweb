@@ -165,6 +165,42 @@
                 else Sub_div_infor_user_on0[0].innerHTML =  "ONLINE USERS (0)";
               });
 
+              //ham nay kiểm tra xem với người dùng bất kì khi click vào thì họ có bị tắt chat để đưa ra thông báo
+              //2 tham số youid là mã id của bạn, thisid là đối phương
+              function Turnofwiththis(youid, thisid)
+              {
+                  $.ajax({
+                    type: "GET",
+                    url: "/user/home",
+                    data:{askdoiturnofthisperson: thisid, youask: youid},
+                    success: function(data)//hien thi message
+                    {
+                        if(data != "nomatch"){
+                           var tr = confirm(data)
+                           if(tr)
+                              setTimeout(function(){
+                                 Fixturnofchat(youid, thisid)
+                              }, 1000)
+                        }
+                    }
+                  })
+               }
+
+               //ham nay khoi phuc lai trang thai chua tat chat
+               function Fixturnofchat(youid, thisid)
+               {
+              
+                  $.ajax({
+                    type: "DELETE",
+                    url: "/user/home",
+                    data:{rehabilitatethisperson: thisid, yourequest: youid},
+                    success: function(data)//hien thi message
+                    {
+                       alert(data)
+                       location.reload()
+                    }
+                  })
+               }
         
               //ham bieu dien nguoi dung tren trang web
               //Load noi dung tin nhan tu server
@@ -204,6 +240,8 @@
                   trạng thái "none"
                  */
                 Event_user_typing.style.display = "none"
+                //test để ra thông báo
+                Turnofwiththis(yid, Information_user('id'))
               }
 
               /*xet gia tri id cho nguoi dung

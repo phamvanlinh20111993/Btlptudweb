@@ -69,9 +69,10 @@
      		$.ajax({
      			type: "POST",
      			url: "/user/home",
-     			data:{you_turnofchat: you, who_was_block: someone},
+     			data:{you_turnofchat: you, who_was_blocked: someone},
      			success: function(data){
      				alert(data)
+               location.reload()//refresh lại trang web
      			}
      		})
     }
@@ -104,7 +105,7 @@
 			id_user = Information_user('id') // lay id nguoi dung  
       }
 
-		var r = confirm("Bạn chắc chắn tắt chat với "+ user_name + ", Nếu tắt chat thì sau 60 ngày mới khôi phục được ???")
+		var r = confirm("Bạn chắc chắn tắt chat với "+ user_name + ", Sau 10 ngày hệ thống sẽ tự động bật chat ???")
 		if(r == true){
 			TurnOfChat_someone(yid, id_user)
 		}

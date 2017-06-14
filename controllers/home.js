@@ -10,6 +10,7 @@ var models = require('../models/user')
 var models1 = require('../models/message')
 var models2 = require('../models/warning')
 var models3 = require('../models/delmessage')
+var models4 = require('../models/chatstatus')
 var md5 = require('md5')
 var fs = require('fs');
 var num_of_user_online = 0;
@@ -49,6 +50,31 @@ function Delete_file_in_directory(user_id)
   	}
 }
 
+//hàm này sẽ loại bỏ các giá trị là những người dùng bị yêu cầu tắt chat
+//tham số users là những người dùng được trả về trong danh sách, 
+//tham số user_remove là những người dùng bị ghi mã tắt chát
+function Turn_of_chat_someone(users, user_remove)
+{
+   var index = 0, pos = 0, Lgth = user_remove.length;
+   while(index < Lgth)
+   {
+      for(pos = 0; pos < users.length; pos++)
+      {
+         if((users[pos]._id).toString() === (user_remove[index].who_was_turned_of).toString())
+         {
+            users.splice(pos, 1)//loai bo nguoi dung
+            user_remove.splice(index, 1)
+            Lgth-- //do dai mang giam di 1
+            break;
+         }
+      }
+
+      index++
+   }
+
+   return users
+}
+
 //ham tra ve 1 so  nguyen nam trong khoang max, min
 function RandomInt(max, min)
 {
@@ -63,62 +89,76 @@ router.route('/home')//dieu huong app
    //by status(online hay offline) và time(thời gian off gần nhất)
 	if(req.query.loaduser)
 	{
-    //load gia tri nguoi dung ban dau
-    var num_of_rq = req.query.num_of_user
-    if(req.query.loaduser == 1)
-    {
-      //bo qua email cua admin, admin khong chat trong app
-		 models.User.find({'Admin': {$ne: 1}}, {created_at: 0, password: 0, __v: 0})
-       .sort({status: -1, updated_at: -1})
-       .limit(parseInt(num_of_rq))//gioi han so nguoi can tim
-       .skip((parseInt(num_of_rq) - 10))//bo qua so ban ghi tinh tu vi tri dau tien
-       .exec(function(err, users)
-       {
+      //load gia tri nguoi dung ban dau
+      var num_of_rq = req.query.num_of_user
+      if(req.query.loaduser == 1)
+      { 
+         //bo qua email cua admin, admin khong chat trong app
+		    models.User.find({'Admin': {$ne: 1}}, {created_at: 0, password: 0, __v: 0})
+         .sort({status: -1, updated_at: -1})
+         .limit(parseInt(num_of_rq))//gioi han so nguoi can tim
+         .skip((parseInt(num_of_rq) - 10))//bo qua so ban ghi tinh tu vi tri dau tien
+         .exec(function(err, users)
+         {
 			   if (err) throw err;
   			 // console.log(users);
-  			   res.send(users)
-		 })
-    }else if(req.query.loaduser == 2)//tra ve mot nguoi dung random trong danh sach online
-    {// có 1 vấn đề đặt ra là hàm random trả về người dùng hiện tại.Người dùng sẽ nt vs chính mình?            
+            //tìm kiếm và trả về những người dùng bị chủ nhân yêu cầu không nhìn thấy mặt
+            models4.Chatstatus.find({'who_turnofchat': req.session.chat_id}, 
+             function(err, user_remove){
+                if (err) throw err;
+               // Turn_of_chat_someone(users, user_remove)
+                if(user_remove.length > 0)
+                {
+                  res.send(Turn_of_chat_someone(users, user_remove))
+                }else{
+                  res.send(users)
+                }
+            })
 
-      var Length_of_document;
-      models.User.find().count(function(err, count){
-         Length_of_document = count
-      });
+		   })
 
-      setTimeout(function(){
-         var Random = RandomInt(parseInt(Length_of_document), 0)//random 1 nguoi dua tren vi 
+      }else if(req.query.loaduser == 2)//tra ve mot nguoi dung random trong danh sach online
+      {// có 1 vấn đề đặt ra là hàm random trả về người dùng hiện tại.Người dùng sẽ nt vs chính mình?            
+
+         var Length_of_document;
+         models.User.find().count(function(err, count){
+            Length_of_document = count
+         });
+
+         setTimeout(function(){
+            var Random = RandomInt(parseInt(Length_of_document), 0)//random 1 nguoi dua tren vi 
                                        //tri cua nguoi dung trong danh sach
-         console.log(Random + "  " + Length_of_document)
-         if(Random == 0) Random = 1;//trường hợp skip bỏ qua 
-         models.User.find({})
-         .limit(1)
-         .skip(Random - 1)
-         .exec(function(err, user)
+            console.log(Random + "  " + Length_of_document)
+            if(Random == 0) Random = 1;//trường hợp skip bỏ qua 
+            models.User.find({})
+            .limit(1)
+            .skip(Random - 1)
+            .exec(function(err, user)
+            {
+               if (err) throw err;
+               console.log(user)
+               res.send(user)
+            }) 
+            }, 300);   //request sau 300ms
+      }else//load nguoi dung voi gia tri tim kiem value duoc nhap boi nguoi dung
+      {
+         //tim kiếm giá trị gần đúng theo email hoặc tên người dùng
+         var valu = req.query.valsearch
+         models.User.find(
+         {
+            $or:[//tim kiem gia tri gan dung voi gia tri $options: 'i' khong phan biet hoa thuong
+               {username:{'$regex' : '.*' +valu+ '.*', $options: 'i'}}, 
+                {email: {'$regex' : '.*' +valu+ '.*', $options: 'i'}}
+            ]
+         })
+         .limit(parseInt(req.query.num))//tim kiem req.query.num nguoi gan dung nhat
+         .exec(function(err, users)
          {
             if (err) throw err;
-            console.log(user)
-            res.send(user)
-         }) 
-         }, 300);   //request sau 300ms
-    }else//load nguoi dung voi gia tri tim kiem value duoc nhap boi nguoi dung
-    {
-      //tim kiếm giá trị gần đúng theo email hoặc tên người dùng
-      var valu = req.query.valsearch
-      models.User.find(
-      {
-        $or:[//tim kiem gia tri gan dung voi gia tri $options: 'i' khong phan biet hoa thuong
-          {username:{'$regex' : '.*' +valu+ '$.*i', $options: 'i'}}, {email: {'$regex' : '.*' +valu+ '.*', $options: 'i'}}
-        ]
-      })
-      .limit(parseInt(req.query.num))//tim kiem req.query.num nguoi gan dung nhat
-      .exec(function(err, users)
-      {
-        if (err) throw err;
-       // console.log(users)
-        res.send(users)
-      })
-    }
+            // console.log(users)
+            res.send(users)
+         })
+      }
 
 	}else if(req.query.loadmessagea)//req.query.loadmessagea la ma id nguoi dung hien tai muon load message
   {                              //req.query.loadmessageb la nguoi ma nguoi dung htai đang nhan tin cung
@@ -203,9 +243,27 @@ router.route('/home')//dieu huong app
              //  console.log(message)
                res.send(message)
             });
+         }else//2 nguoi dung lan đầu nhắn tin với nhau khi request lên server thì trả về trang rỗng
+         {//thử dùng res.render('home') để fix tạm thời
+            res.render('home')
          }
 
       }, 600)
+
+  }else if(req.query.askdoiturnofthisperson)
+  {
+         models4.Chatstatus.find({$and:[
+            {'who_turnofchat': req.query.youask}, 
+            {'who_was_turned_of': req.query.askdoiturnofthisperson}
+         ]}, 
+         function(err, userturnof){
+                if (err) throw err;
+               console.log("I need say some thing.")
+                if(userturnof.length > 0)
+                  res.send("Bạn đã tắt chat với người này. Bật chat ???")
+                else
+                  res.send("nomatch")
+            })
 
   }else//kiem tra session da duoc khai bao moi chuyen qua trang khac
   {
@@ -297,9 +355,23 @@ router.route('/home')//dieu huong app
   }
 
   //tắt chat voi nguoi dung nao đó
-  if(req.body.you_turnofchat){
-    console.log(req.body.you_turnofchat + "  " + req.body.who_was_block)
-    res.send("Thành công")
+  if(req.body.you_turnofchat)
+  {
+      //cap nhat vao csdl
+      models4.Chatstatus.update({$and:
+         [
+            {'who_turnofchat': req.body.you_turnofchat}, {'who_was_turned_of': req.body.who_was_blocked}
+         ]},
+
+         {'created_at': new Date().toISOString()},//thoi gian ISOS trong mongodb
+
+         {upsert: true})
+      .exec(function(err){
+         if(err)    throw err
+         console.log(req.body.you_turnofchat + "  " + req.body.who_was_blocked)
+         res.send("Thành công.")
+      })
+    
   }
 
 }).put(function(req, res)
@@ -387,7 +459,7 @@ router.route('/home')//dieu huong app
   {
    
     var Count_message_del = 0;//số lương tin nhắn hiện có
-    console.log("Da chay")
+   /* //tao 1 document ghi lai thoi diem hien tai muon xoa tin nhan
     var delmess = new models3.Delmessage({
         user_a_del: req.body.you_delconversation,
         user_b_del: req.body.who_was_del,
@@ -397,6 +469,20 @@ router.route('/home')//dieu huong app
         if(err)
            console.log("Da luu yeu cau xoa tin nhan: " + err)
         res.send("Đã xóa thành công.")
+      }) */
+
+      //tao neu khong tim thay document phu hop
+      models3.Delmessage.update({$and:
+         [
+            {'user_a_del': req.body.you_delconversation}, 
+            {'user_b_del': req.body.who_was_del}
+         ]},
+         {'timedel': new Date().toISOString()},
+         {upsert: true})
+      .exec(function(err){
+         if(err)
+            throw err
+         res.send("Đã xóa thành công.")
       })
 
     
@@ -437,6 +523,17 @@ router.route('/home')//dieu huong app
       }) 
 
     }, 2000)
+  }
+
+  //khi người dùng muốn bật chat với ai đó cần xóa bản ghi để khôi phục lại trạng thái ban đầu
+  if(req.body.rehabilitatethisperson)
+  {
+      models4.Chatstatus.remove({$and:[
+         {'who_turnofchat': req.body.yourequest}, {'who_was_turned_of': req.body.rehabilitatethisperson}]
+      }).exec(function(err){
+         if(err) throw err
+         res.send("Done !!!")
+      })
   }
 
 })
@@ -492,7 +589,7 @@ io.on('connection', function(client)
     //nguoi dung tat chat thoat khoi page :))), co thong bao ai do da offline
     client.on('disconnect', function()
     {
-        console.log("Co ai do da off line " + client.id)
+       // console.log("Co ai do da off line " + client.id)
         Length = Useronoroffline_email.length
         for(index = 0; index < Length; index++)
         {
@@ -506,7 +603,7 @@ io.on('connection', function(client)
             function(err, user) {
               if (err) throw err;
             });
-            console.log(new Date().toISOString())
+           // console.log(new Date().toISOString())
             //xoa nguoi offline khoi danh danh nguoi dung online
             Useronoroffline_email.splice(index, 1)
             SocketID.splice(index, 1)  
@@ -522,7 +619,7 @@ io.on('connection', function(client)
     client.on('online', function(data)
     {
     	//xet thoi gian, cho nguoi dung online
-      console.log(data +"  "+ client.id)
+    //  console.log(data +"  "+ client.id)
       Length = Useronoroffline_email.length
     	for(index = 0; index < Length; index ++)//nguoi dung da ton tai roi thi khong them
       {
@@ -555,7 +652,7 @@ io.on('connection', function(client)
     	client.broadcast.emit('useronline', Useronoroffline_email.length)//do dai khong thay doi hoac thay 
                                                              //doi neu co them nguoi dung moi 
     	client.emit('useronline', Useronoroffline_email.length)
-      console.log("email " + Useronoroffline_email)
+      //console.log("email " + Useronoroffline_email)
     })
 
   //nguoi dung dang nhap tin nhan
