@@ -268,7 +268,7 @@
             </li>
         </ul>
         <ul class="nav navbar-nav navbar-right">
-          <li><a href="#"><span class="glyphicon glyphicon-user"></span> Your infor</a></li>
+          <li><a href="#"><span class="glyphicon glyphicon-user"></span> Your info</a></li>
           <li>
             <form class="form-horizontal" method="post" action="/user/home" style="margin-top: 7%;">
              <input type = "hidden" name = "request_log_out" value = 1 >
@@ -318,6 +318,7 @@
                           <ul class="dropdown-menu" role="menu">
                             <li><a href="#" data-toggle="modal" data-target="#myModal"><span class="fa fa-book fa-fw" onclick="UpdateProfile()"></span>&nbsp;Cập nhật thông tin</a></li>
                             <li><a href="#" onclick="TurnOfChat()"><span class="fa fa-comments-o"></span>&nbsp;Tắt/Bật chat</a></li>
+                            <li><a href="#" onclick="DelConversation()"><span class="glyphicon glyphicon-remove-sign">&nbsp;Xoá hội thoại</span></a></li>
                             <li><a href="#" data-toggle="modal" data-target="#myModal1"><span class="fa fa-lock"></span>&nbsp;Cảnh báo</a></li>
                             <li class="divider"></li>
                             <li><a href="#" data-toggle="modal" data-target="#myModal2"><span class="fa fa-circle-o-notch"></span>&nbsp;Setting</a></li>
@@ -352,7 +353,8 @@
                         
                     </div>
                     <!--hien thi animation ve nguoi dung dang nhan tin  -->
-                     <div id="nhapbanphim" style="display: none;margin-left: 15%;"> 
+                     <div id="nhapbanphim" style="display:none;margin-left: 15%;"> 
+                       <img src="http://taihinhanhdep.xyz/wp-content/uploads/2015/11/anh-dep-cho-dien-thoai-7.jpg" class="img-rounded" alt="Anh dai dien" width="40" height="40" style="margin-top:-1%;">
                        <span>.....</span>
                        <i class="fa fa-spinner fa-spin" style="font-size:24px"></i>
                        <span>.....</span>

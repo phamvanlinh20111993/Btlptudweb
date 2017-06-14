@@ -13,6 +13,7 @@ var message = new Schema({
 	content: String,// noi dung tin nhan
 	check: Number,//giá trị check thông báo đối phương đã xem tin nhắn hay chưa
 				  //đặt 1 là user_A đã xem, 2 là user_B đã xem, 0 là chưa ai xem(A hoặc B là người nhận)
+
 	created_at: Date,
 	updated_at: Date
 })

@@ -9,6 +9,7 @@ var io = require('socket.io')(server)
 var models = require('../models/user')
 var models1 = require('../models/message')
 var models2 = require('../models/warning')
+var models3 = require('../models/delmessage')
 var md5 = require('md5')
 var fs = require('fs');
 var num_of_user_online = 0;
@@ -129,19 +130,37 @@ router.route('/home')//dieu huong app
        sẽ không trả về dữ liệu nữa
       */
       var Count_message = 0;//số lương tin nhắn hiện có
+      var Timedel = new Date("October 6, 1995 15:15:15")//thoi gian duoc khoi tao mac dinh truoc khi app hinh thanh
 
+      //dem so luong tin nhan giua 2 nguoi
       models1.Message.find({$or:[{$and:[{'id_user_A': req.query.loadmessagea},
        {'id_user_B': req.query.loadmessageb}]},{$and:[{'id_user_A': req.query.loadmessageb},
        {'id_user_B': req.query.loadmessagea}]}]}).count(function(err, num)
       {
-         Count_message = num;
+          Count_message = num;
+      })
+
+      //xac dinh xem nguoi dung co xoa tin nhan khong
+      models3.Delmessage.find({$and:
+         [{'user_a_del': req.query.loadmessagea}, {'user_b_del': req.query.loadmessageb}]
+      })
+      .limit(1)//gioi han so ban ghi
+      .sort({'timedel': -1})//sap xep tang dan theo thoi gian
+      .exec(function(err, times){
+         if(err)
+            throw err
+       
+         if(times.length > 0){//co ton tai thoi gian xoa
+            Timedel = (times[0].timedel).toISOString()
+          //  console.log("Thoi gian la 112: " + (times[0].timedel).toISOString())
+         }
       })
 
       //Hệ thống chỉ trả về mỗi lần request của người dùng 15 tin nhắn bắt đầu từ những tin nhắn mới nhất trở về
       //trước
       setTimeout(function(){//giai quyet van de giua 2 ham async, giai phap tam thoi
 
-         console.log("so luong tin nhan la: " + Count_message + " " + req.query.num)
+       //  console.log("so luong tin nhan la: " + Count_message + " " + req.query.num)
          if(Count_message > (req.query.num - 15))
          {
             var Skip_field = Count_message - req.query.num;
@@ -152,11 +171,18 @@ router.route('/home')//dieu huong app
               Skip_field = 0;
             }
 
-            console.log("so ban ghi bi bo qua la: " + Skip_field)
-            console.log("gioi han " + Limit_field)
-            models1.Message.find({$or:[{$and:[{'id_user_A': req.query.loadmessagea},
-            {'id_user_B': req.query.loadmessageb}]},{$and:[{'id_user_A': req.query.loadmessageb},
-            {'id_user_B': req.query.loadmessagea}]}]})
+            //  console.log("so ban ghi bi bo qua la: " + Skip_field)
+          //  console.log("gioi han " + Limit_field)
+            models1.Message.find({$and:
+               [{
+                  $or:[{
+                     $and:[{'id_user_A': req.query.loadmessagea}, {'id_user_B': req.query.loadmessageb}]}, {
+
+                     $and:[{'id_user_A': req.query.loadmessageb}, {'id_user_B': req.query.loadmessagea}]}
+                  ]},
+                  //so sanh thoi gian
+               {'created_at': { $gte: Timedel}}
+            ]})
             .populate({//truy van bo qua null  { "$exists": true, "$ne": null }....
                path: 'id_user_A',
                match: 
@@ -172,8 +198,9 @@ router.route('/home')//dieu huong app
             .exec(function(err, message)
             {
                if (err) 
-               return handleError(err);
-               console.log("so luong tin nhan tra ve: " + message.length)
+                  return handleError(err);
+             //  console.log("so luong tin nhan tra ve: " + message.length)
+             //  console.log(message)
                res.send(message)
             });
          }
@@ -228,7 +255,7 @@ router.route('/home')//dieu huong app
     		}else
         {
     			  Create_directory(req.session.chat_id)//tao lai thu muc, neu ton tai thi khong tao
-    	      Delete_file_in_directory(req.session.chat_id)//xoa thu muc
+    	        Delete_file_in_directory(req.session.chat_id)//xoa thu muc
     	   
     			  var dirname = path.resolve(__dirname, "..");
       	 		var newPath = dirname + "/Image/" + req.session.chat_id + "/" + imageName;
@@ -267,6 +294,12 @@ router.route('/home')//dieu huong app
           console.log("Loi luu canh bao nguoi dung: " + err)
         res.send("Cảnh báo thành công. Hệ thống sẽ xử lí yêu cầu của bạn sớm nhất có thể.")
       })
+  }
+
+  //tắt chat voi nguoi dung nao đó
+  if(req.body.you_turnofchat){
+    console.log(req.body.you_turnofchat + "  " + req.body.who_was_block)
+    res.send("Thành công")
   }
 
 }).put(function(req, res)
@@ -328,9 +361,84 @@ router.route('/home')//dieu huong app
 
   }
 
-}).delete(function(req, res){
+}).delete(function(req, res)
+{
+  /*
+      Ý tưởng cho việc xóa tin nhắn như sau:
+        A và B nhắn tin cho nhau, có csdl message sẽ lưu trữ nội dung tin nhắn giữa 2 người. Bây giờ khi A hoặc
+        B muốn xóa tin nhắn giữa 2 người, để tôn trọng quyền của A, Khi B "xóa tin nhắn" thì chỉ B không nhìn thấy
+        nội dung tin nhắn giữa 2 người. Còn A vẫn nhìn thấy(giống facebook). Vậy tin nhắn chỉ thực sự bị xóa hoàn 
+        toàn khi cả A và B đều muốn xóa tin nhắn của nhau. Có thể dùng cách sau để triển khai ý tưởng trên:
 
-  
+          Tạo thêm 1 collection nữa đặt là Delmessage có các fields: id_A: String-chứa id của A, id_B: String-
+          chứa id của A.Thêm 1 trường rất quan trọng là thời gian yêu cầu xóa - Time_del: Date. Bây giờ khi A muốn
+          xóa tin nhắn giữa 2 người(B chưa muốn), và A và B lại có những nội dung tin nhắn mới với nhau. Câu hỏi
+          đặt ra: Ta sẽ lấy dữ liệu như thế nào để hiển thị ??? Đầu tiên cần truy vấn collection Delmessage với 
+          query String condition là Id của A(A yêu cầu) và B nếu có Datetime, lưu lại đặt biến là timedel , 
+          sau đó truy vấn collection message load nội dung tin nhắn giữa 2 người với điều kiện nội dung tin nhắn 
+          đó có thời gian sau timedel.1 điểm lưu ý là khi B cũng muốn xóa tin nhắn giữa 2 người, ta sẽ so sánh thời
+          điểm yêu cầu xóa của A và B, nếu thời gian nào nào ở xa thời điểm hiện tại hơn thì tiến hành xóa thực sự
+          collection message. Câu lệnh truy vấn lấy timedel phải thoải mãn thời gian yêu cầu timedel gần thời gian
+          hiện tại nhất.
+
+   */
+
+  if(req.body.you_delconversation)
+  {
+   
+    var Count_message_del = 0;//số lương tin nhắn hiện có
+    console.log("Da chay")
+    var delmess = new models3.Delmessage({
+        user_a_del: req.body.you_delconversation,
+        user_b_del: req.body.who_was_del,
+      })
+
+      delmess.save(function(err){
+        if(err)
+           console.log("Da luu yeu cau xoa tin nhan: " + err)
+        res.send("Đã xóa thành công.")
+      })
+
+    
+    //khi cả 2 muốn xóa tin nhắn của nhau thì xóa hoàn toàn khỏi csdl
+    setTimeout(function()
+    {
+
+      models3.Delmessage.find({$and:
+         [{'user_a_del': req.body.who_was_del}, {'user_b_del': req.body.you_delconversation}]
+      })
+      .limit(1)
+      .sort({'created_at': -1})
+      .exec(function(err, times){
+         if(err)
+            throw err
+
+         if(times.length > 0)
+         {
+            models1.Message.remove({ $and:[
+            {
+               $or:[//tim noi dung nhan tin giua 2 nguoi
+               { 
+                  $and:[{'id_user_A': req.body.you_delconversation}, {'id_user_B': req.body.who_was_del}]
+               }, 
+               {
+                  $and:[{'id_user_A': req.body.who_was_del}, {'id_user_B': req.body.you_delconversation }] 
+               }]
+            },
+            { 
+               'created_at': {$lte: (times[0].timedel).toISOString()}
+            }
+            ]}).exec(function(err, messages)
+            {
+               if (err) throw err;
+               console.log('Messages between '+req.body.who_was_del +' and '+ req.body.you_delconversation+' successfully deleted!');
+            })
+         }
+      }) 
+
+    }, 2000)
+  }
+
 })
 
 
@@ -359,13 +467,15 @@ io.on('connection', function(client)
       var id_receiver = data.substring(24, 48);//24 so tiep theo la ma nguoi nhan
       var content = data.substring(48, data.length);//con lai la noi dung chat
                      
-      // luu du lieu vao co so du lieu
+      // luu du lieu vao co so du lieu, trường user_a_del để xác nhận 1 trong 2 người dùng muốn xóa
+      //tin nhắn giữa 2 người họ, khi cả user_a_del và user_b_del cùng chứa mã id của 2 người dùng với
+      //nhau thì tin nhắn sẽ thực sự bị xóa trong csdl
       var Amessage = new models1.Message({
         id_user_A: id_sender,
         id_user_B: id_receiver,
         content: content, //noi dung tin nhan
-        check: 0,//gia gia mac dinh la chua ai xem
-			})
+        check: 0//gia gia mac dinh la chua ai xem
+		})
 
       Amessage.save(function(err){
         if(err) 

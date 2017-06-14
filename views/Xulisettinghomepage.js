@@ -76,30 +76,58 @@
      		})
     }
 
+    //Xóa vĩnh viễn hội thoại với 1 số người, với 2 tham sô là 
+    //you là mã số của bạn, someone là mã số người bạn muốn xóa tin nhắn
+    function Del_conversation_someone(you, someone)
+    {
+      //su dung ajax
+      $.ajax({
+         type: "DELETE",
+         url: "/user/home",
+         data:{you_delconversation: you, who_was_del: someone},
+         success: function(data){
+            alert(data)
+            location.reload()//refresh lại trang web
+         }
+      })
+    }
+
     //tat hop thoai chat voi nguoi dung dang nhan tin hien tai
 	function TurnOfChat()
 	{
-		var index = 0, user_name = "", id_user = "", Span_status_user_div, Input_hidden_id_user;
+		var index = 0, user_name = "", id_user = "";
 
-		for(index = 0; index < Status_user_div.length; index++)
+      if(Information_user('truefalse'))
       {
-         Span_status_user_div = Status_user_div[index].getElementsByTagName("span")
-         Input_hidden_id_user = Status_user_div[index].getElementsByTagName("input")
-         if(Span_status_user_div[0].style.color ==  "red")
-         {
-         	//lay ten nguoi dung 
-            user_name = (Span_status_user_div[0].innerHTML).toString().substring(3, (Span_status_user_div[0].innerHTML.toString()).length)
-				id_user = Input_hidden_id_user[1].value // lay id nguoi dung
-            break      
-         }
+         //lay ten nguoi dung 
+         user_name = Information_user('name')
+			id_user = Information_user('id') // lay id nguoi dung  
       }
 
 		var r = confirm("Bạn chắc chắn tắt chat với "+ user_name + ", Nếu tắt chat thì sau 60 ngày mới khôi phục được ???")
 		if(r == true){
-			alert("Ok da xong")
+			TurnOfChat_someone(yid, id_user)
 		}
 
 	}
+
+  //xóa cuộc hội thoại của người dùng, nội dung tin nhắn đã từng nhắn tin với người dùng bất kì sẽ bị xóa
+  function DelConversation()
+  {   
+      var user_name = "", id_user = "";
+
+      if(Information_user('truefalse'))
+      {
+         //lay ten nguoi dung 
+         user_name = Information_user('name')//lay ten nguoi dung bi xoa
+         id_user = Information_user('id') // lay id nguoi dung  ben kia 
+      }
+
+      var r = confirm("Bạn chắc chắn xoá hết hội thoại với "+ user_name + "???")
+      if(r == true){
+         Del_conversation_someone(yid, id_user)
+      }
+  }
 
     //thuc hien cai dat hien thi tin nhan....tren trang chu
 	//DOM thay doi, bat su kien cho thay doi thong tin nguoi dung
@@ -301,15 +329,11 @@
 				}
 			}
 		if(true_false){
-			var iii, Span_status_user_div, Input_hidden_id_user, who_warning;
-			for(var iii = 0; iii < Status_user_div.length; iii++){
-				Span_status_user_div = Status_user_div[iii].getElementsByTagName("span")
-            Input_hidden_id_user = Status_user_div[iii].getElementsByTagName("input")
-            if(Span_status_user_div[0].style.color ==  "red")//người dùng đang nói chuyện với ai
-            {
-            	who_warning = Input_hidden_id_user[1].value//lay id ma nguoi dung se canh bao
-            }
-			}
+			var  who_warning;
+         if(Information_user('truefalse'))//người dùng đang nói chuyện với ai
+         {
+            who_warning = Information_user('id')//lay id ma nguoi dung se canh bao
+         }
 			Warnning_Someone(who_warning, valu)//tham so who_warning la cảnh báo ai, valu là mã cảnh báo
 		}
 		 	
