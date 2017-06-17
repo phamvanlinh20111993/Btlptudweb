@@ -61,6 +61,7 @@
      		})
      }
 
+     
     //tắt chat với 1 số người, với 2 tham sô là 
     //you là mã số của bạn, someone là mã số người bạn muốn tắt chat
     function TurnOfChat_someone(you, someone)
@@ -93,7 +94,7 @@
       })
     }
 
-    //tat hop thoai chat voi nguoi dung dang nhan tin hien tai
+  //tat hop thoai chat voi nguoi dung dang nhan tin hien tai
 	function TurnOfChat()
 	{
 		var index = 0, user_name = "", id_user = "";
@@ -489,6 +490,13 @@
 			Update_infor_user(Update_infos)//submit form using ajax
 		}
 	})
+
+
+
+
+
+
+
 
 
 

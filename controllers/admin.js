@@ -22,6 +22,18 @@ router.route('/admin')//dieu huong app
 	}
 })
 
+.post(function(req, res){
+
+})
+
+.put(function(req, res){
+
+})
+
+.delete(function(req, res){
+
+})
+
 
 
 module.exports = router;

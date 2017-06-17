@@ -14,7 +14,25 @@ var models4 = require('../models/chatstatus')
 var md5 = require('md5')
 var fs = require('fs');
 var num_of_user_online = 0;
-//var session = require('express-session')
+
+
+var session = require("express-session")({
+    secret: "my-secret",
+    resave: true,
+    saveUninitialized: true
+});
+
+var sharedsession = require("express-socket.io-session");
+
+// Use express-session middleware for express
+app.use(session);
+
+// Use shared session middleware for socket.io
+// setting autoSave:true
+io.use(sharedsession(session, {
+    autoSave:true
+})); 
+
 
 //tao thu muc chua anh dai dien voi tham so dau vao la ma nguoi dung
 function Create_directory(user_id)
@@ -30,6 +48,26 @@ function Create_directory(user_id)
 		else
 			console.log(err)
 	}
+}
+
+//xoa thuoc tinh cua doi tuong
+function Remove_property_object(Ob)
+{
+   var index = 0, Length = Ob.length
+
+   while(index < Length)
+   {
+      delete Ob[index].id_user_A._id
+      delete Ob[index].id_user_A.created_at
+      delete Ob[index].id_user_A.updated_at
+      delete Ob[index].id_user_A.email
+      delete Ob[index].id_user_A.password
+      delete Ob[index].id_user_A.status
+
+      index ++
+   }
+
+   return Ob
 }
 
 //xoa thu muc chua anh dai dien voi tham so dau vao la ma nguoi dung
@@ -161,7 +199,21 @@ router.route('/home')//dieu huong app
       }
 
 	}else if(req.query.loadmessagea)//req.query.loadmessagea la ma id nguoi dung hien tai muon load message
-  {                              //req.query.loadmessageb la nguoi ma nguoi dung htai đang nhan tin cung
+   {                              //req.query.loadmessageb la nguoi ma nguoi dung htai đang nhan tin cung
+
+      //khi kick vào 1 người dùng nào đó server sẽ load, mọi tin nhắn giữa khi người bên kia gửi tin nhắn
+      //đến cho chủ thới đều coi là đã xem, vậy cần update lại trạng thái đã đọc tin nhắn giữa 2 người
+      //id_user_A là người gửi, id_user_B là người nhận
+      models1.Message.update({ $and:[
+         { 'id_user_B': req.query.loadmessagea }, {'id_user_A': req.query.loadmessageb}, { 'check': 1 }
+      ]}, 
+         {'check': 0}, //cai dat lai gia tri tuong ung voi $set
+         {multi: true })//thay đổi tất cả bản ghi tìm thấy
+      .exec(function(err){
+         if(err)
+            throw err
+      })
+
 
       /* mỗi lần người dùng thanh scroll trong hôp thoại chat thì nếu người dùng cứ request lên liên tục 
        thì đó không phải là 1 ý tưởng tốt. Do đó cần truy cấn csdl tìm ra số lượng tin nhắn hiện tại của
@@ -257,15 +309,51 @@ router.route('/home')//dieu huong app
             {'who_was_turned_of': req.query.askdoiturnofthisperson}
          ]}, 
          function(err, userturnof){
-                if (err) throw err;
-               console.log("I need say some thing.")
-                if(userturnof.length > 0)
-                  res.send("Bạn đã tắt chat với người này. Bật chat ???")
-                else
-                  res.send("nomatch")
-            })
+            if (err) throw err;
+            console.log("I need say some thing.")
 
-  }else//kiem tra session da duoc khai bao moi chuyen qua trang khac
+            if(userturnof.length > 0)
+                  res.send("Bạn đã tắt chat với người này. Bật chat ???")
+            else
+               res.send("nomatch")
+         })
+
+   }else if(req.query.younotseenmessage)
+   {
+
+      models1.Message.find({ $and:
+         [{'id_user_B': req.query.younotseenmessage}, {'check' : 1}]//chua xem tin nhan
+      })
+      //.distinct('id_user_A')
+      .populate('id_user_A')
+      .sort({'created_at': -1})//sap xep theo thoi gian voi thu tu giam dan
+      .exec(function(err, messages){
+         if(err) throw err
+
+         console.log(messages)
+        //console.log(Remove_property_object(messages))
+
+         res.send(messages)
+      })
+
+   }else if(req.query.younotseenmessage_count)//dem so luong tin nhan chua doc cua nguoi dung
+   {
+
+      var Numofmessagenotseen = 0
+      models1.Message.find({ $and:
+         [{'id_user_B': req.query.younotseenmessage_count}, {'check' : 1}]//chua xem tin nhan
+      })
+      //.distinct('id_user_A')
+      .populate('id_user_A')
+      .sort({'created_at': -1})//sap xep theo thoi gian voi thu tu giam dan
+      .count(function(err, num){
+         if(err) throw err
+          res.send("messagenotseen"+ num)
+      })
+
+      
+
+   }else//kiem tra session da duoc khai bao moi chuyen qua trang khac
   {
 		if(!req.session.name){//nguoi dung chua dang nhap
 			res.redirect('logsg');
@@ -292,7 +380,7 @@ router.route('/home')//dieu huong app
 {
 	//tien hanh dang xuat
 	if(req.body.request_log_out == 1){
-		req.session.destroy(function(err) {
+		req.session.destroy(function(err){
     // cannot access session here 
       if(err) console.log(err)
     })
@@ -311,7 +399,7 @@ router.route('/home')//dieu huong app
       			res.redirect("/home");
       			res.end();
     		}else
-        {
+         {
     			  Create_directory(req.session.chat_id)//tao lai thu muc, neu ton tai thi khong tao
     	        Delete_file_in_directory(req.session.chat_id)//xoa thu muc
     	   
@@ -332,7 +420,7 @@ router.route('/home')//dieu huong app
   							   res.render("home")
 					      });
       	 		});
-        }
+         }
  		});
 	}
 
@@ -431,6 +519,23 @@ router.route('/home')//dieu huong app
 
     }, 500)
 
+  }
+
+  //cập nhập các tin nhắn đã đọc ứng với người dùng
+  if(req.body.youreadmessage)
+  {
+      models1.Message.update({$and:
+         [
+            {'id_user_B': req.body.youreadmessage}, //tat ca tin nhan duoc gui cho A duoc coi la da xem
+            {'check': 1}
+         ]},
+         {'check': 0},//da xem tin nhan
+         {multi: true})
+      .exec(function(err){
+         if(err)
+            throw err
+         res.send("Ok done.")
+      })
   }
 
 }).delete(function(req, res)
@@ -558,12 +663,31 @@ var SocketID = [];//moi connect tuong ung voi 1 ID
 io.on('connection', function(client)
 {  
     console.log('Client connected ' + client.id);//nguoi dung ket noi vao server
+
+    //nhan thong tin la id cua nguoi dung dang nhan tin cung
+    client.on('chattingwithsomeone', function(userid)
+    {
+      client.handshake.session.youarechattingwith = userid
+      client.handshake.session.save()//luu lai gia tri nay
+    })
+
     client.on('chat', function(data)//nguoi dung lang nghe tren su kien chat nhan tin cho doi phuong 
     {    
       var id_sender = data.substring(0, 24);//24 so dau la ma nguoi gui
       var id_receiver = data.substring(24, 48);//24 so tiep theo la ma nguoi nhan
       var content = data.substring(48, data.length);//con lai la noi dung chat
-                     
+
+      // biến này xác định trạng thái tin nhắn đã đọc hay chưa
+      var status_read_message = 0;
+
+      //nếu mã người gửi cũng trùng với mã người dùng đang nhắn tin cùng
+      //khi người dùng nhắn tin với ai đó thì trên thanh người dùng, tên người dùng đó có màu đỏ
+
+      if((client.handshake.session.youarechattingwith).toString() === id_sender.toString())
+         status_read_message = 0;//người dùng chắc chắn đã xem
+      else                        // không trùng tức là người dùng khác gửi tin nhăn đến
+         status_read_message = 1;//chưa đọc tin nhắn
+
       // luu du lieu vao co so du lieu, trường user_a_del để xác nhận 1 trong 2 người dùng muốn xóa
       //tin nhắn giữa 2 người họ, khi cả user_a_del và user_b_del cùng chứa mã id của 2 người dùng với
       //nhau thì tin nhắn sẽ thực sự bị xóa trong csdl
@@ -571,7 +695,7 @@ io.on('connection', function(client)
         id_user_A: id_sender,
         id_user_B: id_receiver,
         content: content, //noi dung tin nhan
-        check: 0//gia gia mac dinh la chua ai xem
+        check: status_read_message//la gia tri de xac dinh da ai doc tin nhan hay chua, mặc định 1 là chưa xem, 0 là đã xem
 		})
 
       Amessage.save(function(err){
@@ -579,10 +703,10 @@ io.on('connection', function(client)
           console.log("Loi luu tin nhan: " + err)
       })
 
-		  data = id_sender.concat(id_receiver)
-		  data = data.concat(content)
-	  //	client.emit('reply', data);
-		  client.broadcast.emit('reply', data);//server gui tin nhan den nguoi nhận
+		 data = id_sender.concat(id_receiver)
+		 data = data.concat(content)
+	   	//client.emit('reply', data);
+		 client.broadcast.emit('reply', data);//server gui tin nhan den nguoi nhận
 
     });
 
@@ -590,6 +714,9 @@ io.on('connection', function(client)
     client.on('disconnect', function()
     {
        // console.log("Co ai do da off line " + client.id)
+        delete client.handshake.session.youarechattingwith;
+        client.handshake.session.save();
+
         Length = Useronoroffline_email.length
         for(index = 0; index < Length; index++)
         {

@@ -45,6 +45,20 @@
               var Sub_div_infor_user_on = Div_infor_user_on[0].getElementsByClassName("panel-body chat-box-online")
               var Status_user_div = Sub_div_infor_user_on[0].getElementsByClassName("chat-box-online-left")
 
+               //Xử lí sự kiện trên thanh navbar như nhận thông báo từ quản trị viên, thông báo có tin nhắn mới, .....
+              var Process_event_navbar_app = document.getElementById("navbar-nav-event")
+
+              //bắt sự kiện khi người dùng nhận được tin nhắn ở tag li thứ 3, thẻ span 0 trong li, the div 0
+              var Process_event_navbar_app_li = Process_event_navbar_app.getElementsByTagName("li")
+
+              //the div thu 0
+              var Process_event_navbar_app_li_div = Process_event_navbar_app_li[3].getElementsByTagName("div")
+
+              //lấy thẻ span thứ 0, thẻ b 0
+              var Process_event_navbar_app_li_span = Process_event_navbar_app_li_div[0].getElementsByTagName("span")
+              var Process_event_navbar_app_li_span_b = Process_event_navbar_app_li_span[0].getElementsByTagName("i")
+
+
               //chon file de upload anh dai dien
               Input_button_form_submit[1].addEventListener("click", function(){
                 if(Input_button_form_submit[0].value == ""){
@@ -242,7 +256,11 @@
                 Event_user_typing.style.display = "none"
                 //test để ra thông báo
                 Turnofwiththis(yid, Information_user('id'))
+                socket.emit('chattingwithsomeone', Information_user('id'))
+                Process_event_navbar_app_li_span_b[0].innerHTML = "(0)"
+                Process_event_navbar_app_li_span_b[0].style.color = "blue"
               }
+
 
               /*xet gia tri id cho nguoi dung
               Các tham số image là ảnh đại diện của người dùng, name là tên của người dùng, email là địa chỉ
@@ -254,6 +272,7 @@
               function User_in_app(image, name, email, age, id, status, date, sex, hobbies)
               {
                 var Content = "";
+
                 Content += '<div class="chat-box-online-left">';
                 Content += '<img src="'+image+'" alt="bootstrap Chat box user image" class="img-circle" data-toggle="tooltip" data-placement="right" title="'+age+'" tuổi/>';
                 if(pos == 0){
@@ -301,6 +320,7 @@
               //tuong tu nhu bien user_request bat su kien scroll hien thi them nguoi dung
               function Load_user(Id, val, num_of_user_request)
               {
+               
                 $.ajax({
                   type: "GET",
                   url: "/user/home",
@@ -334,7 +354,12 @@
                 })
               }
 
-              setTimeout(Load_user(1, "", 10), 2000)//load danh sach hien thi nguoi dung
+              setTimeout(Load_user(1, "", 10), 1500)//load danh sach hien thi nguoi dung
+
+              setTimeout(function(){
+                socket.emit('chattingwithsomeone', Information_user('id'))
+              }, 2000)
+
              // setInterval(Load_user, 4000)
               setTimeout(function()
               {//tu dong load tin nhan tu server
@@ -547,6 +572,14 @@
               return time;
             }
 
+            //ham tra ve co tham so
+            function Time_stand_para(time)
+            {
+              dt = new Date(time);
+              var  time = dt.getHours() + ":" + dt.getMinutes() + ":" + dt.getSeconds() + ", "+ dt.getDate()+ "/" + (dt.getMonth() + 1) + "/" + dt.getFullYear();
+              return time;
+            }
+
             //ham chuyen ISOdate trong mongo ve Date js
              function Time_transfer(ISOdate)
             {
@@ -592,6 +625,7 @@
             đối phương. Sau đó kiểm tra id xem có trùng với thẻ span không.Nếu không tức là người dùng chưa xem
             tin nhắn naỳ => hiển thị thông báo*/ 
 
+            var count_message_coming = 0;//dem so luong tin nhan den
             function Notify_message(anotherid, desid)//tham so anotherid la id cua nguoi gui tin nhan
             {                                        //youid la dích nhận
                var index, Span_status_user_div, H5_status_user_div, Input_hidden_id_user;
@@ -608,9 +642,15 @@
                   }else//nguoi khac nhan tin cho nguoi tôi
                   {
                     if(Input_hidden_id_user[1].value.localeCompare(anotherid) == 0 &&
-                       yid.localeCompare(desid) == 0){
+                       yid.localeCompare(desid) == 0)
+                    {
                       H5_status_user_div = Status_user_div[index].getElementsByTagName("h5")
                       H5_status_user_div[0].innerHTML = "(Có tin nhắn đến...)";
+
+                      count_message_coming ++;//so luong tin nhan tang len 1
+                      Process_event_navbar_app_li_span_b[0].innerHTML = "(" + count_message_coming + ")"
+                      Process_event_navbar_app_li_span_b[0].style.color = "red"
+
                       break;//thoat khoi vong lap
                     }
                   }
@@ -628,6 +668,7 @@
               receive_id = data.substring(24, 48);//tôi là người nhận tin của bạn
               sender_id = data.substring(0, 24);
               Notify_message(sender_id, receive_id)//thong bao co tin nhan neu nguoi dung hien tai dang nhan tin cho nguoi khac
+
               if(receive_id.localeCompare(yid) == 0)
               {
                  //vi tri 1 luu id, 0 luu email va 2 luu tuoi cua nguoi tôi dang nt
@@ -682,4 +723,154 @@
                  if(user_request)//neu van con nguoi dung de load
                   Load_user(1, "", num_of_user_request*10)
               }
+            })
+
+            //load thong tin nguoi dung chua doc tin nhan
+            //neu thong tin nay k co tren thanh nguoi dung, can hien thi nguoi dung do ra
+            function Load_user_info(posi)
+            {
+               var Process_event_navbar_app_user = document.getElementById('showinformationuser')
+               var Process_event_navbar_app_user_hdd = Process_event_navbar_app_user.getElementsByTagName("input")
+               
+               var indd = 0, Save_status_user_now = "", usernothere = false;
+               for(indd = 0; indd < Status_user_div.length; indd++)
+               {
+                  console.log(typeof posi + "  " + Process_event_navbar_app_user_hdd[posi].value + "   " + posi)
+                  Span_status_user_div = Status_user_div[indd].getElementsByTagName("span")
+                  Input_hidden_id_user = Status_user_div[indd].getElementsByTagName("input")
+                  //neu nguoi dung nhan tin den cho ban nam trong danh sach hien thi
+                  if(Input_hidden_id_user[0].value.localeCompare(Process_event_navbar_app_user_hdd[posi].value) == 0)
+                  {
+                     Chat(Span_status_user_div[0], indd)//kick tu dong vao nguoi dung do
+                     usernothere = true
+                     break
+                  }
+               }
+
+               //nguoi dung khong nam trong danh sach thi phai tim kiem trong csdl va them vao
+               if(!usernothere)
+               {
+                //  Save_status_user_now  =  Sub_div_infor_user_on[0].innerHTML
+               //   Sub_div_infor_user_on[0].innerHTML = ""  //reset thanh hop thoai nay
+                  Load_user(1, Input_hidden_id_user[0].value, 1)//nguoi dung vua nhan tin cho se xuat hien o cuoi
+              //    Sub_div_infor_user_on[0].innerHTML += Save_status_user_now 
+               }
+            }
+
+            //hien thi noi dung cua nhung nguoi nhan tin cho ban
+            var positionabc = 0;
+            function Display_user_message(img, name, email, time, age)
+            {
+               var ele = "";
+               var Process_event_navbar_app_user = document.getElementById('showinformationuser')
+
+               ele += '<div>'
+               ele +=     '<table style="margin-left: 4%;">'
+               ele +=       '<tr>'
+               ele +=       ' <td> <img src="'+img+'"  data-toggle="tooltip" title="'+email+'" class="img-rounded"  style="height: 50px;width: 50px;"></td>' 
+               ele +=          '<td> <div style="margin-left: 4%;"><a href="#" onclick = "Load_user_info('+positionabc+')"><i style="color: orange;">'+name+'</i> đã nhắn tin cho bạn </a>'
+               ele +=           '<p style="font-style: italic;font-size: 95%;">'+Time_stand_para(time)+'</p></div></td>'
+               ele +=       '</tr>'
+               ele +=        '</table>'
+               ele += '<input type = "hidden" value = "'+email+'">'//email cung la 1 gia tri xac thuc nguoi dung
+               ele +=       '</div>'
+
+               Process_event_navbar_app_user.innerHTML += ele
+               positionabc ++;
+            }
+
+            //auto load cac tin nhan chua duoc doc cho nguoi dung luu trong server
+            function Load_message_not_seen(yid)
+            {
+               //su dung ajax
+               $.ajax({
+                  type: "GET",
+                  url: "/user/home",
+                  data:{ younotseenmessage: yid },
+                  success: function(data)
+                  {
+                     var Lg = data.length
+                     if(Lg > 0)
+                     {
+                        document.getElementById('showinformationuser').innerHTML = ""
+                        var index = 0;
+
+                        for(index = 0; index < Lg; index++)
+                        {
+                           Display_user_message(data[index].id_user_A.image, data[index].id_user_A.username,
+                            data[index].id_user_A.email, data[index].id_user_A.created_at, data[index].id_user_A.age)
+                           if(index < Lg - 1)
+                              document.getElementById('showinformationuser').innerHTML += '<hr>'
+                        }
+                        Process_event_navbar_app_li_span_b[0].innerHTML = "("+data.length+")"
+                        Process_event_navbar_app_li_span_b[0].style.color = "red"
+                     }else{
+                         document.getElementById('showinformationuser').innerHTML = "(Không có tin nhắn nào)"
+                     }
+                  }
+               })
+            }
+
+            //ham dem so luong tin nhan ma nguoi dung chua doc
+            function Auto_count_message_not_seen(youid)
+            {
+               //su dung ajax
+               $.ajax({
+                  type: "GET",
+                  url: "/user/home",
+                  data:{ younotseenmessage_count: youid },
+                  success: function(data)
+                  {
+                     var Length = data.substring(14, data.length)
+
+                     if(parseInt(Length) > 0)
+                     {
+                        Process_event_navbar_app_li_span_b[0].innerHTML = "("+parseInt(Length)+")"
+                        Process_event_navbar_app_li_span_b[0].style.color = "red"
+                     }else{
+                         document.getElementById('showinformationuser').innerHTML = "(Không có tin nhắn nào)"
+                     }
+                  }
+               })
+            }
+
+
+            //tu dong load message chua doc
+            setTimeout(function(){
+               Auto_count_message_not_seen(yid)
+            }, 200)
+
+            //thong báo đã kick vào xem tin nhắn thi can gui len server thay doi trang thai chua doc tin nhan 
+            //thanh doc tin nhan
+            function Seen_message(yid)
+            {
+               Process_event_navbar_app_li_span_b[0].innerHTML = "(0)"
+               Process_event_navbar_app_li_span_b[0].style.color = "blue"
+               //su dung ajax
+               $.ajax({
+                  type: "PUT",
+                  url: "/user/home",
+                  data:{ youreadmessage: yid },
+                  success: function(data){
+                     
+                  }
+               })
+            }
+
+
+            //bat su kien click khi nguoi dung nhan tin nhan
+            Process_event_navbar_app_li_span[0].addEventListener("click", function(){
+              Load_message_not_seen(yid)//lay tin nhan
+
+              count_message_coming = 0;
+              for(ind = 0; ind < Status_user_div.length; ind++)
+              {
+                  Span_status_user_div = Status_user_div[ind].getElementsByTagName("span")
+                  H5_status_user_div = Status_user_div[ind].getElementsByTagName("h5")
+                  if(H5_status_user_div[0].innerHTML != "")
+                     H5_status_user_div[0].innerHTML = "";//nhan duoc thong bao thi tat di
+              }
+
+              //gui request da xem tin nhan
+              setTimeout(function(){Seen_message(yid)}, 4000)
             })

@@ -241,29 +241,35 @@
        <div class="navbar-header">
           <a class="navbar-brand" href="#" style="color: red;">Web App NodeJs</a>
        </div>
-        <ul class="nav navbar-nav">
-           <li><a href="#">Introduce</a></li>
+        <ul class="nav navbar-nav" id="navbar-nav-event">
+            <li><a href="#">Introduce</a></li>
             <li><a href="#">About us</a></li>
             <li class="active" data-toggle="tooltip" title="Thông báo từ quản trị viên"><a href="#" data-target="#myModal3" data-toggle="modal" style="margin-top: 2%;">
-            <span class="glyphicon glyphicon-globe" style="font-size: 115%;"></span></a></li>
-            <li data-toggle="tooltip" title="Nhận tin nhắn từ người dùng khác"><div class="dropdown" >
+            <span class="glyphicon glyphicon-globe" style="font-size: 115%;"><b style="margin-bottom: 100px;color:blue;">(0)</b></span></a></li>
+            <li data-toggle="tooltip" title="Nhận tin nhắn từ người dùng khác">
+            <div class="dropdown" >
+
              <a href="#" data-toggle="dropdown">
-              <span class="glyphicon glyphicon-comment" style="font-size: 150%;margin-top: 70%;margin-left: 40%;"></span>
+              <span class="glyphicon glyphicon-comment" style="font-size: 125%;margin-top: 42%;margin-left: 40%;"><i style="margin-bottom: 100px;font-size: 98%;color:blue;">(0)</i></span>
              </a>
-                <ul class="dropdown-menu">
+
+                <ul class="dropdown-menu" style="width: 1000%;">
                   <li>
-                    <div style="min-height: 100px;">
-                      <div>
-                        <a href="#">A nhắn tin cho bạn </a>
-                        <p style="font-style: italic;font-size: 95%;">12:24, 24/6/2017</p>
-                      </div>
-                      <div>
-                        <a href="#">B nhắn tin cho bạn </a>
-                        <p style="font-style: italic;font-size: 95%;">8:24, 21/6/2017</p>
-                      </div>
+
+                    <div style="max-height: 300px;overflow-y: scroll;" id = "showinformationuser">
+                     <!-- <div>
+                      <table style="margin-left: 4%;">
+                      <tr>
+                       <td> <img src="http://1.bp.blogspot.com/-3oZ7k46VeG4/Vk0d1nmNODI/AAAAAAAAC20/3B1E5A8BDC4/s1600/hinh-anh-dep-ve-dong-vat..jpg"  class="img-rounded"  style="height: 50px;width: 50px;"></td> 
+                         <td> <div style="margin-left: 4%;"><a href="#">PhamLinh đã nhắn tin cho bạn </a>
+                          <p style="font-style: italic;font-size: 95%;">12:24, 24/6/2017</p></div></td>
+                      </tr>
+                        </table>
+                      </div> -->
                     </div>
                   </li>
                 </ul>
+
               </div>
             </li>
         </ul>

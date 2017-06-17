@@ -27,13 +27,13 @@ app.use(bodyParser.urlencoded({extended: true}))
 app.use(bodyParser.json())
 app.use(session({
 	secret:'secret',
-	saveUninitialized: false,
+	saveUninitialized: true,
 	resave: false,
 	cookie: {maxAge: 900000}//neu de secure:true thi session khong duoc khoi tao???
 //	store: new mongoStore({  // luu session vao co so du lieu mongodb
-  //  	mongooseConnection: mongoose.connection,
+ //   	mongooseConnection: mongoose.connection,
   //  	collection: 'sessions' // default
- // 	})
+  //	})
 }))
 
 app.use(flash())
