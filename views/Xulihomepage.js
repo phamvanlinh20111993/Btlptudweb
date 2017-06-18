@@ -144,11 +144,14 @@
               function Status_user(data, Value)
               {
                   var Length = Status_user_div.length; 
-                  for(var index = 0; index < Length; index++){
+                  for(var index = 0; index < Length; index++)
+                  {
                     var inputhidden = Status_user_div[index].getElementsByTagName('input');//mã người dùng bị ẩn
-                    if(inputhidden[0].value.localeCompare(data) == 0){
+                    if(inputhidden[0].value.localeCompare(data) == 0)
+                    {
                       var tagp = Status_user_div[index].getElementsByTagName('p');
-                      tagp[0].innerHTML = Value;
+                      tagp[0].innerHTML = Value;//trang thai nguoi dung on hay offline
+
                       //alert(Value)
                     }
                   }
@@ -287,7 +290,7 @@
                   
                 Content +=  '<br />';
 
-                if(status == 0)
+                if(status == 0)//trang thai khong online
                  Content +=  '( <small style="color:black;">'+Change_date(date)+'</small> )';
 
                 Content += '<input type="hidden" value = "'+email+'" >';//an dia chi email
@@ -295,6 +298,7 @@
                 Content += '<input type="hidden" value = "'+age+'">';//an do tuoi
                 Content += '<input type="hidden" value = "'+sex+'">';//ẩn giới tính
                 Content += '<input type="hidden" value = "'+hobbies+'">';//ẩn sở thích
+                Content += '<input type="hidden" value = "'+date+'">';//an thoi gian cua nguoi dung
                 Content +=  '</div>';
                 Content +=  '<hr class="hr-clas-low" />';
                 pos++;
@@ -735,7 +739,7 @@
                var indd = 0, Save_status_user_now = "", usernothere = false;
                for(indd = 0; indd < Status_user_div.length; indd++)
                {
-                  console.log(typeof posi + "  " + Process_event_navbar_app_user_hdd[posi].value + "   " + posi)
+                  //console.log(typeof posi + "  " + posi)
                   Span_status_user_div = Status_user_div[indd].getElementsByTagName("span")
                   Input_hidden_id_user = Status_user_div[indd].getElementsByTagName("input")
                   //neu nguoi dung nhan tin den cho ban nam trong danh sach hien thi
@@ -759,7 +763,7 @@
 
             //hien thi noi dung cua nhung nguoi nhan tin cho ban
             var positionabc = 0;
-            function Display_user_message(img, name, email, time, age)
+            function Display_user_message(img, name, email, time, age, content)
             {
                var ele = "";
                var Process_event_navbar_app_user = document.getElementById('showinformationuser')
@@ -768,8 +772,8 @@
                ele +=     '<table style="margin-left: 4%;">'
                ele +=       '<tr>'
                ele +=       ' <td> <img src="'+img+'"  data-toggle="tooltip" title="'+email+'" class="img-rounded"  style="height: 50px;width: 50px;"></td>' 
-               ele +=          '<td> <div style="margin-left: 4%;"><a href="#" onclick = "Load_user_info('+positionabc+')"><i style="color: orange;">'+name+'</i> đã nhắn tin cho bạn </a>'
-               ele +=           '<p style="font-style: italic;font-size: 95%;">'+Time_stand_para(time)+'</p></div></td>'
+               ele +=          '<td> <div style="margin-left: 4%;"><a href = "#" data-toggle="tooltip" title="content: '+content+'" onclick = "Load_user_info('+positionabc+')"><i style="color: orange;">'+name+'</i> đã nhắn tin cho bạn </a>'
+               ele +=           '<p style="font-style: italic;font-size: 95%;">'+Change_date(time)+'</p></div></td>'
                ele +=       '</tr>'
                ele +=        '</table>'
                ele += '<input type = "hidden" value = "'+email+'">'//email cung la 1 gia tri xac thuc nguoi dung
@@ -794,16 +798,13 @@
                      {
                         document.getElementById('showinformationuser').innerHTML = ""
                         var index = 0;
-
                         for(index = 0; index < Lg; index++)
                         {
-                           Display_user_message(data[index].id_user_A.image, data[index].id_user_A.username,
-                            data[index].id_user_A.email, data[index].id_user_A.created_at, data[index].id_user_A.age)
+                           Display_user_message(data[index][0].id_user_B.image, data[index][0].id_user_B.username, 
+                            data[index][0].id_user_B.email, data[index][0].created_at, data[index][0].id_user_B.age, data[index][0].content)
                            if(index < Lg - 1)
                               document.getElementById('showinformationuser').innerHTML += '<hr>'
                         }
-                        Process_event_navbar_app_li_span_b[0].innerHTML = "("+data.length+")"
-                        Process_event_navbar_app_li_span_b[0].style.color = "red"
                      }else{
                          document.getElementById('showinformationuser').innerHTML = "(Không có tin nhắn nào)"
                      }
@@ -859,9 +860,10 @@
 
 
             //bat su kien click khi nguoi dung nhan tin nhan
-            Process_event_navbar_app_li_span[0].addEventListener("click", function(){
+            Process_event_navbar_app_li_span[0].addEventListener("click", function()
+            {
+              positionabc = 0;//reset lai gia tri nay
               Load_message_not_seen(yid)//lay tin nhan
-
               count_message_coming = 0;
               for(ind = 0; ind < Status_user_div.length; ind++)
               {
@@ -874,3 +876,27 @@
               //gui request da xem tin nhan
               setTimeout(function(){Seen_message(yid)}, 4000)
             })
+
+            //ham nay tra ve thoi gian off line cua nguoi dung
+            function Auto_show_time_off_user()
+            {
+               // body..
+               var ind = 0, inputhidden;
+               for(ind = 0; ind < Status_user_div.length; ind++)
+                {
+                  Span_status_user_div = Status_user_div[ind].getElementsByTagName("span")
+                  tagp_status_user_div = Status_user_div[ind].getElementsByTagName("p")
+
+                  if((tagp_status_user_div[0].innerHTML).localeCompare("Off") == 0)
+                  {
+                     inputhidden = Status_user_div[ind].getElementsByTagName('input');
+                     //lay thoi gian da off cua nguoi dung 
+                     Status_user_div[ind].getElementsByTagName("small")[0].innerHTML = Change_date(inputhidden[5].value)
+                  }
+                }
+            }
+
+            //chay theo chu ki 60s se cap nhat thoi gian offline cua tung nguoi dung
+            setInterval(function(){
+               Auto_show_time_off_user()
+            }, 60000)

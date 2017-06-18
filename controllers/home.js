@@ -50,26 +50,6 @@ function Create_directory(user_id)
 	}
 }
 
-//xoa thuoc tinh cua doi tuong
-function Remove_property_object(Ob)
-{
-   var index = 0, Length = Ob.length
-
-   while(index < Length)
-   {
-      delete Ob[index].id_user_A._id
-      delete Ob[index].id_user_A.created_at
-      delete Ob[index].id_user_A.updated_at
-      delete Ob[index].id_user_A.email
-      delete Ob[index].id_user_A.password
-      delete Ob[index].id_user_A.status
-
-      index ++
-   }
-
-   return Ob
-}
-
 //xoa thu muc chua anh dai dien voi tham so dau vao la ma nguoi dung
 function Delete_file_in_directory(user_id)
 {
@@ -87,6 +67,17 @@ function Delete_file_in_directory(user_id)
     //	fs.rmdirSync(del_directory);
   	}
 }
+
+//hàm này giải quyết các đối tượng bị trùng lặp theo giá trị nào đó
+function Resovel_duplicate_user(Obje)
+{
+   var index = Obje.length
+
+
+
+
+}
+
 
 //hàm này sẽ loại bỏ các giá trị là những người dùng bị yêu cầu tắt chat
 //tham số users là những người dùng được trả về trong danh sách, 
@@ -282,7 +273,7 @@ router.route('/home')//dieu huong app
                   $or:[{'_id': req.query.loadmessagea}, 
                      {'_id': req.query.loadmessageb}
                ]},
-               select: {'password': 0, 'updated_at': 0, 'status': 0, 'Update_info': 0} //bo qua ca truong nay
+               select: {'password': 0, 'updated_at': 0, 'status': 0} //bo qua ca truong nay
             })
             .skip(Skip_field)// bo qua Skip_field ban ghi
             .limit(Limit_field)//gioi han so ban ghi
@@ -303,52 +294,81 @@ router.route('/home')//dieu huong app
       }, 600)
 
   }else if(req.query.askdoiturnofthisperson)
-  {
+  {//request len server hoi xem co tat chat voi nguoi nay hay khong
+
          models4.Chatstatus.find({$and:[
             {'who_turnofchat': req.query.youask}, 
             {'who_was_turned_of': req.query.askdoiturnofthisperson}
          ]}, 
          function(err, userturnof){
             if (err) throw err;
-            console.log("I need say some thing.")
 
             if(userturnof.length > 0)
-                  res.send("Bạn đã tắt chat với người này. Bật chat ???")
+               res.send("Bạn đã tắt chat với người này. Bật chat ???")
             else
                res.send("nomatch")
          })
 
-   }else if(req.query.younotseenmessage)
-   {
+   }else if(req.query.younotseenmessage)//trả về danh sách các tin nhắn chưa đọc theo độ ưu tiên
+   {                                    //cac tin nhan chua doc duoc xep dau tien, da doc roi thi uu tien theo 
+                                        //theo thoi gian gan voi thoi gian hien tai nhat
 
-      models1.Message.find({ $and:
-         [{'id_user_B': req.query.younotseenmessage}, {'check' : 1}]//chua xem tin nhan
-      })
-      //.distinct('id_user_A')
-      .populate('id_user_A')
-      .sort({'created_at': -1})//sap xep theo thoi gian voi thu tu giam dan
-      .exec(function(err, messages){
+      models1.Message.find(
+         {'id_user_B': req.query.younotseenmessage}//chua xem tin nhan
+      )
+      .distinct('id_user_A')
+     // .populate('id_user_A')
+     // .sort({'check': -1, 'created_at': -1})//sap xep theo tin nhan chua doc va theo thoi gian voi thu tu giam dan
+     // .limit(15)
+      .exec(function(err, iduser)
+      {
          if(err) throw err
 
-         console.log(messages)
-        //console.log(Remove_property_object(messages))
+         models.User.find(
+            {'_id': iduser}, 
+            {'_id': 1, 'username': 1, 'email': 1, 'image': 1, 'age': 1}
+         ).then(function(users)
+         {
+            var Account_message = []
 
-         res.send(messages)
-      })
+            users.forEach(function(u)//lay tin nhan tu csdl co tham chieu den nguoi dung
+            {
+               Account_message.push(models1.Message.find(
+                  { 'id_user_B': u._id }, 
+                  { 'created_at': 1, 'content': 1, 'id_user_B': 1}//lay 2 fields la created_at va content
+               )
+               .populate({
+                  path:'id_user_B',
+                  select: {'password': 0, 'updated_at': 0, 'status': 0, '__v': 0} //bo qua may truong nay
+               })
+               .sort({'created_at': -1})
+               .limit(1))
+            })
+
+            return Promise.all(Account_message); //dong bo tin nhan va nguoi dung
+
+         }).then(function(Result)
+         {
+           // console.log("tham chieu" + users)
+           // console.log("mang object gia tri   " + Result + "   " + Result[0][0].id_user_B.image)
+            res.send(Result)
+
+         }).catch(function(error) 
+         {
+              console.log('one of the queries failed ' + error);
+         });
+      }) 
 
    }else if(req.query.younotseenmessage_count)//dem so luong tin nhan chua doc cua nguoi dung
    {
 
       var Numofmessagenotseen = 0
       models1.Message.find({ $and:
-         [{'id_user_B': req.query.younotseenmessage_count}, {'check' : 1}]//chua xem tin nhan
-      })
-      //.distinct('id_user_A')
-      .populate('id_user_A')
-      .sort({'created_at': -1})//sap xep theo thoi gian voi thu tu giam dan
+         [{'id_user_B': req.query.younotseenmessage_count}, {'check' : 1}]//chua xem cac tin nhan
+      })                                                                  //duoc gui den ban
       .count(function(err, num){
          if(err) throw err
-          res.send("messagenotseen"+ num)
+          res.send("messagesnotseen"+ num)//mã kèm theo giá trị
       })
 
       
