@@ -34,13 +34,25 @@
      				type: "PUT",
      				url: "/user/home",
      				data:{ update_user_info: JSON.stringify(Update_info)},//chuyen mang thanh string upload len server
-     				success: function(data){
-     					alert(data)
+     				success: function(data)
+               {
+                  var Length = data.length //lấy độ dài của string
+                  var Time_remain, Data;
+                  if(Length > 40)//Server không trả vể việc update dữ liệu thành công, khi đó dữ liệu trả vể
+                  {              //kèm theo thời gian đã update, client sẽ xử lí và hiện ra cho người dùng
+                     Time_remain = parseInt(data.substring(75, Length));
+                     Time_remain += parseInt(new Date().getTime())
+                     Data = data.substring(0, 75);
+     					   alert(Data + " Thời gian update tiếp theo " + Time_stand_para(Time_remain))
+
+                  }else
+                      alert(data)
+
      					$('#myModal').modal('hide');//an modal boostrap
      				}
      			})
      		}else{
-     			alert("Bạn đã cập nhật thông tin. Thời gian update tiếp theo phải sau 90 ngày nữa.")
+     			alert("Bạn đã cập nhật thông tin. Thời gian update tiếp theo phải sau 15 ngày nữa.")
      			$('#myModal').modal('hide');//an modal boostrap
      		}
      		Count_update_infor_user++;

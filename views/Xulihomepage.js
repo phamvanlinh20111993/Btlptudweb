@@ -244,7 +244,12 @@
               //kiem tra nguoi dung co online hay khong
               socket.on('offline', function(data) //data là tham số chứa email người dùng bên kia
               {//neu co ai do offline server gui xuong client dia chi email co kem theo ma 55555
-                if(Cutstring(data) != "55555")   Status_user(data, "On");
+
+                if(Cutstring(data) != "55555")
+                {
+                  Auto_show_time_off_user()//xóa thời gian đã offline của người dùng
+                  Status_user(data, "On");
+                }   
                 else{
                   data = data.substring(0, data.length - 5)
                   Status_user(data, "Off"); 
@@ -878,16 +883,13 @@
                var ele = "";
                var Process_event_navbar_app_user = document.getElementById('showinformationuser')
 
-               ele += '<div>'
-               ele +=     '<table style="margin-left: 4%;">'
-               ele +=       '<tr>'
-               ele +=       ' <td> <img src="'+img+'"  data-toggle="tooltip" title="'+email+'" class="img-rounded"  style="height: 50px;width: 50px;"></td>' 
-               ele +=          '<td> <div style="margin-left: 4%;"><a href = "#" data-toggle="tooltip" title="content: '+content+'" onclick = "Load_user_info('+positionabc+')"><i style="color: orange;">'+name+'</i> đã nhắn tin cho bạn </a>'
-               ele +=           '<p style="font-style: italic;font-size: 95%;">'+Change_date(time)+'</p></div></td>'
-               ele +=       '</tr>'
-               ele +=        '</table>'
-               ele += '<input type = "hidden" value = "'+email+'">'//email cung la 1 gia tri xac thuc nguoi dung
-               ele +=       '</div>'
+               ele += '<div><table style="margin-left: 4%;"><tr>'
+               ele += '<td> <img src="'+img+'"  data-toggle="tooltip" title="'+email+'" class="img-rounded"  style="height: 50px;width: 50px;"></td>' 
+               ele += '<td> <div style="margin-left: 4%;"><a href = "#" data-toggle="tooltip" title="content: '+content+'" '
+               ele += 'onclick = "Load_user_info('+positionabc+')"><i style="color: orange;">'+name+'</i> đã nhắn tin cho bạn </a>'
+               ele += '<p style="font-style: italic;font-size: 95%;cursor:pointer;" data-toggle="tooltip" title="'+Time_stand_para(time)+'">'+Change_date(time)+'</p></div></td>'
+               ele +=  '</tr></table>'
+               ele += '<input type = "hidden" value = "'+email+'"></div>'//email cung la 1 gia tri xac thuc nguoi dung
 
                Process_event_navbar_app_user.innerHTML += ele
                positionabc ++;
@@ -1022,4 +1024,4 @@
             //chay theo chu ki 40s se cap nhat thoi gian offline cua tung nguoi dung
             setInterval(function(){
                Auto_show_time_off_user()
-            }, 40000)
+            }, 60000)

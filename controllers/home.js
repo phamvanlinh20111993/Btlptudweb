@@ -216,14 +216,6 @@ router.route('/home')//dieu huong app
       var Count_message = 0;//số lương tin nhắn hiện có
       var Timedel = new Date("October 6, 1995 15:15:15").toISOString()//thoi gian duoc khoi tao mac dinh truoc khi app hinh thanh
 
-      //dem so luong tin nhan giua 2 nguoi
-      models1.Message.find({$or:[{$and:[{'id_user_A': req.query.loadmessagea},
-       {'id_user_B': req.query.loadmessageb}]},{$and:[{'id_user_A': req.query.loadmessageb},
-       {'id_user_B': req.query.loadmessagea}]}]}).count(function(err, num)
-      {
-          Count_message = num;
-      })
-
       //xac dinh xem nguoi dung co xoa tin nhan khong
       models3.Delmessage.find({$and:
          [{'user_a_del': req.query.loadmessagea}, {'user_b_del': req.query.loadmessageb}]
@@ -236,8 +228,26 @@ router.route('/home')//dieu huong app
        
          if(times.length > 0){//co ton tai thoi gian xoa
             Timedel = (times[0].timedel).toISOString()
-            console.log("Thoi gian la 112: " + (times[0].timedel))
+          //  console.log("Thoi gian la 112: " + (times[0].timedel))
          }
+
+         //dem so luong tin nhan giua 2 nguoi luc xoa va chua xoa cua nhau
+         models1.Message.find({ $and:[ 
+            { $or:[{
+               $and:[
+                  {'id_user_A': req.query.loadmessagea}, {'id_user_B': req.query.loadmessageb}]}, {
+
+               $and:[
+                  {'id_user_A': req.query.loadmessageb}, {'id_user_B': req.query.loadmessagea}]
+            }]},
+            { 'created_at': { $gte: Timedel }}
+                  ]})
+         .count(function(err, num)
+         {
+             Count_message = num;
+             console.log(Count_message)
+         })
+
       })
 
       //Hệ thống chỉ trả về mỗi lần request của người dùng 15 tin nhắn bắt đầu từ những tin nhắn mới nhất trở về
@@ -255,17 +265,16 @@ router.route('/home')//dieu huong app
               Skip_field = 0;
             }
 
-            //  console.log("so ban ghi bi bo qua la: " + Skip_field)
-          //  console.log("gioi han " + Limit_field)
-            models1.Message.find({$and:
-               [{
+           // console.log(Skip_field + "   " + Limit_field)
+
+            models1.Message.find({$and:[{
                   $or:[{
                      $and:[{'id_user_A': req.query.loadmessagea}, {'id_user_B': req.query.loadmessageb}]}, {
 
                      $and:[{'id_user_A': req.query.loadmessageb}, {'id_user_B': req.query.loadmessagea}]}
                   ]},
-                  //so sanh thoi gian
-               {'created_at': { '$gte': Timedel}}
+
+                  {'created_at': { $gte: Timedel }} //so sanh thoi gian
             ]})
             .populate({//truy van bo qua null  { "$exists": true, "$ne": null }....
                path: 'id_user_A',
@@ -283,8 +292,6 @@ router.route('/home')//dieu huong app
             {
                if (err) 
                   return handleError(err);
-             //  console.log("so luong tin nhan tra ve: " + message.length)
-             //  console.log(message)
                res.send(message)
             });
          }else//2 nguoi dung lan đầu nhắn tin với nhau khi request lên server thì trả về trang rỗng
@@ -535,9 +542,11 @@ router.route('/home')//dieu huong app
     //neu la user la 2 thi nguoi dung da cap nhat roi, can kiem tra thoi gian xem co lon hon 3 thang khong
     setTimeout(function()
     {
-        if(typeof Information[0].update_infor == 'undefined'){
+        if(typeof Information[0].update_infor == 'undefined')
+        {
           models.User.findOneAndUpdate({"_id": Update_info[0]}, 
-            {"$set": {'username': Update_info[1], 'password': md5(Update_info[4]), 'sex': Update_info[3], 'hobbies': Update_info[2], 'update_infor': new Date()}},
+            { "$set": 
+               {'username': Update_info[1], 'password': md5(Update_info[4]), 'sex': Update_info[3], 'hobbies': Update_info[2], 'update_infor': new Date()}},
           function(err, user) {
             if(err)  throw err;
             res.send("Đã cập nhật thành công.")
@@ -546,12 +555,15 @@ router.route('/home')//dieu huong app
         {
           var Date_now = new Date();
           var Date_update = new Date(Information[0].update_infor)//chinh thoi gian IOSdate sang standard Date
-          if((Date_now - Date_update) < 24*3600*90*1000){
-             res.send("Bạn đã cập nhật thông tin. Thời gian update tiếp theo phải sau 90 ngày nữa.")
+          if((Date_now - Date_update) < 24*3600*15*1000)
+          {
+            var Time_remain = Date_now - Date_update
+            res.send("Bạn đã cập nhật thông tin. Thời gian update tiếp theo phải sau 15 ngày nữa." + Time_remain)
           }else
           {
             models.User.findOneAndUpdate({"_id": Update_info[0]}, 
-            {"$set": {'username': Update_info[1], 'password': md5(Update_info[4]), 'sex': Update_info[3], 'hobbies': Update_info[2], 'update_infor': new Date()}},
+            { "$set": 
+               {'username': Update_info[1], 'password': md5(Update_info[4]), 'sex': Update_info[3], 'hobbies': Update_info[2], 'update_infor': new Date()}},
             function(err, user) {
               if(err)  throw err;
               res.send("Đã cập nhật thành công.")
@@ -640,6 +652,7 @@ router.route('/home')//dieu huong app
       models3.Delmessage.find({$and:
          [{'user_a_del': req.body.who_was_del}, {'user_b_del': req.body.you_delconversation}]
       })
+      limit(1)
       .sort({'created_at': -1})
       .exec(function(err, times){
          if(err)
@@ -660,7 +673,7 @@ router.route('/home')//dieu huong app
             { 
                'created_at': {$lte: (times[0].timedel).toISOString()}
             }
-            ]}, false).exec(function(err, messages)
+            ]}, false).exec(function(err)//xoa nhieu ban ghi tim thay
             {
                if (err) throw err;
                console.log('Messages between '+req.body.who_was_del +' and '+ req.body.you_delconversation+' successfully deleted!');
