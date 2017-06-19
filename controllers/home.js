@@ -14,6 +14,7 @@ var models4 = require('../models/chatstatus')
 var md5 = require('md5')
 var fs = require('fs');
 var num_of_user_online = 0;
+//var mongoose = require('mongoose')
 
 
 var session = require("express-session")({
@@ -213,7 +214,7 @@ router.route('/home')//dieu huong app
        sẽ không trả về dữ liệu nữa
       */
       var Count_message = 0;//số lương tin nhắn hiện có
-      var Timedel = new Date("October 6, 1995 15:15:15")//thoi gian duoc khoi tao mac dinh truoc khi app hinh thanh
+      var Timedel = new Date("October 6, 1995 15:15:15").toISOString()//thoi gian duoc khoi tao mac dinh truoc khi app hinh thanh
 
       //dem so luong tin nhan giua 2 nguoi
       models1.Message.find({$or:[{$and:[{'id_user_A': req.query.loadmessagea},
@@ -235,7 +236,7 @@ router.route('/home')//dieu huong app
        
          if(times.length > 0){//co ton tai thoi gian xoa
             Timedel = (times[0].timedel).toISOString()
-          //  console.log("Thoi gian la 112: " + (times[0].timedel).toISOString())
+            console.log("Thoi gian la 112: " + (times[0].timedel))
          }
       })
 
@@ -264,7 +265,7 @@ router.route('/home')//dieu huong app
                      $and:[{'id_user_A': req.query.loadmessageb}, {'id_user_B': req.query.loadmessagea}]}
                   ]},
                   //so sanh thoi gian
-               {'created_at': { $gte: Timedel}}
+               {'created_at': { '$gte': Timedel}}
             ]})
             .populate({//truy van bo qua null  { "$exists": true, "$ne": null }....
                path: 'id_user_A',
@@ -288,7 +289,7 @@ router.route('/home')//dieu huong app
             });
          }else//2 nguoi dung lan đầu nhắn tin với nhau khi request lên server thì trả về trang rỗng
          {//thử dùng res.render('home') để fix tạm thời
-            res.render('home')
+            res.send("The end.")//gia tri string tra ve < 15 ki tu de client khong request nua
          }
 
       }, 600)
@@ -311,19 +312,39 @@ router.route('/home')//dieu huong app
 
    }else if(req.query.younotseenmessage)//trả về danh sách các tin nhắn chưa đọc theo độ ưu tiên
    {                                    //cac tin nhan chua doc duoc xep dau tien, da doc roi thi uu tien theo 
-                                        //theo thoi gian gan voi thoi gian hien tai nhat
+                                         //theo thoi gian gan voi thoi gian hien tai nhat  
 
-      models1.Message.find(
+     /* truy van theo cach 1
+      models1.Message.aggregate([
+         {
+            $match:
+            {'id_user_B': mongoose.Types.ObjectId(req.query.younotseenmessage)}
+         },//chua xem tin nhan
+         {
+            $group:
+               { "_id": "$id_user_A"}
+         },
+         {
+            $sort:
+               {"created_at": -1}
+         }
+      ])
+      .exec(function(err, iduser)
+      {
+         
+      }) */
+
+      
+      //truy van theo cách thứ 2
+      models1.Message.find(//bạn là người nhận tin nhắn
          {'id_user_B': req.query.younotseenmessage}//chua xem tin nhan
       )
       .distinct('id_user_A')
-     // .populate('id_user_A')
-     // .sort({'check': -1, 'created_at': -1})//sap xep theo tin nhan chua doc va theo thoi gian voi thu tu giam dan
-     // .limit(15)
       .exec(function(err, iduser)
       {
          if(err) throw err
 
+         //giai quyet bat dong bo trong truy van foreach dung bluebird
          models.User.find(
             {'_id': iduser}, 
             {'_id': 1, 'username': 1, 'email': 1, 'image': 1, 'age': 1}
@@ -334,14 +355,14 @@ router.route('/home')//dieu huong app
             users.forEach(function(u)//lay tin nhan tu csdl co tham chieu den nguoi dung
             {
                Account_message.push(models1.Message.find(
-                  { 'id_user_B': u._id }, 
-                  { 'created_at': 1, 'content': 1, 'id_user_B': 1}//lay 2 fields la created_at va content
+                  { 'id_user_A': u._id }, 
+                  { 'created_at': 1, 'content': 1, 'id_user_A': 1}//lay 2 fields la created_at va content
                )
                .populate({
-                  path:'id_user_B',
+                  path:'id_user_A',
                   select: {'password': 0, 'updated_at': 0, 'status': 0, '__v': 0} //bo qua may truong nay
                })
-               .sort({'created_at': -1})
+               .sort({'created_at': -1})//sap xep theo thoi gian giam dan
                .limit(1))
             })
 
@@ -350,14 +371,15 @@ router.route('/home')//dieu huong app
          }).then(function(Result)
          {
            // console.log("tham chieu" + users)
-           // console.log("mang object gia tri   " + Result + "   " + Result[0][0].id_user_B.image)
+          //  console.log("mang object gia tri   " + Result + "   " + Result[0][0].id_user_B.image)
+
             res.send(Result)
 
          }).catch(function(error) 
          {
               console.log('one of the queries failed ' + error);
          });
-      }) 
+      })
 
    }else if(req.query.younotseenmessage_count)//dem so luong tin nhan chua doc cua nguoi dung
    {
@@ -618,12 +640,11 @@ router.route('/home')//dieu huong app
       models3.Delmessage.find({$and:
          [{'user_a_del': req.body.who_was_del}, {'user_b_del': req.body.you_delconversation}]
       })
-      .limit(1)
       .sort({'created_at': -1})
       .exec(function(err, times){
          if(err)
             throw err
-
+         console.log(JSON.stringify(times))
          if(times.length > 0)
          {
             models1.Message.remove({ $and:[
@@ -639,7 +660,7 @@ router.route('/home')//dieu huong app
             { 
                'created_at': {$lte: (times[0].timedel).toISOString()}
             }
-            ]}).exec(function(err, messages)
+            ]}, false).exec(function(err, messages)
             {
                if (err) throw err;
                console.log('Messages between '+req.body.who_was_del +' and '+ req.body.you_delconversation+' successfully deleted!');
@@ -647,7 +668,7 @@ router.route('/home')//dieu huong app
          }
       }) 
 
-    }, 2000)
+    }, 3000)//xoa sau thoi gian 3s
   }
 
   //khi người dùng muốn bật chat với ai đó cần xóa bản ghi để khôi phục lại trạng thái ban đầu

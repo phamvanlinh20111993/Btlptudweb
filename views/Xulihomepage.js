@@ -136,6 +136,83 @@
                      default:
                         return null
                   }
+              }   
+
+              //thuat toan sap xep nhanh
+              function Quick_sort(Minus_time, position_time, left, right)
+              { //tham khao https://lhchuong.wordpress.com/2013/10/03/cai-dat-thuat-toan-quick-sort/
+                 var x = Minus_time[parseInt((left + right)/2)]
+                 var i = left, j = right
+
+                 do{
+                     while(Minus_time[i] < x)
+                        i++;
+                     while(Minus_time[j] > x)
+                        j--;
+
+                     if(i <= j)
+                     {
+                        //swap mang gia tri
+                        var temp = Minus_time[i]
+                        Minus_time[i] = Minus_time[j]
+                        Minus_time[j] = temp
+
+                        //swap mang vi tri
+                        temp = position_time[i]
+                        position_time[i] = position_time[j]
+                        position_time[j] = temp
+                      
+                        i++
+                        j--
+                     }
+                 }while(i < j)
+
+                 //de quy
+                 if(left < j)
+                     Quick_sort(Minus_time, position_time, left, j)
+                  if(i < right)
+                     Quick_sort(Minus_time, position_time, i, right)
+              }
+
+              //hàm sắp xếp dữ liệu theo thời gian
+              //có thể cải tiến thuật toán dựa trên các thuật toán sắp xếp
+              function Quick_sort_data(data)
+              {
+                  var Minus_time = []// độ lệch thời gian so với hiện tại
+                  var position_time = []
+                  var Time = new Date().getTime()
+                  var Time_message, index = 0;
+
+                  for(index = 0; index < data.length; index++)
+                  {
+                     Time_message = new Date(data[index][0].created_at).getTime()
+
+                     Minus_time[index] = Time - Time_message
+                     position_time[index] = index;//gia tri tuong ung voi vi tri 
+                  }
+
+                  //tien hanh sắp xếp
+                  Quick_sort(Minus_time, position_time, 0, data.length - 1)
+                  
+                  return position_time
+              }
+
+              //Hàm trả về thông người dùng là đối phương sẽ nhắn tin cùng bạn
+              function  User_info_start_chat(Numofwarn, hobbies, sex, email, age) 
+              {
+                 // body...
+                 var element = "";
+
+                 element = '<div class="alert alert-success"><strong>Thông tin người dùng!</strong></br></br>';
+                 element += 'Địa chỉ email: <b>' + email + '</b></br>';
+                 element += 'Độ tuổi:  <b>' + age + '</b></br>';
+                 element += 'Sở thích:  <b>' + hobbies + '</b></br>';
+                 element += 'Giới tính:  <b>' + sex + '</b></br>';
+                 element += 'Số lần bị cảnh báo:  <b>' + Numofwarn + '</b></br></br>';
+                 element += 'Hãy bắt đầu chat đi nào ...</div>';
+
+
+                 Div_content_message[0].innerHTML += element
               }
 
               //ham ve lai so nguoi dung da on hay off
@@ -228,7 +305,8 @@
                */
               function Chat(th, id)
               {
-                var ind, Span_status_user_div, H5_status_user_div;
+
+                var ind, Span_status_user_div, H5_status_user_div, User_info_general;
                 user_request = true;//khoi phuc trang thai load nguoi dung
                 no_message_for_you = true;//khoi phuc trang thai co the load tin nhan
                 num_of_message_request = 1;//so luong tin nhan tra ve 1
@@ -246,8 +324,14 @@
                 Div_content_message[0].innerHTML = ""//reset lai hop thoai chat
                 Partner_id = themid;//ma id cua doi phuong
                 Load_message(yid, themid, 15, function(data){
-                  if(data.length < 15) 
-                    no_message_for_you = false;
+                  if(data.length < 15)
+                  {
+                     //hien thi thong tin cua doi phuong
+                     User_info_general = Information_user('all')
+                     User_info_start_chat("Chưa cập nhật",  User_info_general[5], 
+                        User_info_general[4], User_info_general[0], User_info_general[2]) 
+                     no_message_for_you = false;
+                 }
                   Show_message(data)
                   Div_content_message[0].scrollTop = Div_content_message[0].scrollHeight;
                 })// mặc định 15 tin nhắn(lịch sử chat) từ 2 người dùng
@@ -291,7 +375,9 @@
                 Content +=  '<br />';
 
                 if(status == 0)//trang thai khong online
-                 Content +=  '( <small style="color:black;">'+Change_date(date)+'</small> )';
+                  Content +=  ' <small style="color:black;">( '+Change_date(date)+' )</small> ';
+                else 
+                  Content +=  ' <small style="color:black;"></small> ';
 
                 Content += '<input type="hidden" value = "'+email+'" >';//an dia chi email
                 Content += '<input type="hidden" id = "'+pos+'" value = "'+id+'" >';//an id nguoi dung
@@ -370,9 +456,16 @@
                 
                   if(Information_user('truefalse'))
                   {
+
                       //load tin nhan tu csdl cho nguoi dung
                      Load_message(yid, Information_user('id'), 15, function(data){
-                        if(data.length < 15) no_message_for_you = false;
+                        if(data.length < 15)
+                        {
+                            var User_info_general = Information_user('all')
+                            User_info_start_chat("Chưa cập nhật",  User_info_general[5], 
+                              User_info_general[4], User_info_general[0], User_info_general[2]) 
+                            no_message_for_you = false;
+                        }
                         Show_message(data)
                         Div_content_message[0].scrollTop = Div_content_message[0].scrollHeight;
                       });
@@ -427,7 +520,10 @@
               //hien thi du lieu tin nhan
               function Show_message(data)
               {
-                var Length = data.length;
+               var Length = 0;
+
+               if(typeof data != 'string')
+                  Length = data.length;
 
                 for(index = 0; index < Length; index++)
                 {
@@ -439,7 +535,8 @@
                     Create_message_send(data[index].content, Time_transfer(data[index].created_at))
                   }else
                   {//tin nhan duoc nhan
-                    if((data[index].id_user_B).localeCompare(yid) == 0){
+                    if((data[index].id_user_B).localeCompare(yid) == 0)
+                    {
                       Create_message_receive(data[index].content, data[index].id_user_A.username, 
                       data[index].id_user_A.image, Time_transfer(data[index].created_at), data[index].id_user_A.age);
                     }
@@ -469,10 +566,23 @@
                       Div_content_message[0].innerHTML = "";
                       Load_message(yid, Information_user('id'), num_of_message_request*15, function(data)
                       {
+
                         Show_message(data)//hien thi tin nhan tu qua khu
                         Div_content_message[0].innerHTML += Storage ;//lay so luong tin nhan truoc do ra
-                        if(data.length < 15) //gia tri trk thay doi data.length < num_of_message_request*15
+                        if(data.length < 15)
+                        { //gia tri trk thay doi data.length < num_of_message_request*15
+
                           no_message_for_you = false;
+                          //hien thi thong tin cua doi phuong
+                          var temp_message = Div_content_message[0].innerHTML
+                          Div_content_message[0].innerHTML = ""
+                          //thong tin phai xuat hien o dau 
+                           User_info_general = Information_user('all')
+                           User_info_start_chat("Chưa cập nhật",  User_info_general[5], 
+                              User_info_general[4], User_info_general[0], User_info_general[2]) 
+
+                           Div_content_message[0].innerHTML += temp_message
+                       }
                         //sau khi load thêm số luong tin nhắn scroll thay đổi cần giữ lại vị trí trước đó(trước
                         // khi thay đổi)
                         Div_content_message[0].scrollTop = (Div_content_message[0].scrollHeight - position_scroll);
@@ -756,7 +866,7 @@
                {
                 //  Save_status_user_now  =  Sub_div_infor_user_on[0].innerHTML
                //   Sub_div_infor_user_on[0].innerHTML = ""  //reset thanh hop thoai nay
-                  Load_user(1, Input_hidden_id_user[0].value, 1)//nguoi dung vua nhan tin cho se xuat hien o cuoi
+                  Load_user(3, Process_event_navbar_app_user_hdd[posi].value, 10)//nguoi dung vua nhan tin cho se xuat hien o cuoi
               //    Sub_div_infor_user_on[0].innerHTML += Save_status_user_now 
                }
             }
@@ -793,15 +903,18 @@
                   data:{ younotseenmessage: yid },
                   success: function(data)
                   {
+                     
                      var Lg = data.length
+                     var Pos = Quick_sort_data(data)//chế biến dữ liệu
+                     
                      if(Lg > 0)
                      {
                         document.getElementById('showinformationuser').innerHTML = ""
                         var index = 0;
                         for(index = 0; index < Lg; index++)
                         {
-                           Display_user_message(data[index][0].id_user_B.image, data[index][0].id_user_B.username, 
-                            data[index][0].id_user_B.email, data[index][0].created_at, data[index][0].id_user_B.age, data[index][0].content)
+                           Display_user_message(data[Pos[index]][0].id_user_A.image, data[Pos[index]][0].id_user_A.username, 
+                            data[Pos[index]][0].id_user_A.email, data[Pos[index]][0].created_at, data[Pos[index]][0].id_user_A.age, data[Pos[index]][0].content)
                            if(index < Lg - 1)
                               document.getElementById('showinformationuser').innerHTML += '<hr>'
                         }
@@ -838,7 +951,8 @@
 
             //tu dong load message chua doc
             setTimeout(function(){
-               Auto_count_message_not_seen(yid)
+               Auto_count_message_not_seen(yid) //tu dong dem so luong tin nhan chua doc cua nguoi dung
+               Load_message_not_seen(yid)       //load tin nhan 1 lan nhung tin nhan da doc hoac chua doc
             }, 200)
 
             //thong báo đã kick vào xem tin nhắn thi can gui len server thay doi trang thai chua doc tin nhan 
@@ -862,19 +976,26 @@
             //bat su kien click khi nguoi dung nhan tin nhan
             Process_event_navbar_app_li_span[0].addEventListener("click", function()
             {
-              positionabc = 0;//reset lai gia tri nay
-              Load_message_not_seen(yid)//lay tin nhan
-              count_message_coming = 0;
-              for(ind = 0; ind < Status_user_div.length; ind++)
-              {
+               positionabc = 0;//reset lai gia tri nay
+             
+               //gui request da xem tin nhan, hàm này không thể chạy liên tục request lên server khi không có tin nhắn
+               //set điều kiện khi có tin nhắn đến thì mới gửi request
+               var num_of_message_not_see = Process_event_navbar_app_li_span_b[0].innerHTML;
+              
+               if(parseInt(num_of_message_not_see.substring(1, num_of_message_not_see.length-1)) > 0)
+               {
+                  Load_message_not_seen(yid)//lay tin nhan
+                  setTimeout(function(){Seen_message(yid)}, 4000)//dong bo giua 2 ham
+               }
+               count_message_coming = 0;
+               for(ind = 0; ind < Status_user_div.length; ind++)
+               {
                   Span_status_user_div = Status_user_div[ind].getElementsByTagName("span")
                   H5_status_user_div = Status_user_div[ind].getElementsByTagName("h5")
                   if(H5_status_user_div[0].innerHTML != "")
                      H5_status_user_div[0].innerHTML = "";//nhan duoc thong bao thi tat di
-              }
-
-              //gui request da xem tin nhan
-              setTimeout(function(){Seen_message(yid)}, 4000)
+               }
+              
             })
 
             //ham nay tra ve thoi gian off line cua nguoi dung
@@ -891,12 +1012,14 @@
                   {
                      inputhidden = Status_user_div[ind].getElementsByTagName('input');
                      //lay thoi gian da off cua nguoi dung 
-                     Status_user_div[ind].getElementsByTagName("small")[0].innerHTML = Change_date(inputhidden[5].value)
+                     Status_user_div[ind].getElementsByTagName("small")[0].innerHTML = "( " + Change_date(inputhidden[5].value) + " )"
+                  }else{
+                      Status_user_div[ind].getElementsByTagName("small")[0].innerHTML = ""
                   }
                 }
             }
 
-            //chay theo chu ki 60s se cap nhat thoi gian offline cua tung nguoi dung
+            //chay theo chu ki 40s se cap nhat thoi gian offline cua tung nguoi dung
             setInterval(function(){
                Auto_show_time_off_user()
-            }, 60000)
+            }, 40000)
