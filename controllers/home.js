@@ -69,16 +69,6 @@ function Delete_file_in_directory(user_id)
   	}
 }
 
-//hàm này giải quyết các đối tượng bị trùng lặp theo giá trị nào đó
-function Resovel_duplicate_user(Obje)
-{
-   var index = Obje.length
-
-
-
-
-}
-
 
 //hàm này sẽ loại bỏ các giá trị là những người dùng bị yêu cầu tắt chat
 //tham số users là những người dùng được trả về trong danh sách, 
@@ -158,7 +148,7 @@ router.route('/home')//dieu huong app
          setTimeout(function(){
             var Random = RandomInt(parseInt(Length_of_document), 0)//random 1 nguoi dua tren vi 
                                        //tri cua nguoi dung trong danh sach
-            console.log(Random + "  " + Length_of_document)
+          //  console.log(Random + "  " + Length_of_document)
             if(Random == 0) Random = 1;//trường hợp skip bỏ qua 
             models.User.find({})
             .limit(1)
@@ -191,11 +181,12 @@ router.route('/home')//dieu huong app
       }
 
 	}else if(req.query.loadmessagea)//req.query.loadmessagea la ma id nguoi dung hien tai muon load message
-   {                              //req.query.loadmessageb la nguoi ma nguoi dung htai đang nhan tin cung
+   {                              //req.query.loadmessageb la nguoi ma nguoi dung hien tai đang nhan tin cung
 
       //khi kick vào 1 người dùng nào đó server sẽ load, mọi tin nhắn giữa khi người bên kia gửi tin nhắn
       //đến cho chủ thới đều coi là đã xem, vậy cần update lại trạng thái đã đọc tin nhắn giữa 2 người
       //id_user_A là người gửi, id_user_B là người nhận
+      console.log("value " + req.query.loadmessagea + "   " + req.query.loadmessageb)
       models1.Message.update({ $and:[
          { 'id_user_B': req.query.loadmessagea }, {'id_user_A': req.query.loadmessageb}, { 'check': 1 }
       ]}, 
@@ -204,6 +195,7 @@ router.route('/home')//dieu huong app
       .exec(function(err){
          if(err)
             throw err
+         console.log("Da update thanh cong. " + req.query.loadmessagea + "   " + req.query.loadmessageb)
       })
 
 
@@ -245,7 +237,7 @@ router.route('/home')//dieu huong app
          .count(function(err, num)
          {
              Count_message = num;
-             console.log(Count_message)
+            // console.log(Count_message)
          })
 
       })
@@ -283,7 +275,7 @@ router.route('/home')//dieu huong app
                   $or:[{'_id': req.query.loadmessagea}, 
                      {'_id': req.query.loadmessageb}
                ]},
-               select: {'password': 0, 'updated_at': 0, 'status': 0} //bo qua ca truong nay
+               select: {'password': 0, 'updated_at': 0, 'status': 0,  'update_infor': 0} //bo qua ca truong nay
             })
             .skip(Skip_field)// bo qua Skip_field ban ghi
             .limit(Limit_field)//gioi han so ban ghi
@@ -361,8 +353,11 @@ router.route('/home')//dieu huong app
 
             users.forEach(function(u)//lay tin nhan tu csdl co tham chieu den nguoi dung
             {
-               Account_message.push(models1.Message.find(
-                  { 'id_user_A': u._id }, 
+               Account_message.push(models1.Message.find({$and:
+                  [
+                     { 'id_user_A': u._id }, 
+                     { 'id_user_B': req.query.younotseenmessage }
+                  ]}, 
                   { 'created_at': 1, 'content': 1, 'id_user_A': 1}//lay 2 fields la created_at va content
                )
                .populate({
@@ -392,15 +387,18 @@ router.route('/home')//dieu huong app
    {
 
       var Numofmessagenotseen = 0
+
       models1.Message.find({ $and:
          [{'id_user_B': req.query.younotseenmessage_count}, {'check' : 1}]//chua xem cac tin nhan
-      })                                                                  //duoc gui den ban
-      .count(function(err, num){
+      })                                                                 //duoc gui den ban
+      .distinct('id_user_A')                                                               
+      .count()
+      .exec(function(err, num)
+      {
+        // console.log("nguoi dung: " + JSON.stringify(num))
          if(err) throw err
           res.send("messagesnotseen"+ num)//mã kèm theo giá trị
       })
-
-      
 
    }else//kiem tra session da duoc khai bao moi chuyen qua trang khac
   {
@@ -440,35 +438,35 @@ router.route('/home')//dieu huong app
 	if(typeof req.files != 'undefined')
   {//neu co file gui len
 		fs.readFile(req.files.File.path, function (err, data)
-    {
+      {
     		var imageName = req.files.File.name
     		if(!imageName)
         {
-      			console.log("There was an error")
-      			res.redirect("/home");
-      			res.end();
+      		console.log("There was an error")
+      		res.redirect("/home");
+      		res.end();
     		}else
          {
-    			  Create_directory(req.session.chat_id)//tao lai thu muc, neu ton tai thi khong tao
-    	        Delete_file_in_directory(req.session.chat_id)//xoa thu muc
+    			Create_directory(req.session.chat_id)//tao lai thu muc, neu ton tai thi khong tao
+    	      Delete_file_in_directory(req.session.chat_id)//xoa thu muc
     	   
-    			  var dirname = path.resolve(__dirname, "..");
-      	 		var newPath = dirname + "/Image/" + req.session.chat_id + "/" + imageName;
-      	 		var link_img = "/" + req.session.chat_id + "/" + req.files.File.name;
-      	 		req.session.image = link_img;//cap nhat anh
-      	 		console.log(link_img)
+    			var dirname = path.resolve(__dirname, "..");
+      	 	var newPath = dirname + "/Image/" + req.session.chat_id + "/" + imageName;
+      	 	var link_img = "/" + req.session.chat_id + "/" + req.files.File.name;
+      	 	req.session.image = link_img;//cap nhat anh
+      	 	console.log(link_img)
 
-      			fs.writeFile(newPath, data, function (err) {
-      				  if(err){
-          				return res.end("Error uploading file.");
-        			  }
+      		fs.writeFile(newPath, data, function (err) {
+      			if(err){
+          		   return res.end("Error uploading file.");
+        		  }
                 //cap nhat duong dan anh vao csdl
-        			  models.User.findOneAndUpdate({'email': req.session.email}, {'image': link_img},
-        			  function(err, user) {
-  						     if (err)  throw err;
-  							   res.render("home")
-					      });
-      	 		});
+        			models.User.findOneAndUpdate({'email': req.session.email}, {'image': link_img},
+        			function(err, user) {
+  						if (err)  throw err;
+  						   res.render("home")
+					});
+      	 	});
          }
  		});
 	}
@@ -476,18 +474,39 @@ router.route('/home')//dieu huong app
   //nhan query canh bao nguoi dung
   if(req.body.warning_someone)
   {
-      console.log("Da chay " + req.body.warning_someone + "  " + req.body.warning)
       // luu du lieu vao co so du lieu
       var Awarning = new models2.Warning({
         who_warn: req.session.chat_id,
         who_was_warn: req.body.warning_someone,
-        code_warn:req.body.warning, // gia tri canh bao
+        code_warn: req.body.warning, // gia tri canh bao
       })
 
+      //luu lai canh bao cua nguoi dung
       Awarning.save(function(err){
-        if(err) 
-          console.log("Loi luu canh bao nguoi dung: " + err)
-        res.send("Cảnh báo thành công. Hệ thống sẽ xử lí yêu cầu của bạn sớm nhất có thể.")
+         if(err) 
+            console.log("Loi luu canh bao nguoi dung: " + err)
+         //tiến hành cập nhật vào csdl người dùng, số lượng người dùng bên kia bị cảnh báo
+         models2.Warning.find({"who_was_warn": req.body.warning_someone})
+         .count(function(err, num)
+         {
+            if(err)
+               throw err
+            var Sum_warn = parseInt(num)
+            console.log("So luong canh báo  " + num + " cua " + req.body.warning_someone)
+            Sum_warn++;
+
+            models.User.findByIdAndUpdate(req.body.warning_someone, //tim kiem id cua nguoi dung
+               {"num_of_was_warn": Sum_warn}, { upsert: true })
+            .exec(function(error)
+             {
+               // body...
+               if(error)
+                  console.log("Error for update this value. Error: " + error)
+
+                res.send("Cảnh báo thành công. Hệ thống sẽ xử lí yêu cầu của bạn sớm nhất có thể.")
+            })
+         })
+
       })
   }
 
@@ -495,14 +514,14 @@ router.route('/home')//dieu huong app
   if(req.body.you_turnofchat)
   {
       //cap nhat vao csdl
-      models4.Chatstatus.update({$and:
+      models4.Chatstatus.update({ $and:
          [
             {'who_turnofchat': req.body.you_turnofchat}, {'who_was_turned_of': req.body.who_was_blocked}
          ]},
 
          {'created_at': new Date().toISOString()},//thoi gian ISOS trong mongodb
 
-         {upsert: true})
+         {upsert: true})//cho phep tao gia tri moi neu khong phu hop
       .exec(function(err){
          if(err)    throw err
          console.log(req.body.you_turnofchat + "  " + req.body.who_was_blocked)
@@ -588,6 +607,7 @@ router.route('/home')//dieu huong app
       .exec(function(err){
          if(err)
             throw err
+         console.log("ham nay lai chay.")
          res.send("Ok done.")
       })
   }
@@ -779,8 +799,9 @@ io.on('connection', function(client)
             client.emit('offline', Useronoroffline_email[index].concat("55555"))
             client.broadcast.emit('offline', Useronoroffline_email[index].concat("55555"))
             //luu trang thai nguoi dung vao csdl(trang thai offline)
-            models.User.findOneAndUpdate({'email': Useronoroffline_email[index]}, 
-               {"$set": {'status': 0, 'updated_at': new Date().toISOString()}},//cap nhat thoi gian offline
+            models.User.findOneAndUpdate({ 'email': Useronoroffline_email[index]}, 
+               {"$set": 
+                  { 'status': 0, 'updated_at': new Date().toISOString()} },//cap nhat thoi gian offline
             function(err, user) {
               if (err) throw err;
             });

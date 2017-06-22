@@ -34,7 +34,9 @@
                   return text;                               
               }
 
+              //lay su kien trong the div chua noi dung cac the upload file
               var Image_upload_div = document.getElementsByClassName("chat-box-new-div")
+
               var Image_form_in_div = Image_upload_div[0].getElementsByClassName("panel-body chat-box-new")
               var Form_image = Image_form_in_div[0].getElementsByTagName("form")
               var Input_button_form_submit = Form_image[0].getElementsByTagName("input")
@@ -104,7 +106,10 @@
                       information_user[5] = Input_hidden_id_user[4].value//trả về sở thích
                       //trả về ảnh đại diện người dùng
                       information_user[6] = Status_user_div[index].getElementsByTagName("img")[0].src
-
+                      //tra ve so lan bi canh bao
+                      information_user[7] = Input_hidden_id_user[6].value
+                      //tra ve vi tri click
+                      information_user[8] = index
                       change = true
                       //tra ve ten cua nguoi dung
                       break;
@@ -128,6 +133,12 @@
 
                      case 'age': 
                         return information_user[2]
+
+                     case 'email':
+                        return information_user[0]
+
+                     case 'pos'://vi tri da click
+                        return parseInt(information_user[8])
 
                      case 'truefalse':
                         if(change) return true
@@ -174,8 +185,8 @@
                      Quick_sort(Minus_time, position_time, i, right)
               }
 
-              //hàm sắp xếp dữ liệu theo thời gian
-              //có thể cải tiến thuật toán dựa trên các thuật toán sắp xếp
+              //hàm sắp xếp dữ liệu theo thời gian theo thuật toán quicksort với độ phức tạp trung
+              // bình n*logn. Có thể cải tiến thuật toán dựa trên các thuật toán sắp xếp
               function Quick_sort_data(data)
               {
                   var Minus_time = []// độ lệch thời gian so với hiện tại
@@ -198,7 +209,7 @@
               }
 
               //Hàm trả về thông người dùng là đối phương sẽ nhắn tin cùng bạn
-              function  User_info_start_chat(Numofwarn, hobbies, sex, email, age) 
+              function User_info_start_chat(Numofwarn, hobbies, sex, email, age) 
               {
                  // body...
                  var element = "";
@@ -211,13 +222,13 @@
                  element += 'Số lần bị cảnh báo:  <b>' + Numofwarn + '</b></br></br>';
                  element += 'Hãy bắt đầu chat đi nào ...</div>';
 
-
                  Div_content_message[0].innerHTML += element
               }
 
               //ham ve lai so nguoi dung da on hay off
               //các tham số data là mã của người dùng đang nhắn tin cùng
               //tham số Value là là 1 string "on" hoặc "off" tùy vào trạng thái
+              //cap nhat lai thoi gian off hoac on cua nguoi dung
               function Status_user(data, Value)
               {
                   var Length = Status_user_div.length; 
@@ -228,7 +239,8 @@
                     {
                       var tagp = Status_user_div[index].getElementsByTagName('p');
                       tagp[0].innerHTML = Value;//trang thai nguoi dung on hay offline
-
+                      if(Value == "Off")//neu nguoi dung offline
+                        inputhidden[5].value = new Date().toISOString()//thay doi thoi gian offline
                       //alert(Value)
                     }
                   }
@@ -247,7 +259,12 @@
 
                 if(Cutstring(data) != "55555")
                 {
-                  Auto_show_time_off_user()//xóa thời gian đã offline của người dùng
+                  //can dung ham settimeout boi vi có trường hợp load lại trang web thì trên server
+                  // gửi tín hiệu người dùng offline làm trang web bị lỗi xử lí bên client
+                  setTimeout(function(){
+                     Auto_show_time_off_user()
+                  }, 1500)//xóa thời gian đã offline của người dùng
+
                   Status_user(data, "On");
                 }   
                 else{
@@ -308,50 +325,72 @@
                dung do bi thay doi(cụ thể là màu đỏ), tham số th là 1 html DOM-đại diện cho thẻ span chứa người
                Dùng. id là tham số đại diện cho vị trí của người dùng trong HTML DOM
                */
-              function Chat(th, id)
+              function Chat(th)
               {
 
-                var ind, Span_status_user_div, H5_status_user_div, User_info_general;
-                user_request = true;//khoi phuc trang thai load nguoi dung
-                no_message_for_you = true;//khoi phuc trang thai co the load tin nhan
-                num_of_message_request = 1;//so luong tin nhan tra ve 1
-                //phuc hoi mau ve trang thi binh thuong
-                for(ind = 0; ind < Status_user_div.length; ind++)
-                {
-                  Span_status_user_div = Status_user_div[ind].getElementsByTagName("span")
-                  H5_status_user_div = Status_user_div[ind].getElementsByTagName("h5")
-                  Span_status_user_div[0].style.color = "#03DB2F";
-                  H5_status_user_div[0].innerHTML = "";//nhan duoc thong bao thi tat di
-                }
-
-                th.style.color = "red";//doi mau tai vi tri kick
-                var themid = document.getElementById(id).value;
-                Div_content_message[0].innerHTML = ""//reset lai hop thoai chat
-                Partner_id = themid;//ma id cua doi phuong
-                Load_message(yid, themid, 15, function(data){
-                  if(data.length < 15)
+                  var ind, Span_status_user_div, H5_status_user_div, User_info_general;
+                  user_request = true;//khoi phuc trang thai load nguoi dung
+                  no_message_for_you = true;//khoi phuc trang thai co the load tin nhan
+                  num_of_message_request = 1;//so luong tin nhan tra ve 1
+                  //phuc hoi mau ve trang thi binh thuong
+                  for(ind = 0; ind < Status_user_div.length; ind++)
                   {
-                     //hien thi thong tin cua doi phuong
-                     User_info_general = Information_user('all')
-                     User_info_start_chat("Chưa cập nhật",  User_info_general[5], 
-                        User_info_general[4], User_info_general[0], User_info_general[2]) 
-                     no_message_for_you = false;
-                 }
-                  Show_message(data)
-                  Div_content_message[0].scrollTop = Div_content_message[0].scrollHeight;
-                })// mặc định 15 tin nhắn(lịch sử chat) từ 2 người dùng
+                     Span_status_user_div = Status_user_div[ind].getElementsByTagName("span")
+                     Span_status_user_div[0].style.color = "#03DB2F";
+                  }
 
-                /*ẩn trang thái có ai đó đang nhập phím gửi tin nhắn cho bạn thì   Event_user_typing.style.display =
-                  "block" hiển thị báo cho người dùng biết. Khi chuyển người dùng khác để nhắn tin thì nó trở vể
-                  trạng thái "none"
+                  th.style.color = "red";//doi mau tai vi tri kick
+                   //có thông báo được nhận tin nhắn từ người dùng khác trong danh sách
+                  H5_status_user_div = Status_user_div[Information_user('pos')].getElementsByTagName("h5")
+                  if(H5_status_user_div[0].innerHTML == "(Có tin nhắn đến...)"){
+                     H5_status_user_div[0].innerHTML = "";
+                  }
+
+                  var themid = Information_user('id');
+                  Div_content_message[0].innerHTML = ""//reset lai hop thoai chat
+                  Partner_id = themid;//ma id cua doi phuong
+                  Load_message(yid, themid, 15, function(data)
+                  {
+                     if(data.length < 15)
+                     {
+                        //hien thi thong tin cua doi phuong
+                        User_info_general = Information_user('all')
+                        User_info_start_chat(User_info_general[7],  User_info_general[5], 
+                           User_info_general[4], User_info_general[0], User_info_general[2]) 
+                        no_message_for_you = false;
+                     }
+                     Show_message(data)//hien thi tin nhan cua nguoi dung
+                     Div_content_message[0].scrollTop = Div_content_message[0].scrollHeight;
+                  })// mặc định 15 tin nhắn(lịch sử chat) từ 2 người dùng
+
+                  /*ẩn trang thái có ai đó đang nhập phím gửi tin nhắn cho bạn thì   Event_user_typing.style.display =
+                     "block" hiển thị báo cho người dùng biết. Khi chuyển người dùng khác để nhắn tin thì nó trở vể
+                     trạng thái "none"
                  */
-                Event_user_typing.style.display = "none"
-                //test để ra thông báo
-                Turnofwiththis(yid, Information_user('id'))
-                socket.emit('chattingwithsomeone', Information_user('id'))
-                Process_event_navbar_app_li_span_b[0].innerHTML = "(0)"
-                Process_event_navbar_app_li_span_b[0].style.color = "blue"
-              }
+                  Event_user_typing.style.display = "none"
+                  //test để ra thông báo
+                  Turnofwiththis(yid, Information_user('id'))
+                  socket.emit('chattingwithsomeone', Information_user('id'))
+                  //kiem tra neu nguoi dung kick vao dung nguoi dung da gui tin thi hop thoai
+                  //nhan tin moi biet mat
+                  var Process_event_navbar_app_user = document.getElementById('showinformationuser')
+                  var Process_event_navbar_app_hidden = Process_event_navbar_app_user.getElementsByTagName("input")
+                  var Length_message_come = parseInt(Process_event_navbar_app_li_span_b[0].innerHTML.length - 1)
+                
+                  var Length_navbar_app_hidden = parseInt(Process_event_navbar_app_li_span_b[0].innerHTML.substring(1, Length_message_come))
+                 // console.log("Length la " + Length_navbar_app_hidden)
+
+                  var This_email = Information_user('email')//lay dia chi email hien tai dang nhan tin
+                  for(ind = 0; ind < Length_navbar_app_hidden; ind++)
+                  {
+                     if((Process_event_navbar_app_hidden[ind].value).localeCompare(This_email) == 0)
+                     {
+                        Process_event_navbar_app_li_span_b[0].innerHTML = "(0)"
+                        Process_event_navbar_app_li_span_b[0].style.color = "blue"
+                        break
+                     }
+                  }
+               }
 
 
               /*xet gia tri id cho nguoi dung
@@ -361,7 +400,7 @@
               thái on hay offline của người dùng
               */
               var pos = 0;
-              function User_in_app(image, name, email, age, id, status, date, sex, hobbies)
+              function User_in_app(image, name, email, age, id, status, date, sex, hobbies, num_warn)
               {
                 var Content = "";
 
@@ -370,9 +409,9 @@
                 if(pos == 0){
                   Partner_id = id;//mac dinh id nhan tin la nguoi dau tien trong danh sach
                   //thay doi the span mac dinh la do la nguoi mac dinh se nhan tin
-                  Content +=  '<span data-toggle="tooltip" data-placement="right" title="'+email+'" style= "cursor: pointer;color:red;" onclick="Chat(this,'+pos+')"> - ' + name + '</span> ';
+                  Content +=  '<span data-toggle="tooltip" data-placement="right" title="'+email+'" style= "cursor: pointer;color:red;" onclick="Chat(this)"> - ' + name + '</span> ';
                 }else{
-                  Content +=  '<span data-toggle="tooltip" data-placement="right" title="'+email+'" style= "cursor: pointer;" onclick="Chat(this,'+pos+')"> - ' + name + '</span>' + '  .';
+                  Content +=  '<span data-toggle="tooltip" data-placement="right" title="'+email+'" style= "cursor: pointer;" onclick="Chat(this)"> - ' + name + '</span>' + '  .';
                 }
                 if(status == 1) Content += '<p style="color:blue;">On</p><h5></h5>';
                 else            Content += '<p>Off</p><h5></h5>';
@@ -385,11 +424,12 @@
                   Content +=  ' <small style="color:black;"></small> ';
 
                 Content += '<input type="hidden" value = "'+email+'" >';//an dia chi email
-                Content += '<input type="hidden" id = "'+pos+'" value = "'+id+'" >';//an id nguoi dung
+                Content += '<input type="hidden" value = "'+id+'" >';//an id nguoi dung
                 Content += '<input type="hidden" value = "'+age+'">';//an do tuoi
                 Content += '<input type="hidden" value = "'+sex+'">';//ẩn giới tính
                 Content += '<input type="hidden" value = "'+hobbies+'">';//ẩn sở thích
-                Content += '<input type="hidden" value = "'+date+'">';//an thoi gian cua nguoi dung
+                Content += '<input type="hidden" value = "'+date+'">';//an thoi gian cua nguoi dung(IOSdate)
+                Content += '<input type="hidden" value = "'+num_warn+'">';//so lan bi canh bao
                 Content +=  '</div>';
                 Content +=  '<hr class="hr-clas-low" />';
                 pos++;
@@ -422,7 +462,8 @@
                   data:{loaduser: Id, valsearch: val, num_of_user: num_of_user_request},
                   success: function(data)
                   {
-                    var Length = data.length, index, hobbies = "", sex = "";
+                    var Length = data.length, index, hobbies = "Chưa cập nhật", sex = "Chưa cập nhật", num_warn
+                    = 0;
 
                     if(Length == 0 && val == ""){//data.lenght = 0 la khong ton tại nguoi dung nao
                       if(Id == 1){//lay nguoi dung
@@ -433,29 +474,34 @@
                     for(index = 0; index < Length; index++)
                     {
                       if((data[index].email).localeCompare(yemail) != 0){
-                        if(typeof data[index].sex != 'undefined')
+                        if(typeof data[index].sex != 'undefined')//gioi tinh chua cap nhat
                            sex = data[index].sex
 
-                        if(typeof data[index].hobbies != 'undefined')
+                        if(typeof data[index].hobbies != 'undefined')//so thich chua cap nhat
                            hobbies = data[index].hobbies
 
+                        if(typeof data[index].num_of_was_warn != 'undefined')
+                           num_warn = data[index].num_of_was_warn
+
                         Sub_div_infor_user_on[0].innerHTML += User_in_app(data[index].image, data[index].username,
-                          data[index].email, data[index].age, data[index]._id, data[index].status, data[index].updated_at, sex, hobbies)
-                        sex = "";
-                        hobbies = "";
+                          data[index].email, data[index].age, data[index]._id, data[index].status, 
+                          data[index].updated_at, sex, hobbies, num_warn)
+
+                        sex = "Chưa cập nhật";
+                        hobbies = "Chưa cập nhật";
+                        num_warn = 0;
                       }
                     }  
                   }
                 })
               }
 
-              setTimeout(Load_user(1, "", 10), 1500)//load danh sach hien thi nguoi dung
+              setTimeout(Load_user(1, "", 10), 300)//load danh sach hien thi nguoi dung
 
               setTimeout(function(){
                 socket.emit('chattingwithsomeone', Information_user('id'))
               }, 2000)
 
-             // setInterval(Load_user, 4000)
               setTimeout(function()
               {//tu dong load tin nhan tu server
                 
@@ -467,7 +513,7 @@
                         if(data.length < 15)
                         {
                             var User_info_general = Information_user('all')
-                            User_info_start_chat("Chưa cập nhật",  User_info_general[5], 
+                            User_info_start_chat(User_info_general[7],  User_info_general[5], 
                               User_info_general[4], User_info_general[0], User_info_general[2]) 
                             no_message_for_you = false;
                         }
@@ -572,7 +618,7 @@
                       Load_message(yid, Information_user('id'), num_of_message_request*15, function(data)
                       {
 
-                        Show_message(data)//hien thi tin nhan tu qua khu
+                        Show_message(data)//hien thi tin nhan tu qua khu(15 tin nhan 1 lan load)
                         Div_content_message[0].innerHTML += Storage ;//lay so luong tin nhan truoc do ra
                         if(data.length < 15)
                         { //gia tri trk thay doi data.length < num_of_message_request*15
@@ -583,7 +629,7 @@
                           Div_content_message[0].innerHTML = ""
                           //thong tin phai xuat hien o dau 
                            User_info_general = Information_user('all')
-                           User_info_start_chat("Chưa cập nhật",  User_info_general[5], 
+                           User_info_start_chat(User_info_general[7], User_info_general[5], 
                               User_info_general[4], User_info_general[0], User_info_general[2]) 
 
                            Div_content_message[0].innerHTML += temp_message
@@ -678,7 +724,7 @@
                   Img_send[0].src = Information_user('img')
                   setTimeout(function(){
                     Event_user_typing.style.display = "none";
-                  }, 10000)
+                  }, 8000)
                }
             })
 
@@ -745,8 +791,9 @@
             tin nhắn naỳ => hiển thị thông báo*/ 
 
             var count_message_coming = 0;//dem so luong tin nhan den
+            var You_receive_message = []//mảng chứa id xác nhận những người đã nhắn tin cho người dùng
             function Notify_message(anotherid, desid)//tham so anotherid la id cua nguoi gui tin nhan
-            {                                        //youid la dích nhận
+            {                                        //youid la đích nhận
                var index, Span_status_user_div, H5_status_user_div, Input_hidden_id_user;
                 //phuc hoi mau ve trang thi binh thuong
                 for(index = 0; index < Status_user_div.length; index++)
@@ -766,7 +813,18 @@
                       H5_status_user_div = Status_user_div[index].getElementsByTagName("h5")
                       H5_status_user_div[0].innerHTML = "(Có tin nhắn đến...)";
 
-                      count_message_coming ++;//so luong tin nhan tang len 1
+                      var not_match = true;
+                      for (var i = 0; i < You_receive_message.length; i++) {
+                         if(You_receive_message[i] == anotherid){
+                           not_match = false
+                           break
+                         }
+                      }
+                      if(not_match)
+                        You_receive_message.push(anotherid)
+
+                      count_message_coming = You_receive_message.length;//so luong tin nhan tang len 1
+
                       Process_event_navbar_app_li_span_b[0].innerHTML = "(" + count_message_coming + ")"
                       Process_event_navbar_app_li_span_b[0].style.color = "red"
 
@@ -792,33 +850,41 @@
               {
                  //vi tri 1 luu id, 0 luu email va 2 luu tuoi cua nguoi tôi dang nt
                   if(Information_user('id').localeCompare(sender_id) == 0 && 
-                   Information_user('truefalse'))
+                     Information_user('truefalse'))
                   {//tao ra 1 message hien thi tren cho nguoi dung
 
                   //cac gia tri tham so tuong ung la 1- noi dung hoi thoai, 2- ten nguoi gui, 3-anh dai dien nguoi gui, 4- tuoi nguoi gui
                     Event_user_typing.style.display = "none";
 
                     Create_message_receive(data.substring(48, data.length), Information_user('name'), 
-                    Information_user('img'), Time_stand(), Information_user('age'))
+                      Information_user('img'), Time_stand(), Information_user('age'))
 
                     Div_content_message[0].scrollTop = Div_content_message[0].scrollHeight;//dieu chinh thanh scroll 
                   }
+              }
+             //nếu bạn đang nhắn tin với người khác thì hộp thông báo tin nhắn được load  
+              if(Information_user('id') != sender_id){
+                  Load_message_not_seen(yid)
+                //  console.log("cai cc nhe")
               }
             })
 
             //bắt sự kiện kick chuột vào 2 button Talking by list và Talking random
             var Talking_chat = document.getElementById("cachthucnhantin")
             var Talking_chat_button = Talking_chat.getElementsByTagName("button");
-            var count_click_talkingbylist = 0;
+            var count_click_talkingbylist = 0;//dem so lan click vi neu nguoi dung click qua nhieu server bị quá tải nên bị hạn chế 
             //Talking by list
             Talking_chat_button[0].addEventListener("click", function(){
               Div_content_message[0].innerHTML = "";//reset hop thoai chat
               Sub_div_infor_user_on[0].innerHTML = "";//reset hop thoai nguoi dung trong ds online
               Talking_chat_button[1].className = "btn btn-default"
               Talking_chat_button[0].className = "btn btn-default active"
-              if(count_click_talkingbylist == 0){
-                Load_user(1, "", 10)//hien thi 20 nguoi trong danh sach
+              if(count_click_talkingbylist == 0)
+              {
+                Load_user(1, "", 10)//hien thi 10 nguoi trong danh sach
                 count_click_talkingbylist++
+              }else{
+                  Sub_div_infor_user_on[0].innerHTML = "Không nên lạm dụng nút này."
               }
             })
 
@@ -860,7 +926,7 @@
                   //neu nguoi dung nhan tin den cho ban nam trong danh sach hien thi
                   if(Input_hidden_id_user[0].value.localeCompare(Process_event_navbar_app_user_hdd[posi].value) == 0)
                   {
-                     Chat(Span_status_user_div[0], indd)//kick tu dong vao nguoi dung do
+                     Chat(Span_status_user_div[0])//kick tu dong vao nguoi dung do
                      usernothere = true
                      break
                   }
@@ -869,14 +935,15 @@
                //nguoi dung khong nam trong danh sach thi phai tim kiem trong csdl va them vao
                if(!usernothere)
                {
-                //  Save_status_user_now  =  Sub_div_infor_user_on[0].innerHTML
-               //   Sub_div_infor_user_on[0].innerHTML = ""  //reset thanh hop thoai nay
                   Load_user(3, Process_event_navbar_app_user_hdd[posi].value, 10)//nguoi dung vua nhan tin cho se xuat hien o cuoi
-              //    Sub_div_infor_user_on[0].innerHTML += Save_status_user_now 
+                  setTimeout(function(){
+                     Span_status_user_div = Status_user_div[(Status_user_div.length-1)].getElementsByTagName("span")
+                     Chat(Span_status_user_div[0])
+                  }, 500)
                }
             }
 
-            //hien thi noi dung cua nhung nguoi nhan tin cho ban
+            //hien thi noi dung cua nhung nguoi nhan tin cho ban trên thanh navbar
             var positionabc = 0;
             function Display_user_message(img, name, email, time, age, content)
             {
@@ -944,7 +1011,7 @@
                         Process_event_navbar_app_li_span_b[0].innerHTML = "("+parseInt(Length)+")"
                         Process_event_navbar_app_li_span_b[0].style.color = "red"
                      }else{
-                         document.getElementById('showinformationuser').innerHTML = "(Không có tin nhắn nào)"
+                        document.getElementById('showinformationuser').innerHTML = "(Không có tin nhắn mới nào)"
                      }
                   }
                })
@@ -987,9 +1054,13 @@
                if(parseInt(num_of_message_not_see.substring(1, num_of_message_not_see.length-1)) > 0)
                {
                   Load_message_not_seen(yid)//lay tin nhan
-                  setTimeout(function(){Seen_message(yid)}, 4000)//dong bo giua 2 ham
+                  setTimeout(function(){
+                     Seen_message(yid)
+                  }, 4000)//dong bo giua 2 ham
                }
+
                count_message_coming = 0;
+
                for(ind = 0; ind < Status_user_div.length; ind++)
                {
                   Span_status_user_div = Status_user_div[ind].getElementsByTagName("span")
@@ -1015,8 +1086,10 @@
                      inputhidden = Status_user_div[ind].getElementsByTagName('input');
                      //lay thoi gian da off cua nguoi dung 
                      Status_user_div[ind].getElementsByTagName("small")[0].innerHTML = "( " + Change_date(inputhidden[5].value) + " )"
-                  }else{
-                      Status_user_div[ind].getElementsByTagName("small")[0].innerHTML = ""
+                  }else
+                  {
+                     if(Status_user_div[ind].getElementsByTagName("small")[0].innerHTML.localeCompare("(Có tin nhắn đến...)") != 0)
+                        Status_user_div[ind].getElementsByTagName("small")[0].innerHTML = ""
                   }
                 }
             }

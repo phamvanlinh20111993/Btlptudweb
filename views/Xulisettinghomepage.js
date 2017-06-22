@@ -59,18 +59,30 @@
      }
 
      //ham canh bao nguoi dung, voi gia tri la các giá trị cảnh báo
+     var count_user_warnning_someone = 0;
      function Warnning_Someone(who_warning, value)
      {	
      		//su dung ajax
-     		$.ajax({
-     			type: "POST",
-     			url: "/user/home",
-     			data:{warning_someone: who_warning, warning: value},
-     			success: function(data){
-     				alert(data)
-     				$('#myModal1').modal('hide');
-     			}
-     		})
+         if(count_user_warnning_someone < 6)
+         {
+     		  $.ajax({
+     			    type: "POST",
+     			    url: "/user/home",
+     			    data:{ warning_someone: who_warning, warning: value },
+     			    success: function(data)
+               {
+     				   alert(data)
+     				   $('#myModal1').modal('hide');
+     			   }
+     		   })
+         }else{
+             $('#myModal10').modal('show');
+             setTimeout(function() {
+                // body...
+                $('#myModal10').modal('hidden');
+             }, 2000)
+         }
+         count_user_warnning_someone ++;
      }
 
      

@@ -65,5 +65,5 @@ app.use('/user', home)
 app.use('/user', admin)
 
 server.listen(port, function(){
-	console.log('Server dang chay tai cong %s!',port)
+	console.log('Server dang chay tai cong %s!', port)
 });

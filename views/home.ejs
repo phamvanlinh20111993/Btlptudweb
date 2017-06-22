@@ -53,6 +53,26 @@
       để xây dựng và phát triển, do đó ứng dụng này sẽ không thể hoạt động được. Vui lòng bật lại script. Thân ái.
       </div>
     </noscript>
+
+    <!-- Thông báo lạm dụng chức năng cảnh báo người dùng -->
+    <div class="modal fade" id="myModal10" role="dialog">
+      <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+               <button type="button" class="close" data-dismiss="modal">&times;</button>
+               <h4 class="modal-title">Cảnh báo lạm dụng</h4>
+            </div>
+            <div class="modal-body">
+               <p>Hệ thống sẽ ban hoặc xóa tài khoản của bạn nếu bạn lạm dụng chức năng này.</p>
+            </div>
+            <div class="modal-footer">
+               <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+         </div>
+      </div>
+   </div>
+
+
     <!-- Người dùng muốn giới thiệu về bản thân mình hơn   -->
     <div id="myModal" class="modal fade" role="dialog">
       <div class="modal-dialog">
@@ -144,7 +164,7 @@
               <label><input type="checkbox" value="AB111" name="AAA">Lời lẽ xúc phạm, đe dọa, phản động</label>
             </div>
             <div class="checkbox">
-              <label><input type="checkbox" value="AB222" name="ABB">Cảm thấy ghét</label>
+              <label><input type="checkbox" value="AB222" name="ABB">Cảm thấy ghét, hận, thù</label>
             </div>
             <div class="checkbox">
               <label><input type="checkbox" value="AB333" name="ACC">Kẻ biến thái</label>
@@ -253,7 +273,7 @@
               <span class="glyphicon glyphicon-comment" style="font-size: 125%;margin-top: 42%;margin-left: 40%;"><i style="margin-bottom: 100px;font-size: 98%;color:blue;" data-toggle="tooltip" title="Nhận tin nhắn từ người dùng khác">(0)</i></span>
              </a>
 
-                <ul class="dropdown-menu" style="width: 1000%;">
+                <ul class="dropdown-menu" style="width: 1200%;">
                   <li>
 
                     <div style="max-height: 300px;overflow-y: scroll;" id = "showinformationuser">
