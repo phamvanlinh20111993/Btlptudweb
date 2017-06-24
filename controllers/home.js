@@ -83,8 +83,6 @@ function Turn_of_chat_someone(users, user_remove)
          if((users[pos]._id).toString() === (user_remove[index].who_was_turned_of).toString())
          {
             users.splice(pos, 1)//loai bo nguoi dung
-            user_remove.splice(index, 1)
-            Lgth-- //do dai mang giam di 1
             break;
          }
       }
@@ -92,7 +90,7 @@ function Turn_of_chat_someone(users, user_remove)
       index++
    }
 
-   return users
+   return users;
 }
 
 //ham tra ve 1 so  nguyen nam trong khoang max, min
@@ -111,8 +109,9 @@ router.route('/home')//dieu huong app
 	{
       //load gia tri nguoi dung ban dau
       var num_of_rq = req.query.num_of_user
-      if(req.query.loaduser == 1)
-      { 
+      if(req.query.loaduser == 1)//đây là các mã mà client gửi lên req.query.loaduser
+      {                         // nếu mã là 1, client yêu cầu lấy người dùng trong mạng nội bộ
+
          //bo qua email cua admin, admin khong chat trong app
 		    models.User.find({'Admin': {$ne: 1}}, {created_at: 0, password: 0, __v: 0})
          .sort({status: -1, updated_at: -1})
@@ -123,12 +122,13 @@ router.route('/home')//dieu huong app
 			   if (err) throw err;
   			 // console.log(users);
             //tìm kiếm và trả về những người dùng bị chủ nhân yêu cầu không nhìn thấy mặt
-            models4.Chatstatus.find({'who_turnofchat': req.session.chat_id}, 
+            models4.Chatstatus.find({ 'who_turnofchat': req.session.chat_id }, 
              function(err, user_remove){
                 if (err) throw err;
                // Turn_of_chat_someone(users, user_remove)
                 if(user_remove.length > 0)
                 {
+                 // console.log(user_remove)
                   res.send(Turn_of_chat_someone(users, user_remove))
                 }else{
                   res.send(users)
@@ -136,7 +136,7 @@ router.route('/home')//dieu huong app
             })
 
 		   })
-
+            //mã req.query.loaduser là 2 tương ứng với người dùng muốn random 1 người nhóm chat
       }else if(req.query.loaduser == 2)//tra ve mot nguoi dung random trong danh sach online
       {// có 1 vấn đề đặt ra là hàm random trả về người dùng hiện tại.Người dùng sẽ nt vs chính mình?            
 
@@ -160,6 +160,7 @@ router.route('/home')//dieu huong app
                res.send(user)
             }) 
             }, 300);   //request sau 300ms
+         //với các mã req.query.loaduser không xác đinh, mặc định người dùng tìm kiếm người dùng chat
       }else//load nguoi dung voi gia tri tim kiem value duoc nhap boi nguoi dung
       {
          //tim kiếm giá trị gần đúng theo email hoặc tên người dùng
@@ -186,7 +187,6 @@ router.route('/home')//dieu huong app
       //khi kick vào 1 người dùng nào đó server sẽ load, mọi tin nhắn giữa khi người bên kia gửi tin nhắn
       //đến cho chủ thới đều coi là đã xem, vậy cần update lại trạng thái đã đọc tin nhắn giữa 2 người
       //id_user_A là người gửi, id_user_B là người nhận
-      console.log("value " + req.query.loadmessagea + "   " + req.query.loadmessageb)
       models1.Message.update({ $and:[
          { 'id_user_B': req.query.loadmessagea }, {'id_user_A': req.query.loadmessageb}, { 'check': 1 }
       ]}, 
@@ -237,7 +237,7 @@ router.route('/home')//dieu huong app
          .count(function(err, num)
          {
              Count_message = num;
-            // console.log(Count_message)
+
          })
 
       })
@@ -257,7 +257,6 @@ router.route('/home')//dieu huong app
               Skip_field = 0;
             }
 
-           // console.log(Skip_field + "   " + Limit_field)
 
             models1.Message.find({$and:[{
                   $or:[{
@@ -313,7 +312,7 @@ router.route('/home')//dieu huong app
    {                                    //cac tin nhan chua doc duoc xep dau tien, da doc roi thi uu tien theo 
                                          //theo thoi gian gan voi thoi gian hien tai nhat  
 
-     /* truy van theo cach 1
+     /* truy van theo cach 1, có sử dụng limit
       models1.Message.aggregate([
          {
             $match:
@@ -334,7 +333,7 @@ router.route('/home')//dieu huong app
       }) */
 
       
-      //truy van theo cách thứ 2
+      //truy van theo cách thứ 2 không dùng được limit
       models1.Message.find(//bạn là người nhận tin nhắn
          {'id_user_B': req.query.younotseenmessage}//chua xem tin nhan
       )
@@ -393,7 +392,7 @@ router.route('/home')//dieu huong app
       })                                                                 //duoc gui den ban
       .distinct('id_user_A', function(err, num)
       {
-         console.log("nguoi dung: " + num)
+        // console.log("nguoi dung: " + num)
          if(err) throw err
 
          res.send("messagesnotseen"+ num.length)//mã kèm theo giá trị
@@ -735,7 +734,7 @@ var SocketID = [];//moi connect tuong ung voi 1 ID
 //khi clien connect vao server
 io.on('connection', function(client)
 {  
-    console.log('Client connected ' + client.id);//nguoi dung ket noi vao server
+    console.log('Client connected ' + client.id);//nguoi dung ket noi vao server có 1 giá trị id
 
     //nhan thong tin la id cua nguoi dung dang nhan tin cung
     client.on('chattingwithsomeone', function(userid)
@@ -750,7 +749,7 @@ io.on('connection', function(client)
       var id_receiver = data.substring(24, 48);//24 so tiep theo la ma nguoi nhan
       var content = data.substring(48, data.length);//con lai la noi dung chat
 
-   //   if(data.length > 44){//phải có người gửi thì mới lưu tin nhắn
+      if(data.length > 44){//phải có người gửi thì mới lưu tin nhắn
 
          // biến này xác định trạng thái tin nhắn đã đọc hay chưa
          var status_read_message = 0;
@@ -782,14 +781,14 @@ io.on('connection', function(client)
 		    data = data.concat(content)
 	   	 //client.emit('reply', data);
 		    client.broadcast.emit('reply', data);//server gui tin nhan den nguoi nhận
-    //  }
+      }
 
     });
 
     //nguoi dung tat chat thoat khoi page :))), co thong bao ai do da offline
     client.on('disconnect', function()
     {
-       // console.log("Co ai do da off line " + client.id)
+      
         delete client.handshake.session.youarechattingwith;
         client.handshake.session.save();
 
@@ -808,7 +807,7 @@ io.on('connection', function(client)
             function(err, user) {
               if (err) throw err;
             });
-           // console.log(new Date().toISOString())
+
             //xoa nguoi offline khoi danh danh nguoi dung online
             Useronoroffline_email.splice(index, 1)
             SocketID.splice(index, 1)  
@@ -824,7 +823,6 @@ io.on('connection', function(client)
     client.on('online', function(data)
     {
     	//xet thoi gian, cho nguoi dung online
-    //  console.log(data +"  "+ client.id)
       Length = Useronoroffline_email.length
     	for(index = 0; index < Length; index ++)//nguoi dung da ton tai roi thi khong them
       {
@@ -861,10 +859,10 @@ io.on('connection', function(client)
     	client.broadcast.emit('useronline', Useronoroffline_email.length)//do dai khong thay doi hoac thay 
                                                              //doi neu co them nguoi dung moi 
     	client.emit('useronline', Useronoroffline_email.length)
-      //console.log("email " + Useronoroffline_email)
+   
     })
 
-  //nguoi dung dang nhap tin nhan
+  //nguoi dung dang nhap tin nhan, báo cho phía bên đối tác: tao đang nhập tin nhắn cho mày
   client.on('chatting', function(data){
     client.broadcast.emit('typing...', data)
   })

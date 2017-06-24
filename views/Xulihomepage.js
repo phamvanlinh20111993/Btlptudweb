@@ -36,7 +36,7 @@
 
               //lay su kien trong the div chua noi dung cac the upload file
               var Image_upload_div = document.getElementsByClassName("chat-box-new-div")
-
+              //take event 
               var Image_form_in_div = Image_upload_div[0].getElementsByClassName("panel-body chat-box-new")
               var Form_image = Image_form_in_div[0].getElementsByTagName("form")
               var Input_button_form_submit = Form_image[0].getElementsByTagName("input")
@@ -59,7 +59,9 @@
               //lấy thẻ span thứ 0, thẻ b 0
               var Process_event_navbar_app_li_span = Process_event_navbar_app_li_div[0].getElementsByTagName("span")
               var Process_event_navbar_app_li_span_b = Process_event_navbar_app_li_span[0].getElementsByTagName("i")
-
+              //biến này dùng để đếm khi không có tin nhắn đến(thông báo trên thanh navbar), mà người
+              //dùng đang nhắn tin với người hiện tại thì khi kick vào nút có tin nhắn thì vẫn load lại
+              var count_click_in_msg_box = 0;
 
               //chon file de upload anh dai dien
               Input_button_form_submit[1].addEventListener("click", function(){
@@ -453,9 +455,11 @@
               //bien message_request de the hien neu tren server da het message thi k duoc yeu cau gui nua
               //bat su kien scroll cho viec yeu cau xem lich su tin nhan giua 2 nguoi
               //tuong tu nhu bien user_request bat su kien scroll hien thi them nguoi dung
+              //tham số Id tương ứng với mã request, val là giá trị tìm kiếm trong hộp thoại search
+              //tham số num_of_user_request dùng cho tham số có id là 1 yêu cầu server trả về n người dùng
               function Load_user(Id, val, num_of_user_request)
               {
-               
+               //body...
                 $.ajax({
                   type: "GET",
                   url: "/user/home",
@@ -480,7 +484,7 @@
                         if(typeof data[index].hobbies != 'undefined')//so thich chua cap nhat
                            hobbies = data[index].hobbies
 
-                        if(typeof data[index].num_of_was_warn != 'undefined')
+                        if(typeof data[index].num_of_was_warn != 'undefined')//so lan canh bao chua cap nhat
                            num_warn = data[index].num_of_was_warn
 
                         Sub_div_infor_user_on[0].innerHTML += User_in_app(data[index].image, data[index].username,
@@ -521,7 +525,7 @@
                         Div_content_message[0].scrollTop = Div_content_message[0].scrollHeight;
                       });
                   }
-              }, 400)//load sau 0.4s
+              }, 400)//load sau 0.4s, giá trị này đảm bảo phải lớn hơn setTimeout() load người dùng
              
              //ham bat su kien nguoi dung tim kiem nguoi dung khác trong danh sach
               var Div_contain_search = Div_infor_user_on[0].getElementsByTagName("div")
@@ -724,7 +728,7 @@
                   Img_send[0].src = Information_user('img')
                   setTimeout(function(){
                     Event_user_typing.style.display = "none";
-                  }, 8000)
+                  }, 7000)
                }
             })
 
@@ -794,7 +798,7 @@
             var You_receive_message = []//mảng chứa id xác nhận những người đã nhắn tin cho người dùng
             function Notify_message(anotherid, desid)//tham so anotherid la id cua nguoi gui tin nhan
             {                                        //youid la đích nhận
-               var index, Span_status_user_div, H5_status_user_div, Input_hidden_id_user;
+                var index, Span_status_user_div, H5_status_user_div, Input_hidden_id_user;
                 //phuc hoi mau ve trang thi binh thuong
                 for(index = 0; index < Status_user_div.length; index++)
                 {
@@ -864,10 +868,14 @@
                     Div_content_message[0].scrollTop = Div_content_message[0].scrollHeight;//dieu chinh thanh scroll 
                   }
               }
+
              //nếu bạn đang nhắn tin với người khác thì hộp thông báo tin nhắn được load  
-              if(Information_user('id') != sender_id){
-                  Load_message_not_seen(yid, 1)
+              if(Information_user('id') != sender_id)
+              {
+                  Load_message_not_seen(yid, 1)//giá trị 1 tức là k phải mới đăng nhập vào trang
                 //  console.log("cai cc nhe")
+              }else{//bạn và người hiện tại đang nhắn tin với nhau 
+                  count_click_in_msg_box = 0;
               }
             })
 
@@ -929,7 +937,7 @@
                   Span_status_user_div = Status_user_div[indd].getElementsByTagName("span")
                   Input_hidden_id_user = Status_user_div[indd].getElementsByTagName("input")
                   //neu nguoi dung nhan tin den cho ban nam trong danh sach hien thi
-                  console.log(posi)
+                 // console.log(posi)
                   if(Input_hidden_id_user[0].value.localeCompare(Process_event_navbar_app_user_hdd[posi].value) == 0)
                   {
                      Chat(Span_status_user_div[0])//kick tu dong vao nguoi dung do
@@ -943,10 +951,10 @@
                {
                   Load_user(3, Process_event_navbar_app_user_hdd[posi].value, 10)//nguoi dung vua nhan tin cho se xuat hien o cuoi
                   setTimeout(function(){
-                     Span_status_user_div = Status_user_div[(Status_user_div.length-1)].getElementsByTagName("span")
+                     Span_status_user_div = Status_user_div[(Status_user_div.length - 1)].getElementsByTagName("span")
                      Chat(Span_status_user_div[0])
 
-                      H5_status_user_div = Status_user_div[(Status_user_div.length-1)].getElementsByTagName("h5")
+                      H5_status_user_div = Status_user_div[(Status_user_div.length - 1)].getElementsByTagName("h5")
                       H5_status_user_div.innerHTML = "(Có tin nhắn đến...)"
                   }, 500)
                }
@@ -994,10 +1002,11 @@
                         Array_user_in_chat_box[index] = index;
 
 
-                     if(Lg > 0)
+                     if(Lg > 0)//khi co tin nhan
                      {
                         document.getElementById('showinformationuser').innerHTML = ""
                         var index = 0, in123 = 0;
+                        positionabc = 0;//reset lai gia tri nay, biến toàn cục
                         for(index = 0; index < Lg; index++)
                         {
                            Display_user_message(data[Pos[index]][0].id_user_A.image, data[Pos[index]][0].id_user_A.username, 
@@ -1005,14 +1014,23 @@
                            if(index < Lg - 1)
                               document.getElementById('showinformationuser').innerHTML += '<hr>'
                         }
-                        //giá trị set để phân biệt là load khi đăng nhập hay load khi kick
-                        if(parseInt(set) == 0){
+
+                        //giá trị set để phân biệt là load khi đăng nhập hay load khi kick vào hộp
+                        var user_now = Information_user('email')//người đang nhắn tin hiện tại
+
+                        if(parseInt(set) == 0)//khi load ban đầu thì hàm này được sử dụng
+                        {
                            for(index = 0; index < Num_of_msg_did_see; index++)
                            {
+                              //nếu bạn đang nhắn tin với người hiện tại thì không hiện "(Có tin nhắn đến...)"
+                              if((data[Pos[index]][0].id_user_A.email).localeCompare(user_now) == 0)  
+                                 continue;
+
                               for(in123 = 0; in123 < Length_user_box; in123++)
                               {
                                  var Input_hidden_id_user = Status_user_div[parseInt(Array_user_in_chat_box[in123])].getElementsByTagName("input")
-                                 if(data[Pos[index]][0].id_user_A.email == Input_hidden_id_user[0].value){
+                                 if(data[Pos[index]][0].id_user_A.email == Input_hidden_id_user[0].value)
+                                 {
                                     var H5_status_user_div = Status_user_div[parseInt(Array_user_in_chat_box[in123])].getElementsByTagName("h5")
                                     H5_status_user_div[0].innerHTML = "(Có tin nhắn đến...)"
                                     Array_user_in_chat_box.splice(in123, 1)//loai bo nguoi dung khoi danh sach
@@ -1042,7 +1060,6 @@
                   success: function(data)
                   {
                      var Length = data.substring(15, data.length)
-                     console.log(Length)
 
                      if(parseInt(Length) > 0)
                      {
@@ -1059,7 +1076,7 @@
             //tu dong load message chua doc
             setTimeout(function(){
                Auto_count_message_not_seen(yid) //tu dong dem so luong tin nhan chua doc cua nguoi dung
-               Load_message_not_seen(yid, 0)       //load tin nhan 1 lan nhung tin nhan da doc hoac chua doc
+               Load_message_not_seen(yid, 0)    //load tin nhan 1 lan nhung tin nhan da doc hoac chua doc
             }, 200)
 
             //thong báo đã kick vào xem tin nhắn thi can gui len server thay doi trang thai chua doc tin nhan 
@@ -1083,18 +1100,24 @@
             //bat su kien click khi nguoi dung nhan tin nhan
             Process_event_navbar_app_li_span[0].addEventListener("click", function()
             {
-               positionabc = 0;//reset lai gia tri nay
-             
+              
                //gui request da xem tin nhan, hàm này không thể chạy liên tục request lên server khi không có tin nhắn
                //set điều kiện khi có tin nhắn đến thì mới gửi request
                var num_of_message_not_see = Process_event_navbar_app_li_span_b[0].innerHTML;
               
-               if(parseInt(num_of_message_not_see.substring(1, num_of_message_not_see.length-1)) > 0)
+              //khi có thông báo trên navbar là có tin nhắn đến thì mới yêu cầu server trả về tin nhắn
+               if(parseInt(num_of_message_not_see.substring(1, num_of_message_not_see.length - 1)) > 0)
                {
                   Load_message_not_seen(yid, 1)//lay tin nhan
                   setTimeout(function(){
-                     Seen_message(yid)
+                     Seen_message(yid)//gửi lên server thay đổi trạng thái tin nhắn chưa xem thành đã xem
                   }, 1200)//dong bo giua 2 ham
+
+               }else{//nếu không có tin nhắn nào đến
+                  if( count_click_in_msg_box < 1){ //cho phép load lại 1 lần, giảm tải cho server
+                     Load_message_not_seen(yid, 1)//lay tin nhan
+                  }
+                  count_click_in_msg_box++;
                }
 
                count_message_coming = 0;
