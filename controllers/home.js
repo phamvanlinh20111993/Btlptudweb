@@ -109,6 +109,7 @@ router.route('/home')//dieu huong app
 	{
       //load gia tri nguoi dung ban dau
       var num_of_rq = req.query.num_of_user
+      
       if(req.query.loaduser == 1)//đây là các mã mà client gửi lên req.query.loaduser
       {                         // nếu mã là 1, client yêu cầu lấy người dùng trong mạng nội bộ
 
@@ -116,7 +117,7 @@ router.route('/home')//dieu huong app
 		    models.User.find({'Admin': {$ne: 1}}, {created_at: 0, password: 0, __v: 0})
          .sort({status: -1, updated_at: -1})
          .limit(parseInt(num_of_rq))//gioi han so nguoi can tim
-         .skip((parseInt(num_of_rq) - 10))//bo qua so ban ghi tinh tu vi tri dau tien
+         .skip((parseInt(num_of_rq) - 12))//bo qua so ban ghi tinh tu vi tri dau tien
          .exec(function(err, users)
          {
 			   if (err) throw err;
@@ -400,6 +401,7 @@ router.route('/home')//dieu huong app
 
    }else//kiem tra session da duoc khai bao moi chuyen qua trang khac
    {
+
 		if(!req.session.name){//nguoi dung chua dang nhap
 			res.redirect('logsg');
 		}else
@@ -424,11 +426,13 @@ router.route('/home')//dieu huong app
 .post(multipartMiddleware, function(req, res)
 {
 	//tien hanh dang xuat
-	if(req.body.request_log_out == 1){
+	if(req.body.request_log_out == 1)
+   {
 		req.session.destroy(function(err){
-    // cannot access session here 
-      if(err) console.log(err)
-    })
+      // cannot access session here 
+         if(err) console.log(err)
+      })
+      delete code_err;
 		res.redirect('logsg');
 	}
 	

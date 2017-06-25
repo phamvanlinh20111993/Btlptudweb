@@ -17,6 +17,16 @@ function makeid()
     return text;
 }
 
+router.route('/')//dieu huong khi nguoi dung go thieu url: khi nguoi dung go localhost:5555/user/-"/"
+ .get(function(req, res){//thi tu dong dieu huong sang localhost:5555/user/logsg
+ 	//console.log(req.originalUrl)
+ 	if(req.originalUrl.toString() === "/user/")
+ 		res.redirect('logsg');
+ 	else 
+ 	    res.redirect('user/logsg');
+})
+
+
 router.route('/logsg')
 .get(function(req, res)
 {
@@ -66,22 +76,44 @@ router.route('/logsg')
 		});
         
 		var Code = makeid();//tao ngau nhien 1 string
-		console.log(Code)
+		//console.log(Code)
 		User_enter_code = Code;
-		let mailOptions = {
-			from: 'duanwebptudweb@gmail.com',
-			to: email,//email nguoi dung
-			subject: 'Ma xac thuc tai khoan',
-			html: '<div><div><span style="font-size:140%;"><i>Chao mung ban da dang nhap vao he thong chat online cua chung toi!!!</i></span></div><div><p>Ma xac thuc tai khoan cua ban la: </p><b>'+Code+'</b></div></div>'
-		}
 
-		transporter.sendMail(mailOptions, (error, info)=>{
-			if(error){
-				console.log("Loi nay day: " + error)
+		if(parseInt(req.body.request_verify_code) == 0)//ma 0 tuong ung voi dang ki tai khoan
+		{
+			let mailOptions = {
+				from: 'duanwebptudweb@gmail.com',
+				to: email,//email nguoi dung
+				subject: 'Ma xac thuc tai khoan dang ki',
+				html: '<div><div><span style="font-size:140%;"><i>Chao mung ban da dang nhap vao he thong chat online cua chung toi!!!</i></span></div><div><p>Ma xac thuc tai khoan cua ban la: </p><b>'+Code+'</b></div></div>'
 			}
-			console.log('Message %s sent: %s', info.messageId, info.response)
-		})
+
+			transporter.sendMail(mailOptions, (error, info)=>{
+				if(error){
+					console.log("Loi nay day: " + error)
+					res.send("0. Loi dang ki.")
+				}
+				console.log('Message %s sent: %s', info.messageId, info.response)
+			})
+		}else // ma 1 hoac mã khác tương ứng với quên mật khẩu của người dùng
+		{
+			let mailOptions = {
+				from: 'duanwebptudweb@gmail.com',
+				to: email,//email nguoi dung
+				subject: 'Mã xác thực tài khoản người dùng',
+				html: '<div><div><span style="font-size:140%;"><i>Email của bạn đã được xác thực!!!</i></span></div><div><p>Ma xac nhan lai tai khoan cua ban la: </p><b>'+Code+'</b></div></div>'
+			}
+
+			transporter.sendMail(mailOptions, (error, info)=>{
+				if(error){
+					console.log("Loi nay day: " + error)
+					res.send("1. Loi xac thuc lai tai khoan.")
+				}
+				console.log('Message %s sent: %s', info.messageId, info.response)
+			})
+		}
 	}
+
 	else if(typeof req.body.verificationcodes != 'undefined')//dang ki thanh cong
 	{	
 		//ma xac thuc la chinh xac

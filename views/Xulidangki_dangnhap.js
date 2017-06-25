@@ -1,14 +1,15 @@
   //ham nay se yeu cau server gui ma xac thuc email den cho nguoi dung 
   //sau khi nguoi dung da dang ki day du cac thong tin va he thong chap nhan
-  	 function Request_send_verification_code(mail, alias, age, password)
+  //tham số code tương ứng với mã là đăng kí hay quên mật khẩu
+  	 function Request_send_verification_code(code, mail, alias, age, password)
      {
         $.ajax({
           type:"POST",
           url:"",//mac dinh gui den file controler hien thoi
-          data:{request_verify_code: 1, email: mail, name: alias, Age: age, pass: password},
+          data:{request_verify_code: code, email: mail, name: alias, Age: age, pass: password},
           success: function(data)
           {
-             alert("Da chay");
+           // alert("Da chay");
           }
         })
      }
@@ -199,16 +200,20 @@
      }
 
      //ham xu li nhap xac thuc email khi nguoi dung quen mat khau
+     //form nhap email hien ra de nguoi dung nhap gia tri email xac thuc
       function Error_fogotpass(InputsubmitF, ForgotpasswordFormBody, InputsubmitP)
       {
         var tagh4 = ForgotpasswordFormBody[0].getElementsByTagName("h4");
-        if(!Validate_Email(InputsubmitF[0].value)){
+        if(!Validate_Email(InputsubmitF[0].value))
+        {
           tagh4[0].innerHTML = "Email valid. Are you kidding me?"
-        }else{
+        }else
+        {
           Exist_goemail(InputsubmitF[0].value, function(string){//bat dong bo
             Message = string;
-              if(Message != ""){//co dia chi email nay
-                Request_send_verification_code(InputsubmitF[0].value, "", 0, "")
+              if(Message != "")
+              {//co dia chi email nay
+                Request_send_verification_code(1, InputsubmitF[0].value, "", 0, "")//mã 1 là quên mk
                 ForgotpasswordFormBody[0].style.display = "none";
                 ForgotpasswordFormBody[1].style.display = "block";
                 InputsubmitP[0].focus();
@@ -232,7 +237,7 @@
               if(Test_register(Signup_form_infor) == true)
               {
                 var user_infor = Signup_form_infor.getElementsByTagName("input")
-                Request_send_verification_code(user_infor[0].value, user_infor[1].value, user_infor[2].value, user_infor[3].value);//gui yeu cau len server
+                Request_send_verification_code(0, user_infor[0].value, user_infor[1].value, user_infor[2].value, user_infor[3].value);//gui yeu cau len server
                 Signup_form_infor.style.display = "none";
                 var elem1 = document.getElementById("myProgress");
                 var elem = document.getElementById("myBar");
@@ -411,9 +416,12 @@
            //form nhap lai mat khau, nguoi dung nhan nut enter
            index = 0;
            var tagh4 = ForgotpasswordFormBody[1].getElementsByTagName("h4");
-           for(i = 0; i < InputsubmitP.length - 1; i++){
-              InputsubmitP[i].addEventListener("keyup", function(e){
-                if(e.keyCode == 13){
+           for(i = 0; i < InputsubmitP.length - 1; i++)
+           {
+              InputsubmitP[i].addEventListener("keyup", function(e)
+              {
+                if(e.keyCode == 13)
+                {
                   if(InputsubmitP[0].value.length != 45){
                     tagh4[0].innerHTML = "Mã xác thực có 45 kí tự.";
                   }else if((index == 1 || index == 2) && parseInt(InputsubmitP[index].value.length) < 6){
@@ -431,7 +439,8 @@
            }
 
           //form nhap lai mat khau, nhan nut xac thuc
-           InputsubmitP[3].addEventListener("click", function(){//nut submit form nhap lai pass
+           InputsubmitP[3].addEventListener("click", function()
+           {//nut submit form nhap lai pass
               if(InputsubmitP[0].value.length != 45)
                 tagh4[0].innerHTML = "Mã xác thực có 45 kí tự.";
               else if(parseInt(InputsubmitP[1].value.length) < 6)

@@ -42,6 +42,12 @@ app.use(cookieParser())//su dung cookie
 //app.use(passport.initialize())
 //app.use(passport.session())
 
+app.get('/', function(req, res)//khi nguoi dung go localhost:5555 => url se ra localhost:5555/user/logsg
+{
+	//res.render('login_signup')
+	res.redirect('user/logsg');
+})
+
 app.set('view engine', 'ejs')
 app.set('views', path.join(__dirname, 'views'))
 app.set('Image', path.join(__dirname, 'Image'))

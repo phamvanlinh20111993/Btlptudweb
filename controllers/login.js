@@ -4,6 +4,8 @@ var router = express.Router()
 var models = require('../models/user')
 var session = require('express-session')
 var md5 = require('md5')
+
+
 /*var passport = require('passport')
 var LocalStrategy = require('passport-local').Strategy;
 
@@ -93,16 +95,19 @@ router.route('/login')
 	//nguoi dung quen mat khau yeu cau xac minh lại
 	if(typeof User_enter_code != 'undefined')
 	{
-		if(User_enter_code == req.body.mailauthor){
+		if(User_enter_code == req.body.mailauthor)
+		{
 			models.User.findOneAndUpdate({email: req.body.youremail}, {password: md5(req.body.repassword)}).
 			exec(function(err, value){
 				if(err){
-				console.log(err)
+					console.log(err)
 				}else{
 		   	 		req.session.name = value.username;
     		 		req.session.password = value.password;
     		 		req.session.email = value.email;
     		 		req.session.age = value.age;
+    		 		req.session.image = value.image; 
+    		 		req.session.chat_id = value._id
 					res.redirect('home');
 				}
 			})

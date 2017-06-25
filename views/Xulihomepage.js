@@ -500,7 +500,7 @@
                 })
               }
 
-              setTimeout(Load_user(1, "", 10), 300)//load danh sach hien thi nguoi dung
+              setTimeout(Load_user(1, "", 12), 300)//load danh sach hien thi nguoi dung
 
               setTimeout(function(){
                 socket.emit('chattingwithsomeone', Information_user('id'))
@@ -891,7 +891,7 @@
               Talking_chat_button[0].className = "btn btn-default active"
               if(count_click_talkingbylist == 0)
               {
-                Load_user(1, "", 10)//hien thi 10 nguoi trong danh sach
+                Load_user(1, "", 12)//hien thi 12 nguoi trong danh sach
                 count_click_talkingbylist++
               }else{
                   Sub_div_infor_user_on[0].innerHTML = "Không nên lạm dụng nút này."
@@ -918,7 +918,7 @@
                  num_of_user_request++;
                  document.getElementById("concac").innerHTML += position 
                  if(user_request)//neu van con nguoi dung de load
-                  Load_user(1, "", num_of_user_request*10)
+                  Load_user(1, "", num_of_user_request*12)
               }
                Partner_id  = "" //chua nhan tin voi ai
             })
@@ -949,7 +949,7 @@
                //nguoi dung khong nam trong danh sach thi phai tim kiem trong csdl va them vao
                if(!usernothere)
                {
-                  Load_user(3, Process_event_navbar_app_user_hdd[posi].value, 10)//nguoi dung vua nhan tin cho se xuat hien o cuoi
+                  Load_user(3, Process_event_navbar_app_user_hdd[posi].value, 12)//nguoi dung vua nhan tin cho se xuat hien o cuoi
                   setTimeout(function(){
                      Span_status_user_div = Status_user_div[(Status_user_div.length - 1)].getElementsByTagName("span")
                      Chat(Span_status_user_div[0])
