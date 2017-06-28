@@ -19,6 +19,8 @@ router.route('/admin')//dieu huong app
 {
 	if(req.session.name){	
 		res.render('admin')
+	}else{
+		res.redirect('user/logsg')
 	}
 })
 

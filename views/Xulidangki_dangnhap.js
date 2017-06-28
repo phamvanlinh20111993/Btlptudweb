@@ -1,3 +1,6 @@
+  
+  $('#myModal').modal('show')//hien thi form boostrap dang nhap cho nguoi dung
+  
   //ham nay se yeu cau server gui ma xac thuc email den cho nguoi dung 
   //sau khi nguoi dung da dang ki day du cac thong tin va he thong chap nhan
   //tham số code tương ứng với mã là đăng kí hay quên mật khẩu

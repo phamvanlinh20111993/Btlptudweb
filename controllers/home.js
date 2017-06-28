@@ -282,6 +282,7 @@ router.route('/home')//dieu huong app
             .sort({'created_at': 1})//sap xep tang dan theo thoi gian
             .exec(function(err, message)
             {
+               console.log(message)
                if (err) 
                   return handleError(err);
                res.send(message)
@@ -456,7 +457,7 @@ router.route('/home')//dieu huong app
       	 	var newPath = dirname + "/Image/" + req.session.chat_id + "/" + imageName;
       	 	var link_img = "/" + req.session.chat_id + "/" + req.files.File.name;
       	 	req.session.image = link_img;//cap nhat anh
-      	 	console.log(link_img)
+      	 //	console.log(link_img)
 
       		fs.writeFile(newPath, data, function (err) {
       			if(err){
@@ -494,7 +495,7 @@ router.route('/home')//dieu huong app
             if(err)
                throw err
             var Sum_warn = parseInt(num)
-            console.log("So luong canh báo  " + num + " cua " + req.body.warning_someone)
+          //  console.log("So luong canh báo  " + num + " cua " + req.body.warning_someone)
             Sum_warn++;
 
             models.User.findByIdAndUpdate(req.body.warning_someone, //tim kiem id cua nguoi dung
@@ -526,7 +527,7 @@ router.route('/home')//dieu huong app
          {upsert: true})//cho phep tao gia tri moi neu khong phu hop
       .exec(function(err){
          if(err)    throw err
-         console.log(req.body.you_turnofchat + "  " + req.body.who_was_blocked)
+       //  console.log(req.body.you_turnofchat + "  " + req.body.who_was_blocked)
          res.send("Thành công.")
       })
     
@@ -679,7 +680,7 @@ router.route('/home')//dieu huong app
       .exec(function(err, times){
          if(err)
             throw err
-         console.log(JSON.stringify(times))
+       //  console.log(JSON.stringify(times))
          if(times.length > 0)
          {
             models1.Message.remove({ $and:[
