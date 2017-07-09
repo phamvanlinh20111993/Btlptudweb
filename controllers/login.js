@@ -117,6 +117,12 @@ router.route('/login')
 		delete User_enter_code, name, email, age, pass;
 	}
 
+}).get(function(req, res){
+	
+	
+}).delete(function(req, res){
+	
+	
 })
 
 

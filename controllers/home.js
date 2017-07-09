@@ -282,7 +282,7 @@ router.route('/home')//dieu huong app
             .sort({'created_at': 1})//sap xep tang dan theo thoi gian
             .exec(function(err, message)
             {
-               console.log(message)
+              // console.log(message)
                if (err) 
                   return handleError(err);
                res.send(message)

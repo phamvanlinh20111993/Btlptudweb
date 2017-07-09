@@ -94,6 +94,7 @@
 	</div><!-- /.container-fluid -->
 </nav> 
 
+<!-- hien thi cac chuc nang trong trang admin -->
 
 <div class="container-fluid main-container">
  <div class="col-md-2 sidebar">
@@ -106,8 +107,8 @@
 			<!-- Main Menu -->
 			<div class="side-menu-container">
 				<ul class="nav navbar-nav">
-					<li class="active" style="background-color: #95e295;"><a href="#"><span class="glyphicon glyphicon-dashboard"></span> Dashboard</a></li>
-					<li><a href="#"><span class="glyphicon glyphicon-user"></span><span class="glyphicon glyphicon-user" style="margin-left: -5%;"></span>Manage users</a></li>
+					<li ><a href="#"><span class="glyphicon glyphicon-dashboard"></span> Dashboard</a></li>
+					<li><a href="#" ><span class="glyphicon glyphicon-user"></span><span class="glyphicon glyphicon-user" style="margin-left: -5%;"></span>Manage users</a></li>
 					<li><a href="#"><span class="glyphicon glyphicon-exclamation-sign"></span></span> Warning</a></li>
 
 					<!-- Dropdown-->
@@ -130,21 +131,83 @@
 					<li><a href="#" data-toggle="modal" data-target="#myModal"><span class="glyphicon glyphicon-bullhorn"></span>Create notify</a></li>
 					<li><a href="#"> <span class="glyphicon glyphicon-calendar"></span></span>Calendar</a></li>
 					<li><a href="#"><span class="glyphicon glyphicon-education"></span> Logistics</a></li>
-
+					
 				</ul>
 			</div><!-- /.navbar-collapse -->
 		</nav>
 
 	</div>
-</div>  	
 </div>
-    <div class="col-md-10 content" style="display: none;">
+
+<!--content -->
+</div>
+
+    <div class="col-md-10 content" style="display: none;" id="Dashboard_id">
+        <div>
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <span class="glyphicon glyphicon-list"></span>Dashboard trang web
+                </div>
+                <div class="panel-body">
+                </div>
+                <div class="panel-footer">
+          
+                </div>
+            </div>
+        </div>
+  
+  </div>
+  
+  <!-- Su dung boostrap de bat su kien nut click -->
+  
+  <div class="modal fade" id="myModal111" role="dialog">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+	  
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Thông tin chi tiết </h4>
+        </div>
+		
+        <div class="modal-body">
+		
+          <p>This is a large modal.</p>
+		  
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="col-md-10 content" style="display: none;" id="Warning_id">
         <div>
             <div class="panel panel-primary">
                 <div class="panel-heading">
                     <span class="glyphicon glyphicon-list"></span>Danh sách cảnh báo
                 </div>
-                <div class="panel-body">
+                <div class="panel-body" style="overflow-y: auto;height:394px;">
+					<div class="container" style = "width:100%;">
+						<h4 style="text-align:center;">Người dùng</h4>         
+						<table class="table table-bordered" style="width:100%;">
+							<thead>
+								<tr>
+									<th style="text-align:center;">STT</th>
+									<th style="text-align:center;">Name</th>
+									<th style="text-align:center;">Email</th>
+									<th style="text-align:center;">Num of warning</th>
+									<th style="text-align:center;">Detail</th>
+									<th style="text-align:center;">Match</th><!--danh dau -->
+								</tr>
+							</thead>
+							
+							<tbody>
+								
+							</tbody>
+						</table>
+					</div>
                 </div>
                 <div class="panel-footer">
                     <div class="row">
@@ -152,15 +215,86 @@
                             <h6>
                                 Total Count <span class="label label-info">25</span></h6>
                         </div>
+						
+						<div class="col-md-6">
+                            <ul class="pagination pagination-sm pull-right">
+                                <li><a href="#">Show more...</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+  
+  </div>
+  
+  <!-- Su dung boostrap de bat su kien nut click -->
+  
+  <div class="modal fade" id="myModal444" role="dialog">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+	  
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Khóa người dùng </h4>
+        </div>
+		
+        <div class="modal-body">
+		
+          <p>This is a large modal.</p>
+		  
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+   <div class="col-md-10 content" id="Manage_users_id" style="height:510px;">
+        <div>
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <span class="glyphicon glyphicon-list"></span>Quản lí người dùng
+                </div>
+                <div class="panel-body" ><!-- body hear -->
+					<div class="container" style = "width:100%;">
+						<h4 style="text-align:center;">Danh sách người dùng(100)</h4>         
+						<table class="table table-bordered" style="width:100%;">
+							<thead>
+								<tr>
+									<th style="text-align:center;">Email</th>
+									<th style="text-align:center;">Image</th>
+									<th style="text-align:center;">Age</th>
+									<th style="text-align:center;">Sex</th>
+									<th style="text-align:center;">Status</th>
+									<th style="text-align:center;">Ban</th>
+									<th style="text-align:center;">Remove</th>
+									<th style="text-align:center;">More detail</th>
+								</tr>
+							</thead>
+							
+							<tbody>
+								
+							</tbody>
+						</table>
+					</div>
+                </div>
+                <div class="panel-footer">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>
+                                Total Count <span class="label label-info">8</span></h6>
+                        </div>
                         <div class="col-md-6">
                             <ul class="pagination pagination-sm pull-right">
-                                <li class="disabled"><a href="javascript:void(0)">«</a></li>
+                                <li class="disabled"><a href="#">«</a></li>
                                 <li class="active"><a href="javascript:void(0)">1 <span class="sr-only">(current)</span></a></li>
-                                <li><a href="">2</a></li>
-                                <li><a href="">3</a></li>
-                                <li><a href="">4</a></li>
-                                <li><a href="">5</a></li>
-                                <li><a href="javascript:void(0)">»</a></li>
+                                <li><a href="#">2</a></li>
+                                <li><a href="#">3</a></li>
+                                <li><a href="#">4</a></li>
+                                <li><a href="#">5</a></li>
+                                <li><a href="#">»</a></li>
                             </ul>
                         </div>
                     </div>
@@ -170,7 +304,7 @@
   
   </div>
 
-  	<div class="col-md-10 content">
+  	<div class="col-md-10 content"style="display:none;" id="Something">
         <div>
             <div class="panel panel-primary">
                 <div class="panel-heading">
@@ -281,12 +415,19 @@
 	</div>
 </div>
 
-<footer class="pull-left footer">
-  	<p class="col-md-12">
-  		<hr class="divider">
+<footer class="pull-left footer" >
+  	<p class="col-md-12" >
+  		<hr class="divider" >
   			Copyright &COPY; 2015 <a href="">Pham Van Linh</a>
   	</p>
 </footer>
+
+<script type="text/javascript">
+        var adminname = "<%= session.name  %>";//ten nguoi dung
+        var adminemail = "<%= session.email  %>";//dia chi email
+        var adminid = "<%= session.chat_id %>";//ma chat cua nguoi dung trung voi ma Oject trong csdl
+
+    </script>
 
 <script src = "/Xuliadminpage.js"></script>
 	
