@@ -31,7 +31,7 @@ function Remove_user(index)//tham so lay vi tri thong tin
 	
 	var id_user = table_tbody_tr.getElementsByTagName('input')[0].value
 	var name    = table_tbody_tr.getElementsByTagName('input')[1].value
-	console.log(name)
+	//console.log(name)
 	var r = confirm("Admin chắc chắn muốn xóa "+name+" này khỏi danh sách người dùng ???")
 	if(r){
 		alert("done.")
@@ -62,7 +62,7 @@ function Create_table_show_users(data, tbody_table)
 		else
 			elements += '<td>Offline</td>'
 		
-		elements += '<td><button type="button" class="btn btn-warning">Khóa</button></td>'
+		elements += '<td><button type="button" class="btn btn-warning" onclick = "Ban_user('+index+')">Khóa</button></td>'
 		elements += '<td><button type="button" class="btn btn-danger"  onclick = "Remove_user('+index+');">Xóa sổ</button></td>'
 		elements += '<td><button type="button" class="btn btn-primary">More...</button></td>'
 		//cac thong tin bo sung se hien ra khi click vao nut More...
@@ -78,6 +78,48 @@ function Create_table_show_users(data, tbody_table)
 	tbody_table[0].innerHTML += elements
 }
 
+//ham chuyen doi code_warn ve ma string
+function Transfer_code_warn_to_String(code_warn)
+{
+	var Str = ""
+	
+	switch(code_warn)
+	{
+		case "AB111":
+			Str = "Lời lẽ xúc phạm, đe dọa, phản động"
+			break;
+			
+		case "AB222":
+			Str = "Cảm thấy ghét, hận, thù"
+			break;
+			
+		case "AB333":
+			Str = "Kẻ biến thái"
+			break;
+			
+		case "AB444":
+			Str = "Tục tĩu, vô duyên"
+			break;
+			
+		case "AB555":
+			Str = "Không thích người này"
+			break;
+		
+	}
+	
+	return Str;
+	
+}
+
+//ham chuyen ISOdate trong mongo ve Date js
+function Time_transfer(ISOdate)
+{
+    dt = new Date(ISOdate)
+    var  time = dt.getHours() + ":" + dt.getMinutes() + ":" + dt.getSeconds() + ", "+ dt.getDate()+ "/" + (dt.getMonth() + 1) + "/" + dt.getFullYear();
+    return time;
+}
+
+//bat su kien
 function Detail_user_warning(pos)
 {
 	var table = document.getElementById("Warning_id").getElementsByTagName("table")
@@ -91,7 +133,31 @@ function Detail_user_warning(pos)
 		$('#myModal').modal('hide');
 	*/
 	$('#myModal111').modal('show');
-	//console.log(infor_users_warning[0].who_was_warn.username) // right
+	var Modal = document.getElementById("myModal111")
+	var Modal_body = Modal.getElementsByClassName("modal-body")
+	
+	var Modal_body_h5 = Modal.getElementsByTagName("h5")
+	var Modal_body_table = Modal_body[0].getElementsByTagName("table")
+	if(infor_users_warning.length > 0)
+		Modal_body_h5[0].innerHTML = "Thông tin <span style='font-size: 110%;'><i>" + infor_users_warning[0].who_was_warn.username + "</i></span> bị cảnh báo"
+	
+	var index = 0, pos = 0, elements = Modal_body_table[0].innerHTML;
+	Modal_body_table[0].innerHTML = ""
+	
+	for(index = 0; index < infor_users_warning.length; index++)
+	{
+		elements += '<tr>'
+		elements += '<td>' + (index + 1) + '</td>'
+		elements += '<td>' + infor_users_warning[index].who_warn.username + '</td>'
+		elements += '<td>' + infor_users_warning[index].who_warn.email + '</td>'
+		elements += '<td>' + Transfer_code_warn_to_String(infor_users_warning[index].code_warn) + '</td>'
+		elements += '<td>' + Time_transfer(infor_users_warning[index].created_at) + '</td>'
+		elements += '</tr>'
+	}
+	
+	Modal_body_table[0].innerHTML += elements
+	
+	//console.log(JSON.stringify(infor_users_warning)) // right
 }
 
 //ham hien thi bang quan li nguoi dung bi canh bao tham so data la object array users
@@ -123,6 +189,7 @@ function Create_table_warning_users(data, tbody_table)
 //tao ham request tra ve danh sách nguoi dung tren server
 function Request_users(admin_id, code, num)
 {
+	
 	$.ajax({
 		type: "GET",
 		url: "./admin/manageuser",
@@ -133,6 +200,9 @@ function Request_users(admin_id, code, num)
 			
 			var table = document.getElementById("Manage_users_id").getElementsByTagName("table")
 			var table_tbody = table[0].getElementsByTagName("tbody")
+			//tinh toan do dai cua mang du lieu
+			var Total_count = document.getElementById("Manage_users_id").getElementsByClassName("label label-info")
+			Total_count[0].innerHTML = data.length
 			
 			Create_table_show_users(data, table_tbody)
 		}
@@ -143,6 +213,7 @@ function Request_users(admin_id, code, num)
 //tao ham request tra ve danh sách nguoi dung bi canh bao tren server
 function Request_warning(admin_id, code)
 {
+	
 	$.ajax({
 		type: "GET",
 		url: "./admin/warninguser",
@@ -152,6 +223,9 @@ function Request_warning(admin_id, code)
 			data = JSON.parse(data)
 			var table = document.getElementById("Warning_id").getElementsByTagName("table")
 			var tbody_table = table[0].getElementsByTagName("tbody")
+			//tinh toan do dai cua mang du lieu
+			var Total_count = document.getElementById("Warning_id").getElementsByClassName("label label-info")
+			Total_count[0].innerHTML = data.length
 			Create_table_warning_users(data, tbody_table)//du lieu data duoi dang object
 		}
 	})
@@ -241,11 +315,18 @@ function Decode_request_functional(string)
 	switch(string)
 	{
 		case 'manageuser':
-			Request_users(adminid, 0, 30);
+			var table = document.getElementById("Manage_users_id").getElementsByTagName("table")
+			var table_tbody = table[0].getElementsByTagName("tbody")
+			if(table_tbody[0].innerHTML == "")
+				Request_users(adminid, 0, 30);
 			break
 			
 		case 'warninguser':
-			Request_warning(adminid, 0);
+			var table = document.getElementById("Warning_id").getElementsByTagName("table")
+			var table_tbody = table[0].getElementsByTagName("tbody")
+			if(table_tbody[0].innerHTML.length < 18)
+				//console.log(table_tbody[0].innerHTML.length)
+				Request_warning(adminid, 0);
 			break
 		
 		case 'dashboard':
@@ -274,6 +355,8 @@ for(index = 0; index < Dashboard_event_ul_tag_li.length; index++){
 //dat mac dinh khi hien thi trang admin thi nut Manage users duoc auto kick 
 Dashboard_event_ul_tag_li[1].style.backgroundColor = "#95e295"
 Request_users(adminid, 0, 20)//tu dong load tu server ve nguoi dung
+
+
 //bat su kien click
 for(ind = 0; ind < Dashboard_event_ul_tag_li.length; ind++)
 {
