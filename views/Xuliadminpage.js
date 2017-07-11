@@ -1,11 +1,29 @@
 
+//gui toi server cac gia tri de cam nguoi dung
+function Server_ban_user(id_user, time, description)
+{
+	
+	$.ajax({
+		type: "POST",
+		url: "./user/manageuser",
+		data:{id: id_user, time: time, description: description},
+		success: function(data)
+		{
+			if(data.length < 10)
+				alert("Xay ra loi trong qua trinh Ban nguoi dung nay.")
+			else
+				alert("Ban nguoi dung thanh cong.")
+		}
+		
+	})
+}
+
 //khoa nguoi dung trong thoi gian bao nhieu lau
 function Ban_user(index)//tham so lay vi tri thong tin
 {
 	var table = document.getElementById("Manage_users_id").getElementsByTagName("table")
     var table_tbody = table[0].getElementsByTagName("tbody")
 	var table_tbody_tr = table_tbody[0].getElementsByTagName('tr')[index]
-	
 	
 	$('#myModal444').modal('show');
 	
@@ -25,6 +43,7 @@ function More_infor_user(index)
 //xoa nguoi dung khoi csdl
 function Remove_user(index)//tham so lay vi tri thong tin
 {
+
 	var table = document.getElementById("Manage_users_id").getElementsByTagName("table")
     var table_tbody = table[0].getElementsByTagName("tbody")
 	var table_tbody_tr = table_tbody[0].getElementsByTagName('tr')[index]
@@ -33,8 +52,9 @@ function Remove_user(index)//tham so lay vi tri thong tin
 	var name    = table_tbody_tr.getElementsByTagName('input')[1].value
 	//console.log(name)
 	var r = confirm("Admin chắc chắn muốn xóa "+name+" này khỏi danh sách người dùng ???")
+	location.href += "?delete=" + id_user;
 	if(r){
-		alert("done.")
+		Del_users(id_user)
 	}
 }
 
@@ -62,9 +82,9 @@ function Create_table_show_users(data, tbody_table)
 		else
 			elements += '<td>Offline</td>'
 		
-		elements += '<td><button type="button" class="btn btn-warning" onclick = "Ban_user('+index+')">Khóa</button></td>'
-		elements += '<td><button type="button" class="btn btn-danger"  onclick = "Remove_user('+index+');">Xóa sổ</button></td>'
-		elements += '<td><button type="button" class="btn btn-primary">More...</button></td>'
+		elements += '<td style="text-align:center;"><button type="button" class="btn btn-warning" onclick = "Ban_user('+index+')">Khóa</button></td>'
+		elements += '<td style="text-align:center;"><button type="button" class="btn btn-danger"  onclick = "Remove_user('+index+');">Xóa sổ</button></td>'
+		elements += '<td style="text-align:center;"><button type="button" class="btn btn-primary">More...</button></td>'
 		//cac thong tin bo sung se hien ra khi click vao nut More...
 		elements += '<input type="hidden" value = "'+data[index]._id+'">';
 		elements += '<input type="hidden" value = "'+data[index].username+'">';
@@ -136,12 +156,12 @@ function Detail_user_warning(pos)
 	var Modal = document.getElementById("myModal111")
 	var Modal_body = Modal.getElementsByClassName("modal-body")
 	
-	var Modal_body_h5 = Modal.getElementsByTagName("h5")
+	var Modal_body_h4 = Modal.getElementsByTagName("h4")
 	var Modal_body_table = Modal_body[0].getElementsByTagName("table")
 	if(infor_users_warning.length > 0)
-		Modal_body_h5[0].innerHTML = "Thông tin <span style='font-size: 110%;'><i>" + infor_users_warning[0].who_was_warn.username + "</i></span> bị cảnh báo"
+		Modal_body_h4[0].innerHTML = "Thông tin <span style='font-size: 110%;'><i>" + infor_users_warning[0].who_was_warn.username + "</i></span> bị cảnh báo"
 	
-	var index = 0, pos = 0, elements = Modal_body_table[0].innerHTML;
+	var index = 0, pos = 0, elements = "<thead><tr><th>Stt</th><th>Người cảnh báo</th><th>Email</th><th>Nội dung cảnh báo</th><th>Thời gian</th></tr></thead>";
 	Modal_body_table[0].innerHTML = ""
 	
 	for(index = 0; index < infor_users_warning.length; index++)
@@ -175,8 +195,8 @@ function Create_table_warning_users(data, tbody_table)
 		elements += '<td>'+ data[index][0].who_was_warn.username +'</td>'
 		elements += '<td>'+ data[index][0].who_was_warn.email +	'</td>'
 		elements += '<td>'+ data[index].length +'</td>'
-		elements += '<td><button type="button" onclick = "Detail_user_warning('+index+')" class="btn btn-default">Detail</button></td>'
-		elements += '<td><button type="button" class="btn btn-primary">Find</button></td>'
+		elements += '<td style="text-align:center;"><button type="button" onclick = "Detail_user_warning('+index+')" class="btn btn-default">Detail</button></td>'
+		elements += '<td style="text-align:center;"><button type="button" class="btn btn-primary">Find</button></td>'
 		elements += '<input type = "hidden" value = '+JSON.stringify(data[index])+'>'//an du lieu dang json. bo value = /""/ de giu nguyen dang json
 		
 		elements += '</tr>'
@@ -185,6 +205,24 @@ function Create_table_warning_users(data, tbody_table)
 	tbody_table[0].innerHTML += elements
 }
 
+//tao ham request tra ve danh sách nguoi dung tren server
+function Del_users(id)
+{
+	
+	$.ajax({
+		type: "DELETE",
+		url: "./admin/manageuser",
+		data:{id: id},
+		success: function(data)
+		{
+			if(data.length < 10)
+				alert("Xảy ra lỗi.")
+			else
+				alert("Đã xóa thành công.")
+		}
+	})
+
+}
 
 //tao ham request tra ve danh sách nguoi dung tren server
 function Request_users(admin_id, code, num)

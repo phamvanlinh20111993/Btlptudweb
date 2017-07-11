@@ -9,6 +9,7 @@ var io = require('socket.io')(server)
 var models = require('../models/user')
 var models1 = require('../models/message')
 var models2 = require('../models/warning')
+var models3 = require('../models/ban')
 var md5 = require('md5')
 var fs = require('fs');
 
@@ -104,7 +105,23 @@ router.route('/admin/manageuser')//dieu huong app
 })
 
 .post(function(req, res){
-
+	
+	var ban_user = new models3.Ban({
+		id_user: req.body.id,
+		description: req.body.description,
+		time: req.body.time
+	})
+	
+	ban_user.save(function(err){
+		if(err){
+			console.log(err)
+			res.json({message: "Error"})
+		}
+		
+		res.send("Success!!!")
+		
+	})
+	
 })
 
 .put(function(req, res){
@@ -112,7 +129,18 @@ router.route('/admin/manageuser')//dieu huong app
 })
 
 .delete(function(req, res){
+	
+	models.User.findOneAndRemove({ "_id": req.body.id }, function(err)
+	{
+		if (err){
+			throw err;
+			res.send("Error!.")
+		}
 
+		// we have deleted the user
+		console.log('User deleted!');
+		res.send("User deleted!.")
+	});
 })
 
 router.route('/admin/warninguser')//dieu huong app
