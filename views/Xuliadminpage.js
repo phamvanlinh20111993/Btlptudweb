@@ -48,13 +48,13 @@ function Remove_user(index)//tham so lay vi tri thong tin
     var table_tbody = table[0].getElementsByTagName("tbody")
 	var table_tbody_tr = table_tbody[0].getElementsByTagName('tr')[index]
 	
-	var id_user = table_tbody_tr.getElementsByTagName('input')[0].value
+	var email = table_tbody_tr.getElementsByTagName('input')[5].value
 	var name    = table_tbody_tr.getElementsByTagName('input')[1].value
 	//console.log(name)
 	var r = confirm("Admin chắc chắn muốn xóa "+name+" này khỏi danh sách người dùng ???")
-	location.href += "?delete=" + id_user;
+	location.href = "?delete=" + email;
 	if(r){
-		Del_users(id_user)
+		Del_users(email, name)
 	}
 }
 
@@ -91,6 +91,7 @@ function Create_table_show_users(data, tbody_table)
 		elements += '<input type="hidden" value = "'+data[index].created_at+'">';
 		elements += '<input type="hidden" value = "'+data[index].hobbies+'">';
 		elements += '<input type="hidden" value = "'+data[index].update_infor+'">';
+		elements += '<input type="hidden" value = "'+data[index].email+'">';
 		
 		elements += '</tr>'
 	}
@@ -206,13 +207,13 @@ function Create_table_warning_users(data, tbody_table)
 }
 
 //tao ham request tra ve danh sách nguoi dung tren server
-function Del_users(id)
+function Del_users(email, name)
 {
 	
 	$.ajax({
 		type: "DELETE",
 		url: "./admin/manageuser",
-		data:{id: id},
+		data:{email: email, name: name},
 		success: function(data)
 		{
 			if(data.length < 10)

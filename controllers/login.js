@@ -71,7 +71,7 @@ router.route('/login')
 				
 				if(value != null)
 				{
-					models1.Ban.findOne({'id_user' : value._id}).
+					models1.Ban.findOne({'email' : value.email}).
 					exec(function(err, notmatch)
 					{
 						if(err)
@@ -107,7 +107,6 @@ router.route('/login')
 							}
 							
 							delete code_err;//xóa mãi lỗi ẩn giao diện
-							
 						
 						}else//tài khoản người dùng bị khóa 
 						{
@@ -119,25 +118,21 @@ router.route('/login')
 								console.log(time)
 							}else
 								time = Time_transfer(time)
-						
-							models.User.findById(notmatch.id_user, function(err, User){
-								if(err)
-									throw err
-							
-								var BanUser = {//tao ra 1 doi tuong gui ve phia client
-									name: User.username,
-									email: User.email,
-									time: time,
-									description: notmatch.description,
-									created: Time_transfer(notmatch.created_at)
-								}
-								console.log(BanUser)
-								//tao ra ma loi
-								code_err = 2;
-								var Lock_user = JSON.stringify(BanUser)
-							//	res.redirect('logsg');
-								res.render("login_signup", {BanUser : JSON.parse(Lock_user)})
-							})
+		
+							//tao ra 1 doi tuong gui ve phia client
+							var BanUser = {
+								name: notmatch.name,
+								email: notmatch.email,
+								time: time,
+								description: notmatch.description,
+								created: Time_transfer(notmatch.created_at)
+							}
+							console.log(BanUser)
+							//tao ra ma loi
+							code_err = 2;
+							var Lock_user = JSON.stringify(BanUser)
+						//	res.redirect('logsg');
+							res.render("login_signup", {BanUser : JSON.parse(Lock_user)})
 						
 						}
 					})

@@ -131,15 +131,16 @@ router.route('/admin/manageuser')//dieu huong app
 .delete(function(req, res)
 {
 	//khi xoa nguoi dung nay khoi csdl thi dong thoi cấm đoán email này vĩnh viễn
-	//models.User.findOneAndRemove({ "_id": req.body.id }, function(err)
-	//{
-	//	if (err){
-		//	throw err;
-		//	res.send("Error!.")
-	//	}
+	models.User.findOneAndRemove({ "_id": req.body.id }, function(err)
+	{
+		if (err){
+			throw err;
+			res.send("Error!.")
+		}
 		
 		var ban_user = new models3.Ban({
-			id_user: req.body.id,
+			name: req.body.name,
+			email: req.body.email,
 			description: "Vi phạm các điều khoản của ứng dụng cho phép.",
 			time: new Date("October 6, 1995 15:15:15").toISOString()
 		})
@@ -155,7 +156,7 @@ router.route('/admin/manageuser')//dieu huong app
 			res.send("User deleted!.")
 		})
 
-	//});
+	});
 })
 
 router.route('/admin/warninguser')//dieu huong app

@@ -359,6 +359,7 @@
                   }
 
                   var themid = Information_user('id');
+				 // location.href = "?chat_partner=" + themid;
                   Partner_id = themid;//ma id cua doi phuong
 
                   if( id_click_user_chat_first == "" ){
