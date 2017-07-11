@@ -128,19 +128,34 @@ router.route('/admin/manageuser')//dieu huong app
 
 })
 
-.delete(function(req, res){
+.delete(function(req, res)
+{
+	//khi xoa nguoi dung nay khoi csdl thi dong thoi cấm đoán email này vĩnh viễn
+	//models.User.findOneAndRemove({ "_id": req.body.id }, function(err)
+	//{
+	//	if (err){
+		//	throw err;
+		//	res.send("Error!.")
+	//	}
+		
+		var ban_user = new models3.Ban({
+			id_user: req.body.id,
+			description: "Vi phạm các điều khoản của ứng dụng cho phép.",
+			time: new Date("October 6, 1995 15:15:15").toISOString()
+		})
 	
-	models.User.findOneAndRemove({ "_id": req.body.id }, function(err)
-	{
-		if (err){
-			throw err;
-			res.send("Error!.")
-		}
+		ban_user.save(function(err){
+			if(err){
+				console.log(err)
+				res.json({message: "Error"})
+			}
+			
+			// we have deleted the user
+			console.log('User deleted!');
+			res.send("User deleted!.")
+		})
 
-		// we have deleted the user
-		console.log('User deleted!');
-		res.send("User deleted!.")
-	});
+	//});
 })
 
 router.route('/admin/warninguser')//dieu huong app
