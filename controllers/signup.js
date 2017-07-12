@@ -43,10 +43,38 @@ router.route('/logsg')
 		var cookieN = req.cookies.CookieName;
 		var cookieP = req.cookies.CookiePass;
 		//console.log(cookieN)
+	
 		if(typeof cookieN === 'undefined'){
 			res.render('login_signup')
-		}else{
-			res.render('login_signup',{email: cookieN, pass: cookieP})
+		}else
+		{//neu cookie da ton tai, bay gio can xem xet nguoi dung da dang xuat truoc do hay chua
+	
+			models.User.findOne({$and:[{'email': cookieN}, 
+			{ 'password': md5(cookieP) }]})
+			.exec(function(err, value)
+			{
+				if(err)
+					throw err
+				console.log(value)
+				if(value.status_logout == 0)//nguoi dung chua tung dang xuat
+				{
+					req.session.name = value.username;
+					req.session.password = cookieP;
+					req.session.image = value.image;
+					req.session.email = cookieN;
+					req.session.age = value.age;
+					req.session.chat_id = value._id
+	
+					if(value.email == "duanwebptudweb@gmail.com"){//tai khoan admin
+						res.redirect('admin');
+					}else{
+						res.redirect('home');
+					}
+				}else
+					res.render('login_signup',{email: cookieN, pass: cookieP})
+					
+			})
+			
 		}
 	//}
 }).post(function(req, res)

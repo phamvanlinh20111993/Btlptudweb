@@ -79,7 +79,14 @@ function Redirect_user(req, res, value)
 	//if(typeof value[0].Admin != 'undefined'){
 	//	console.log(value[0].Admin)
 	//}
-
+	
+	models.User.findOneAndUpdate({ '_id': req.session.chat_id }, 
+		{'status_logout': 0}, {upsert: true}//khi nguoi dung dang nhap thi status_logout = 
+		,function(err){
+			if(err)
+				throw err;
+		})
+		
 	if(value.email == "duanwebptudweb@gmail.com"){//tai khoan admin
 		res.redirect('admin');
 	}else{
@@ -90,7 +97,7 @@ function Redirect_user(req, res, value)
  
 router.route('/login')
  .post(function(req, res)
-{		
+{	
 		//ten nguoi dung chinh la email da dang ki
 		models.User.findOne({'email' : req.body.username, 'password': md5(req.body.password)}).
 		exec(function(err, value){
@@ -100,7 +107,7 @@ router.route('/login')
 			}else{
 				
 				if(value != null)
-				{
+				{			
 					//tim kiem trong collection ban thoi gian so voi thoi gian hien tai
 					models1.Ban.findOne({ $and:[ {'email' : value.email},//gia tri email match
 					  {'time': {$lt: new Date().toISOString()} } ] })//time nho lon hon thoi gian hien tai

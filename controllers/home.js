@@ -443,15 +443,23 @@ router.route('/home')//dieu huong app
 })
 .post(multipartMiddleware, function(req, res)
 {
-	//tien hanh dang xuat
+	//tien hanh dang xuat nguoi dung
 	if(req.body.request_log_out == 1)
-   {
-		req.session.destroy(function(err){
-      // cannot access session here 
-         if(err) console.log(err)
-      })
-      delete code_err;
-		res.redirect('logsg');
+	{
+		//cap nhat trang thai on hay off cua nguoi dung
+		models.User.findOneAndUpdate({ '_id': req.session.chat_id }, 
+			{'status_logout': 1}//nguoi dung dang xuat khoi ung dung
+		,function(err){
+			if(err)
+				throw err;
+			
+			req.session.destroy(function(err){
+				// cannot access session here 
+				if(err) console.log(err)
+			})
+			res.redirect('logsg');
+		})
+		
 	}
 	
 	//Upload anh dai dien
