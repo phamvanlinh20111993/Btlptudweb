@@ -57,6 +57,36 @@ function Time_transfer(ISOdate)
     var  time = dt.getHours() + ":" + dt.getMinutes() + ":" + dt.getSeconds() + ", "+ dt.getDate()+ "/" + (dt.getMonth() + 1) + "/" + dt.getFullYear();
     return time;
 }
+
+//ham tra ve cac session cua nguoi dung va sau do dieu huong
+function Redirect_user(req, res, value)
+{
+	//	 var yourinfor = JSON.stringify(value);
+   //	 yourinfor = JSON.parse(you);//thong tin cua nguoi dung dang nhap
+	req.session.name = value.username;
+	req.session.password = req.body.password;
+	req.session.image = value.image;
+	req.session.email = req.body.username;
+	req.session.age = value.age;
+	//nguoi dung khong muon ghi nho dang nhap
+	if(typeof req.body.rememberme != 'undefined'){//maxAge la 1 ngay
+		res.cookie('CookieName', req.body.username, { maxAge: 3600*24*1000, httpOnly: true })
+		res.cookie('CookiePass', req.body.password, { maxAge: 3600*24*1000, httpOnly: true })
+	}
+	//tao mot ma chat duy nhat cho nguoi dung la ma luu mac dinh trong csdl
+	req.session.chat_id = value._id
+	//console.log(value)
+	//if(typeof value[0].Admin != 'undefined'){
+	//	console.log(value[0].Admin)
+	//}
+
+	if(value.email == "duanwebptudweb@gmail.com"){//tai khoan admin
+		res.redirect('admin');
+	}else{
+		res.redirect('home');
+	}
+	
+}
  
 router.route('/login')
  .post(function(req, res)
@@ -71,53 +101,34 @@ router.route('/login')
 				
 				if(value != null)
 				{
-					models1.Ban.findOne({'email' : value.email}).
-					exec(function(err, notmatch)
+					//tim kiem trong collection ban thoi gian so voi thoi gian hien tai
+					models1.Ban.findOne({ $and:[ {'email' : value.email},//gia tri email match
+					  {'time': {$lt: new Date().toISOString()} } ] })//time nho lon hon thoi gian hien tai
+					.sort({ 'time': -1 })//sap xep theo thoi gain gan day nhat
+					.exec(function(err, notmatch)
 					{
 						if(err)
-						throw err
+							throw err
 					
-						//neu nguoi dung khong bi ban
+						//neu nguoi dung chua bi ban lan nao
 						if(notmatch == null)
 						{
-						
-						//	 var yourinfor = JSON.stringify(value);
-						//	 yourinfor = JSON.parse(you);//thong tin cua nguoi dung dang nhap
-							req.session.name = value.username;
-							req.session.password = req.body.password;
-							req.session.image = value.image;
-							req.session.email = req.body.username;
-							req.session.age = value.age;
-							//nguoi dung khong muon ghi nho dang nhap
-							if(typeof req.body.rememberme != 'undefined'){//maxAge la 1 ngay
-								res.cookie('CookieName', req.body.username, { maxAge: 3600*24*1000, httpOnly: true })
-								res.cookie('CookiePass', req.body.password, { maxAge: 3600*24*1000, httpOnly: true })
-							}
-							//tao mot ma chat duy nhat cho nguoi dung la ma luu mac dinh trong csdl
-							req.session.chat_id = value._id
-							//console.log(value)
-							//if(typeof value[0].Admin != 'undefined'){
-							//	console.log(value[0].Admin)
-							//}
-
-							if(value.email == "duanwebptudweb@gmail.com"){//tai khoan admin
-								res.redirect('admin');
-							}else{
-								res.redirect('home');
-							}
-							
+							//tao cac bien can thiet nhu session hoac ma loi cho nguoi dung
+							Redirect_user(req, res, value)
 							delete code_err;//xóa mãi lỗi ẩn giao diện
 						
-						}else//tài khoản người dùng bị khóa 
+						}else//tài khoản người dùng bị khóa, khóa 1 thời gian hoặc khóa vĩnh viễn
 						{
 							
 							var time = "";
 							//tai khoan nay bi khoa vinh vien
-							if(new Date(notmatch.time).toString() == new Date("October 6, 1995 15:15:15").toString()){
-								time = "khoa vinh vien"
-								console.log(time)
-							}else
+							if(new Date(notmatch.time).toString() == new Date("October 6, 1995 15:15:15").toString())
+							{
+								time = "khóa vĩnh viễn"
+								//console.log(time)
+							}else{ //truong hop nay tai khoan nguoi dung chi bi khoa mot thoi gian
 								time = Time_transfer(time)
+							}
 		
 							//tao ra 1 doi tuong gui ve phia client
 							var BanUser = {
@@ -127,13 +138,14 @@ router.route('/login')
 								description: notmatch.description,
 								created: Time_transfer(notmatch.created_at)
 							}
-							console.log(BanUser)
+							//console.log(BanUser)
 							//tao ra ma loi
 							code_err = 2;
 							var Lock_user = JSON.stringify(BanUser)
-						//	res.redirect('logsg');
 							res.render("login_signup", {BanUser : JSON.parse(Lock_user)})
-						
+							delete BanUser;
+							delete Lock_user;
+						//	res.redirect('logsg');//dieu huong sang trang logsg
 						}
 					})
 					

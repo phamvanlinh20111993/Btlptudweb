@@ -2,8 +2,10 @@ var express = require('express')
 var app = express()
 var router = express.Router()
 var models = require('../models/user')
+var models1 = require('../models/ban')
 var session = require('express-session')
 var md5 = require('md5')
+
 //process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 //tao random ma gui cho nguoi dung xac thuc tai khoan
 function makeid()
@@ -30,29 +32,57 @@ router.route('/')//dieu huong khi nguoi dung go thieu url: khi nguoi dung go loc
 router.route('/logsg')
 .get(function(req, res)
 {
-	//console.log(req.cookies)
-	var cookieN = req.cookies.CookieName;
-	var cookieP = req.cookies.CookiePass;
-	//console.log(cookieN)
-	if(typeof cookieN === 'undefined'){
-		res.render('login_signup')
-	}else{
-		res.render('login_signup',{email: cookieN, pass: cookieP})
-	}
+	//tai khoan nguoi dung bi khoa
+	//if(typeof Lock_user != 'undefined')
+	//{
+//		res.render("login_signup", {BanUser : JSON.parse(Lock_user)})
+//		delete BanUser;
+//		delete Lock_user;
+//	}else{
+		//console.log(req.cookies)
+		var cookieN = req.cookies.CookieName;
+		var cookieP = req.cookies.CookiePass;
+		//console.log(cookieN)
+		if(typeof cookieN === 'undefined'){
+			res.render('login_signup')
+		}else{
+			res.render('login_signup',{email: cookieN, pass: cookieP})
+		}
+	//}
 }).post(function(req, res)
 {
 	//kiem tra email nguoi dung da dang ki hay chua:co the danh chi muc cho email
+	//dia chi email nguoi dung bi khoa vinh vien
+	
 	if(typeof req.body.exist_email != 'undefined')
 	{
-		models.User.findOne({'email' : req.body.exist_email}).
+		var Email_user = req.body.exist_email;
+		
+		models.User.findOne({'email' : Email_user}).
 		exec(function(err, value){
 			if(err){
 		  	 	console.log(err);
 			}else{
-		   		if(value != null)
+		   		if(value != null){
 		  	   		res.send("10");
-		   		else
-		   	   		res.send("11");
+				}else{	
+					//co mot so truong hop xay ra do la email nay bi cấm vĩnh viễn(admin xóa) trong app nay
+					//hoac dia chi email nay chua duoc dang ki
+					
+					models1.Ban.findOne({ $and:[{'email' : Email_user},
+					 { 'time': new Date("October 6, 1995 15:15:15").toISOString()} ]})
+					//.sort({'time': 1})
+					.exec(function(err, BanU){
+						if(err)
+							throw err
+						
+						if(BanU == null)//nguoi dùng không bị khóa tài khoản
+							res.send("11");
+						else 
+							res.send("12");
+					})
+		   	   		
+				}
 			}
 		})
 		delete req.body.exist_email;

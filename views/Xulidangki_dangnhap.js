@@ -125,7 +125,10 @@
           data: {exist_email: mail},
           success: function(data){
             if(data == "10")    
-              count = "Địa chỉ email đã được đăng kí. Vui lòng đăng kí bằng email khác.";
+                count = "Địa chỉ email đã được đăng kí. Vui lòng đăng kí bằng email khác.";
+			else if(data == "12")//đia chỉ mail bị khóa vĩnh viễn
+				count = "Địa chỉ email này đã bị cấm đăng kí trong app.";
+				
             if(typeof callback === "function") 
               callback(count);
           }
@@ -296,7 +299,7 @@
                 if(e.keyCode == 13){
                     if(index == 0  && Message == ""){
                       var string;
-                      Exist_goemail(ip[index].value, function(string){//bat dong bo
+                      Exist_goemail(ip[index].value, function(string){//bat dong bo trong ajax
                           Message = string;
                           if(Message != "")
                             Create_node(Signup_form_infor, 0, Message, 0);

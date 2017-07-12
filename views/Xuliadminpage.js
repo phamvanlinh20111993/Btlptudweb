@@ -52,7 +52,7 @@ function Remove_user(index)//tham so lay vi tri thong tin
 	var name    = table_tbody_tr.getElementsByTagName('input')[1].value
 	//console.log(name)
 	var r = confirm("Admin chắc chắn muốn xóa "+name+" này khỏi danh sách người dùng ???")
-	location.href = "?delete=" + email;
+
 	if(r){
 		Del_users(email, name)
 	}
@@ -209,7 +209,7 @@ function Create_table_warning_users(data, tbody_table)
 //tao ham request tra ve danh sách nguoi dung tren server
 function Del_users(email, name)
 {
-	
+	location.href = "?delete=" + email;
 	$.ajax({
 		type: "DELETE",
 		url: "./admin/manageuser",
