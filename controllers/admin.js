@@ -236,6 +236,26 @@ router.route('/admin/warninguser')//dieu huong app
 
 })
 
+router.route('/admin/dashboard')//dieu huong app
+.get(function(req, res)
+{
+	
+	 	res.render('admin')
+	
+})
+
+.post(function(req, res){
+
+})
+
+.put(function(req, res){
+
+})
+
+.delete(function(req, res){
+
+})
+
 
 
 module.exports = router;

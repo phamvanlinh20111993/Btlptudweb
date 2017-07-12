@@ -81,8 +81,8 @@ function Redirect_user(req, res, value)
 	//}
 	
 	models.User.findOneAndUpdate({ '_id': req.session.chat_id }, 
-		{'status_logout': 0}, {upsert: true}//khi nguoi dung dang nhap thi status_logout = 
-		,function(err){
+		{'status_logout': 0}, {upsert: true}//khi nguoi dung dang nhap thi status_logout = 0
+		,function(err){					    //upsert la tao them truong neu truong khong ton tai
 			if(err)
 				throw err;
 		})
@@ -176,6 +176,7 @@ router.route('/login')
 				if(err){
 					console.log(err)
 				}else{
+					//khoi tao lai phien lam viec
 		   	 		req.session.name = value.username;
     		 		req.session.password = value.password;
     		 		req.session.email = value.email;
@@ -202,6 +203,5 @@ router.route('/login')
 	
 	
 })
-
 
 module.exports = router;

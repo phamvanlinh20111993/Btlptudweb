@@ -240,6 +240,7 @@ function Request_users(admin_id, code, num)
 		data:{who_request_users: admin_id, code_request: code, num_request: num},
 		success: function(data)
 		{
+			//thay doi url tren trinh duyet
 			data = JSON.parse(data)
 			
 			var table = document.getElementById("Manage_users_id").getElementsByTagName("table")
@@ -359,10 +360,12 @@ function Decode_request_functional(string)
 	switch(string)
 	{
 		case 'manageuser':
+			
 			var table = document.getElementById("Manage_users_id").getElementsByTagName("table")
 			var table_tbody = table[0].getElementsByTagName("tbody")
 			if(table_tbody[0].innerHTML == "")
 				Request_users(adminid, 0, 30);
+			//window.history.pushState("", "", "/user/admin/manageuser");
 			break
 			
 		case 'warninguser':
@@ -371,9 +374,11 @@ function Decode_request_functional(string)
 			if(table_tbody[0].innerHTML.length < 18)
 				//console.log(table_tbody[0].innerHTML.length)
 				Request_warning(adminid, 0);
+			//window.history.pushState("", "", "/user/admin/warninguser");
 			break
 		
 		case 'dashboard':
+			//window.history.pushState("", "", "/user/admin/dashboard");
 			Show_dashboard()
 			break
 		

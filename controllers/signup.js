@@ -55,9 +55,10 @@ router.route('/logsg')
 			{
 				if(err)
 					throw err
-				console.log(value)
+				//console.log(value)
 				if(value.status_logout == 0)//nguoi dung chua tung dang xuat
 				{
+					//khoi tao phien lam viec
 					req.session.name = value.username;
 					req.session.password = cookieP;
 					req.session.image = value.image;
