@@ -359,7 +359,9 @@
                   }
 
                   var themid = Information_user('id');
-				 // location.href = "?chat_partner=" + themid;
+				//  window.location.href = "?chat_partner=" + themid;--co refresh lai page 
+				//window.history.pushState() khong refresh lai page 
+				  window.history.pushState(themid, "chat_partner", "/user/home?chat_partner=" + themid);
                   Partner_id = themid;//ma id cua doi phuong
 
                   if( id_click_user_chat_first == "" ){
@@ -529,10 +531,14 @@
                 })
               }
 
-              setTimeout(Load_user(1, "", 12), 300)//load danh sach hien thi nguoi dung
+              setTimeout(function(){
+				  Load_user(1, "", 12)
+			  }, 300)//load danh sach hien thi nguoi dung
 
               setTimeout(function(){
-                socket.emit('chattingwithsomeone', Information_user('id'))
+				 var id_user_chat = Information_user('id')
+                socket.emit('chattingwithsomeone', id_user_chat)
+				window.history.pushState(id_user_chat, "chat_partner", "/user/home?chat_partner=" + id_user_chat);
               }, 2000)
 
               setTimeout(function()
@@ -566,6 +572,7 @@
                 if(Search_input_user[0].value.length > 1 && e.keyCode == 13){
                   Sub_div_infor_user_on[0].innerHTML = ""
                   Load_user(5, Search_input_user[0].value, 12);//lay 12 nguoi gan nhat
+				  window.history.pushState(Search_input_user[0].value, "search_partner", "/user/home?search_partner=" + Search_input_user[0].value);
                   Search_input_user[0].value = "";
                 }
               })
@@ -575,6 +582,7 @@
                 if(Search_input_user[0].value.length > 1){
                   Sub_div_infor_user_on[0].innerHTML = ""
                   Load_user(5, Search_input_user[0].value, 12)
+				  window.history.pushState(Search_input_user[0].value, "search_partner", "/user/home?search_partner=" + Search_input_user[0].value);
                   Search_input_user[0].value = "";
                 }
               }) 
@@ -912,8 +920,11 @@
             var Talking_chat = document.getElementById("cachthucnhantin")
             var Talking_chat_button = Talking_chat.getElementsByTagName("button");
             var count_click_talkingbylist = 0;//dem so lan click vi neu nguoi dung click qua nhieu server bị quá tải nên bị hạn chế 
+			
             //Talking by list
             Talking_chat_button[0].addEventListener("click", function(){
+				//thay doi url tren trinh duyet
+			  window.history.pushState("", "", "/user/home");
               Div_content_message[0].innerHTML = "";//reset hop thoai chat
               Sub_div_infor_user_on[0].innerHTML = "";//reset hop thoai nguoi dung trong ds online
               Talking_chat_button[1].className = "btn btn-default"
@@ -932,6 +943,8 @@
             //Talking random
             Talking_chat_button[1].addEventListener("click", function()
             {
+				//thay doi url tren trinh duyet
+			  window.history.pushState("", "", "/user/home?random=" + Math.floor((Math.random() * Status_user_div.length) + 1));
               Sub_div_infor_user_on[0].innerHTML = "";//reset hop thoai nguoi dung trong ds online
               Talking_chat_button[0].className = "btn btn-default"
               Talking_chat_button[1].className = "btn btn-default active"

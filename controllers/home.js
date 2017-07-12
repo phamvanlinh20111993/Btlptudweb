@@ -99,9 +99,26 @@ function RandomInt(max, min)
   return Math.floor(Math.random() * max + min);
 }
 
+//router.route('/home/:chat_partner')//dieu huong app dung params: url co dang  http://localhost:5555/user/home/591ea6bfddd4c61a84994480
+//.get(function(req, res)
+//{
+//	console.log("tim kiem id la "+ req.params.chat_partner)
+//})
+
 router.route('/home')//dieu huong app
 .get(function(req, res)
 {
+	/* nguoi dung muon tim kiem 1 ai do bang cach paste dia chi url dang 
+	 http://localhost:5555/user/home?chat_partner=59265cc3b097ec1038755728 
+	 ta can tach lay gia tri nay va hien thi theo yeu cau nguoi dung--phan nang cao
+	 */
+	if(typeof req.query.chat_partner != 'undefined')
+	{
+		console.log(req.cookies.CookieName)
+		//res.render('home')
+	}
+		
+	
 	//load danh sach nguoi dung tu csdl, cần có độ ưu tiên hiển thị những người online trước, sau đó
    //là những người offline với thòi gian online gần nhất với thời điểm hiện tại.Như vậy sort field
    //by status(online hay offline) và time(thời gian off gần nhất)

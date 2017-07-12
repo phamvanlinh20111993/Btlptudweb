@@ -30,7 +30,7 @@ app.use(session({
 	secret:'secret',
 	saveUninitialized: true,
 	resave: false,
-	cookie: {maxAge: 900000}//neu de secure:true thi session khong duoc khoi tao???
+	cookie: {maxAge: 24*3600*1000}//neu de secure:true thi session khong duoc khoi tao???
 //	store: new mongoStore({  // luu session vao co so du lieu mongodb
  //   	mongooseConnection: mongoose.connection,
   //  	collection: 'sessions' // default

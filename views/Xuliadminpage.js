@@ -21,6 +21,7 @@ function Server_ban_user(id_user, time, description)
 //khoa nguoi dung trong thoi gian bao nhieu lau
 function Ban_user(index)//tham so lay vi tri thong tin
 {
+	
 	var table = document.getElementById("Manage_users_id").getElementsByTagName("table")
     var table_tbody = table[0].getElementsByTagName("tbody")
 	var table_tbody_tr = table_tbody[0].getElementsByTagName('tr')[index]
@@ -50,11 +51,15 @@ function Remove_user(index)//tham so lay vi tri thong tin
 	
 	var email = table_tbody_tr.getElementsByTagName('input')[5].value
 	var name    = table_tbody_tr.getElementsByTagName('input')[1].value
+	var id = table_tbody_tr.getElementsByTagName('input')[0].value
+	window.history.pushState(id, "del-user", "/user/admin?del-user=" + id);
 	//console.log(name)
 	var r = confirm("Admin chắc chắn muốn xóa "+name+" này khỏi danh sách người dùng ???")
 
 	if(r){
 		Del_users(email, name)
+	}else{
+		window.history.pushState("", "", "/user/admin");
 	}
 }
 
