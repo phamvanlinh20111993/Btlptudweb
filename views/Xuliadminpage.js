@@ -31,17 +31,30 @@ function Ban_user(index)//tham so lay vi tri thong tin
 }
 
 //ham hien thi them thong tin cua nguoi dung
-function More_infor_user(index)
+function More_infor_user(hobbies, created_at, updated_at, username)
 {
-	var table = document.getElementById("Manage_users_id").getElementsByTagName("table")
-    var table_tbody = table[0].getElementsByTagName("tbody")
-	var table_tbody_tr = table_tbody[0].getElementsByTagName('tr')[index]
+	var ul_tag = document.getElementById("myModal7777").getElementsByTagName("ul")
+	//the li_tag 0,1,2,3 tuong ung la so thich, ngay khoi tao, ngay cap nhạt, khác
+    var li_tag = ul_tag[0].getElementsByTagName("li")
+	var h5_tag = document.getElementById("myModal7777").getElementsByTagName("h5")
+	h5_tag[0].innerHTML = ""
+	h5_tag[0].innerHTML = "<i> user </i> " + username
+	li_tag[0].innerHTML = "";  li_tag[1].innerHTML = ""; li_tag[2].innerHTML = ""; li_tag[3].innerHTML =
+	li_tag[0].innerHTML =  "<i> Sở thích: </i>" + hobbies
+	li_tag[1].innerHTML = "<i> Ngày khởi tạo: </i>" + new Date(created_at)
+	li_tag[2].innerHTML = "<i> Ngày cập nhật: </i>" + new Date(updated_at)
+	li_tag[3].innerHTML = "<i> Khác: </i>None"
 	
-	
+	$('#myModal7777').modal('show');
 	
 }
 
 //xoa nguoi dung khoi csdl
+/*
+	có thể truyền tham số là 1 string khi nhúng html vào js.tuy nhiên có 1 chút thay đổi
+  element = "<a onclick="Confirm_topic(\''+he[i].title+'\')"></a>"
+  hoặc  element = "<a href='#' onclick='test(\""+elem[i].url+"\")'>dd</a><br><br>" */
+  
 function Remove_user(index)//tham so lay vi tri thong tin
 {
 
@@ -89,7 +102,8 @@ function Create_table_show_users(data, tbody_table)
 		
 		elements += '<td style="text-align:center;"><button type="button" class="btn btn-warning" onclick = "Ban_user('+index+')">Khóa</button></td>'
 		elements += '<td style="text-align:center;"><button type="button" class="btn btn-danger"  onclick = "Remove_user('+index+');">Xóa sổ</button></td>'
-		elements += '<td style="text-align:center;"><button type="button" class="btn btn-primary">More...</button></td>'
+		elements += '<td style="text-align:center;"><button type="button" class="btn btn-primary"'
+		elements += 'onclick = "More_infor_user(\''+data[index].hobbies+'\',\''+data[index].created_at+'\',\''+data[index].update_infor+'\', \''+data[index].username+'\');">More...</button></td>'
 		//cac thong tin bo sung se hien ra khi click vao nut More...
 		elements += '<input type="hidden" value = "'+data[index]._id+'">';
 		elements += '<input type="hidden" value = "'+data[index].username+'">';
@@ -202,7 +216,7 @@ function Create_table_warning_users(data, tbody_table)
 		elements += '<td>'+ data[index][0].who_was_warn.email +	'</td>'
 		elements += '<td>'+ data[index].length +'</td>'
 		elements += '<td style="text-align:center;"><button type="button" onclick = "Detail_user_warning('+index+')" class="btn btn-default">Detail</button></td>'
-		elements += '<td style="text-align:center;"><button type="button" class="btn btn-primary">Find</button></td>'
+		elements += '<td style="text-align:center;"><button type="button" class="btn btn-link" >Find match</button></td>'
 		elements += '<input type = "hidden" value = '+JSON.stringify(data[index])+'>'//an du lieu dang json. bo value = /""/ de giu nguyen dang json
 		
 		elements += '</tr>'
@@ -466,13 +480,8 @@ for(ind = 0; ind < Pagination_in_manage_user_ul_li.length; ind++)
 				var att = document.createAttribute("class");
 				att.value = "active";
 				Pagination_in_manage_user_ul_li[1].setAttributeNode(att);
-			 
-				for(index = 2; index < 6; index++)
-				{
-					var att1 = document.createAttribute("class");
-					att1.value = "";
-					Pagination_in_manage_user_ul_li[index].setAttributeNode(att1);
-				}
+				
+				Delete_class_active(2, 6, Pagination_in_manage_user_ul_li, 7)
 				
 			}else if(this.alt == Pagination_in_manage_user_ul_li.length-1)//next tiep
 			{
@@ -493,12 +502,7 @@ for(ind = 0; ind < Pagination_in_manage_user_ul_li.length; ind++)
 				att.value = "active";
 				Pagination_in_manage_user_ul_li[1].setAttributeNode(att);
 			 
-				for(index = 2; index < 6; index++)
-				{
-					var att1 = document.createAttribute("class");
-					att1.value = "";
-					Pagination_in_manage_user_ul_li[index].setAttributeNode(att1);
-				}
+				Delete_class_active(2, 6, Pagination_in_manage_user_ul_li, 7)
 				
 			}else
 			{
@@ -507,18 +511,92 @@ for(ind = 0; ind < Pagination_in_manage_user_ul_li.length; ind++)
 			 
 				att.value = "active";
 				Pagination_in_manage_user_ul_li[this.alt].setAttributeNode(att);
-			 
-				for(index = 1; index < 6; index++)
-				{
-					if(index == this.alt) continue;
-					var att1 = document.createAttribute("class");
-					att1.value = "";
-					Pagination_in_manage_user_ul_li[index].setAttributeNode(att1);
-				}
+				
+				Delete_class_active(1, 6, Pagination_in_manage_user_ul_li, this.alt)
 			 
 				//load du lieu tu server
 			} 
 		}
 	})
 }
+
+//giam ma code bang cach toi uu cac ham lap lai
+function Delete_class_active(start, end, dom_class, pos)
+{
+	var index, att1;
+	for(index = start; index < end; index++){
+		if(pos != index){
+			att1 = document.createAttribute("class");
+			att1.value = "";
+			dom_class[index].setAttributeNode(att1);
+		}
+	}
+}
+
+//ham su li su kien admin click vao thanh setting trong warning
+var setting_warning_ul = document.getElementById("Warning_id").getElementsByTagName("ul")[0]
+var setting_warning_ul_li = setting_warning_ul.getElementsByTagName("li")
+//ham su li su kien admin click vao thanh setting trong manageuser
+var setting_manageuser_ul = document.getElementById("Manage_users_id").getElementsByTagName("ul")[0]
+var setting_manageuser_ul_li = setting_manageuser_ul.getElementsByTagName("li")
+
+var setting_warning_ul_li_a, setting_manageuser_ul_li_a; 
+//khoi tao vi tri trong warninguser
+for(index = 0; index < setting_warning_ul_li.length; index++){
+	setting_warning_ul_li_a = setting_warning_ul_li[index].getElementsByTagName("a")[0]
+	setting_warning_ul_li_a.alt = index;
+}
+
+//khoi tao vi tri trong manageuser
+for(index = 0; index < setting_manageuser_ul_li.length; index++){
+	setting_manageuser_ul_li_a = setting_manageuser_ul_li[index].getElementsByTagName("a")[0]
+	setting_manageuser_ul_li_a.alt = index;
+}
+
+//bat su kien warning click
+for(ind = 0; ind < setting_warning_ul_li.length; ind++){
+	setting_warning_ul_li_a = setting_warning_ul_li[ind].getElementsByTagName("a")[0]
+	setting_warning_ul_li_a.addEventListener("click", function(){
+		if(this === document.activeElement)
+		{
+			var active = document.createAttribute("class");
+			active.value = "active";
+			setting_warning_ul_li[this.alt].setAttributeNode(active);
+			
+			//xoa bo class active truoc do
+			Delete_class_active(0, setting_warning_ul_li.length, setting_warning_ul_li, this.alt)
+		}
+	})
+}
+
+//bat su kien manageuser click
+for(pos = 0; pos < setting_manageuser_ul_li.length; pos++){
+	setting_manageuser_ul_li_a = setting_manageuser_ul_li[pos].getElementsByTagName("a")[0]
+	setting_manageuser_ul_li_a.addEventListener("click", function(){
+		if(this === document.activeElement)
+		{
+			var active1 = document.createAttribute("class");
+			active1.value = "active";
+			setting_manageuser_ul_li[this.alt].setAttributeNode(active1);
+			//xoa bo class active truoc do
+			Delete_class_active(0, setting_manageuser_ul_li.length, setting_manageuser_ul_li, this.alt)
+		}
+	})
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

@@ -533,13 +533,14 @@
 
               setTimeout(function(){
 				  Load_user(1, "", 12)
-			  }, 300)//load danh sach hien thi nguoi dung
-
+			 }, 100)//load danh sach hien thi nguoi dung
+			 
+			  //thoi gian phai sau ham ngay phia tren
               setTimeout(function(){
 				 var id_user_chat = Information_user('id')
                 socket.emit('chattingwithsomeone', id_user_chat)
 				window.history.pushState(id_user_chat, "chat_partner", "/user/home?chat_partner=" + id_user_chat);
-              }, 2000)
+              }, 1100)
 
               setTimeout(function()
               {//tu dong load tin nhan tu server

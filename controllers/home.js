@@ -129,6 +129,11 @@ router.route('/home')//dieu huong app
 				req.session.email =  user.email;
 				req.session.age =  user.age;
 				req.session.chat_id =  user._id
+			/*	res.render('home', {search_id: req.query.chat_partner})
+			   client se viet trong the script dang 
+				var search = "<%- if(typeof search_id !== 'underfined')?search_id: 'empty'%>" */
+				//console.log(req.query.chat_partner)
+				//req.session.search_id = req.query.chat_partner
 				res.render('home')
 			})
 			

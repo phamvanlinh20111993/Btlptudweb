@@ -33,7 +33,9 @@
     }
   </style>
 </head>
+
 <body>
+
 <!--Modal Tao thong bao cho nguoi dung-->
   <div class="modal fade" id="myModal" role="dialog">
     <div class="modal-dialog modal-lg">
@@ -44,6 +46,31 @@
         </div>
         <div class="modal-body">
           <p>This is a large modal.</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!--Modal them thong tin cho nguoi dung-->
+  <div class="modal fade" id="myModal7777" role="dialog">
+    <div class="modal-dialog modal-default">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Chi tiết người dùng</h4>
+        </div>
+        <div class="modal-body">
+  
+		   <h5 style="color: red;font-size: 105%;"></h5>
+			<ul class="list-group">
+				<li class="list-group-item list-group-item-success"><i> Sở thích: </i></li>
+				<li class="list-group-item list-group-item-info"><i> Ngày khởi tạo: </i></li>
+				<li class="list-group-item list-group-item-warning"><i> Ngày cập nhật: </i></li>
+				<li class="list-group-item list-group-item-danger"><i> Khác: </i></li>
+			</ul>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -196,6 +223,20 @@
             <div class="panel panel-primary">
                 <div class="panel-heading">
                     <span class="glyphicon glyphicon-list"></span>Danh sách cảnh báo
+					 <div class="pull-right action-buttons">
+                        <div class="btn-group pull-right">
+                            <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">
+                                <span class="glyphicon glyphicon-cog" style="margin-right: 0px;"></span>
+                            </button>
+							
+                            <ul class="dropdown-menu slidedown">
+								<li class="active"><a href="#" ><span class="glyphicon glyphicon-warning-sign"></span>Danh sách warning</a></li>
+                                <li><a href="#"><span class="glyphicon glyphicon-lock"></span>Danh sách ban</a></li>
+                                <li><a href="#"><span class="glyphicon glyphicon-remove"></span>Danh sách xóa</a></li>
+								 <li><a href="#">Khác</a></li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
                 <div class="panel-body" style="overflow-y: auto;height:394px;">
 					<div class="container" style = "width:100%;">
@@ -265,6 +306,20 @@
             <div class="panel panel-primary">
                 <div class="panel-heading">
                     <span class="glyphicon glyphicon-list"></span>Quản lí người dùng
+					
+					 <div class="pull-right action-buttons">
+                        <div class="btn-group pull-right">
+                            <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">
+                                <span class="glyphicon glyphicon-cog" style="margin-right: 0px;"></span>
+                            </button>
+                            <ul class="dropdown-menu slidedown">
+                                <li class = "active"><a href=""><span class="glyphicon glyphicon-list-alt"></span>Danh sách trong hệ thống</a></li>
+                                <li><a href="#"><span class="glyphicon glyphicon-plus-sign"></span>Thêm mới người dùng</a></li>
+                                <li><a href="#"><span class="glyphicon glyphicon-pencil"></span>Edit người dùng</a></li>
+								 <li><a href="#">Khác</a></li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
                 <div class="panel-body" ><!-- body hear -->
 					<div class="container" style = "width:100%;">
@@ -295,6 +350,7 @@
                             <h6>
                                 Total Count <span class="label label-info" style="font-size:105%;">8</span></h6>
                         </div>
+						
                         <div class="col-md-6">
                             <ul class="pagination pagination-sm pull-right">
                                 <li class="disabled"><a href="#">«</a></li>
@@ -427,7 +483,9 @@
 <footer class="pull-left footer" style="margin-top:1.5%;">
 	<hr class="divider" >
 		<p class="col-md-12">
-  			Copyright &COPY; 2015 <a href="">Pham Van Linh</a>
+  			Copyright &COPY; 2015 <a href="">Pham Van Linh</a>,  
+			Facebook: <a href="https://www.facebook.com/profile.php?id=100011482364134" target="_blank">
+			https://www.facebook.com/profile.php?id=100011482364134</a>
 		</p>
 </footer>
 
