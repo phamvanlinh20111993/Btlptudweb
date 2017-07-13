@@ -141,7 +141,7 @@
 	<% }else if(code_err == 2){ %>
 		<% if(typeof BanUser != 'undefined'){ %>
 			<script>
-				 window.history.pushState("<%=code_err%>", "error", "/user/logsg?error=<%= code_err%>&user-name=<%= BanUser.name%>");
+				 window.history.pushState("<%=code_err%>", "error", "/user/logsg?error=<%= code_err%>&id=<%= BanUser.id%>");
 			</script>
 			 <div class="alert alert-danger" style="margin-top: 2%;">
 				<strong>Rất tiếc thưa bạn <%= BanUser.name %> ! </strong> 

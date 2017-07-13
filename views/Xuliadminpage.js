@@ -5,7 +5,7 @@ function Server_ban_user(id_user, time, description)
 	
 	$.ajax({
 		type: "POST",
-		url: "./user/manageuser",
+		url: "./admin/manageuser",
 		data:{id: id_user, time: time, description: description},
 		success: function(data)
 		{
@@ -214,7 +214,7 @@ function Create_table_warning_users(data, tbody_table)
 //tao ham request tra ve danh sách nguoi dung tren server
 function Del_users(email, name)
 {
-	location.href = "?delete=" + email;
+	
 	$.ajax({
 		type: "DELETE",
 		url: "./admin/manageuser",

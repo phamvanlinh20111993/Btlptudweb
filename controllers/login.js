@@ -139,6 +139,7 @@ router.route('/login')
 		
 							//tao ra 1 doi tuong gui ve phia client
 							var BanUser = {
+								id: notmatch._id,
 								name: notmatch.name,
 								email: notmatch.email,
 								time: time,

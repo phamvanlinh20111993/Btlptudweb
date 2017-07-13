@@ -114,8 +114,29 @@ router.route('/home')//dieu huong app
 	 */
 	if(typeof req.query.chat_partner != 'undefined')
 	{
-		console.log(req.cookies.CookieName)
-		//res.render('home')
+		
+		if(req.cookies.CookieName)
+		{
+			models.User.findOne({$and:[ {'email' : req.cookies.CookieName}, {'password' : md5(req.cookies.CookiePass)} ]})
+			.exec(function(err, user){
+				if(err)
+					throw err
+		
+				//khoi tao phien lam viec cho nguoi dung
+				req.session.name = user.username;
+				req.session.password =  user.password;
+				req.session.image = user.image;
+				req.session.email =  user.email;
+				req.session.age =  user.age;
+				req.session.chat_id =  user._id
+				res.render('home')
+			})
+			
+		}else{
+		//	code_err = 3;//ma loi
+			res.redirect('logsg')
+		}
+		
 	}
 		
 	
