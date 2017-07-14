@@ -44,30 +44,25 @@ function To_process_data_warning(data)
 		code_warn: data[0][0].code_warn
 	}
 	
-	
-	/*for(index = 1; index < length; index++)
-	{
-		id_temp = data[index - 1].who_was_warn._id
-		List_warn[0].list_who_warn.who_warn[index] = {
-			_id : data[index][0].who_warn._id,
-			username : data[index][0].who_warn.username,
-			email : data[index][0].who_warn.email,
-			created_at: data[index][0].created_at,
-			code_warn: data[index][0].code_warn
-		}
-		
-	} */
-	console.log(data)
-	console.log(data[0].length)
-	
 	return List_warn
 }
 
-router.route('/admin')//dieu huong app
+router.route('/admin')//dieu huong app sang trang admin
 .get(function(req, res)
 {
-	if(req.session.name){	
-		res.render('admin')
+	if(req.session.name){
+		models.User.find({'email': req.session.email})//tim kiem nguoi dung voi dia chi mail
+		.exec(function(err, human){
+			if(err)
+				throw err
+			
+			if(human[0].role == "Admin_all")//kiem tra co phai la admin khong
+				res.render('admin')
+			else
+				res.redirect('home')
+			
+		})
+		
 	}else{
 		res.redirect('logsg')
 	}
@@ -106,26 +101,65 @@ router.route('/admin/manageuser')//dieu huong app
 
 .post(function(req, res){
 	
-	var ban_user = new models3.Ban({
-		id_user: req.body.id,
-		description: req.body.description,
-		time: req.body.time
-	})
+	//cam nguoi dung
+	if(req.body.id){
+		var ban_user = new models3.Ban({
+			id_user: req.body.id,
+			description: req.body.description,
+			time: req.body.time
+		})
 	
-	ban_user.save(function(err){
-		if(err){
-			console.log(err)
-			res.json({message: "Error"})
-		}
+		ban_user.save(function(err){
+			if(err){
+				console.log(err)
+				res.json({message: "Error"})
+			}
 		
-		res.send("Success!!!")
+			res.send("Success!!!")
 		
-	})
+		})
+	}
+	
+	//tao moi tai khoan nguoi dung
+	if(req.body.name)
+	{
+		var user_chat = new models.User({
+			username: req.body.name,
+			email: req.body.email,
+			password: md5(req.body.pass),
+			image: "/1.png",//anh mac dinh
+			role: "User",
+			age: req.body.age,
+			sex: req.body.sex,
+			status: 0
+		})
+
+			//luu lai
+		user_chat.save(function(err)
+		{
+            if(err)
+                console.log(err)
+		})
+	}
 	
 })
 
 .put(function(req, res){
-
+	//thay doi tai khoan nguoi dung
+	models.User.findOneAndUpdate({'email': req.body.email}, 
+	    {'username': req.body.name_change,
+			'sex': req.body.sex_change, 
+			'age': req.body.age_change,
+			'hobbies': req.body.hobbies_change,
+			'image': req.body.image})
+	.exec(function(err, user){
+		if(err){
+			throw err
+			res.send("Xay ra loi logic khi update nguoi dung.")
+		}
+		res.send("Update thanh cong.")
+			
+	})
 })
 
 .delete(function(req, res)
@@ -236,10 +270,42 @@ router.route('/admin/warninguser')//dieu huong app
 
 })
 
+//tra ve danh sach canh bao nguoi dung
+router.route('/admin/warninguser/banuser')//dieu huong app
+.get(function(req, res)
+{
+	models3.Ban.find({'time':{ $ne: new Date("October 6, 1995 15:15:15").toISOString()} })
+	.limit(100)
+	.skip(0)
+	.sort({'time':1})
+	.exec(function(err, baner){
+		if(err)
+			throw err
+		
+		res.send(JSON.stringify(baner))
+	})
+})
+
+//tra ve danh sach da xoa nguoi dung
+router.route('/admin/warninguser/removeuser')//dieu huong app
+.get(function(req, res)
+{
+	models3.Ban.find({'time': new Date("October 6, 1995 15:15:15").toISOString()})
+	.limit(100)
+	.skip(0)
+	.exec(function(err, deleteer){
+		if(err)
+			throw err
+		
+		res.send(JSON.stringify(deleteer))
+	})
+})
+
+
+
 router.route('/admin/dashboard')//dieu huong app
 .get(function(req, res)
 {
-	
 	res.render('admin')
 	
 })

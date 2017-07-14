@@ -10,6 +10,7 @@ var user = new Schema({
 	age: Number,//tuoi
 	status: Number,//trang thai on hay off của nguoi dung
 	sex: String,//gioi tinh
+	role: String,
 	hobbies: String, //so thich
 	status_logout: Number, //trang thai logout hay chua cua nguoi dung
 	num_of_was_warn: Number,//số lần người dùng này neu so lan canh cao lon hon 30 thi bi block 1 ngay, ....

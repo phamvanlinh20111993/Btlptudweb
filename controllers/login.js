@@ -75,10 +75,6 @@ function Redirect_user(req, res, value)
 	}
 	//tao mot ma chat duy nhat cho nguoi dung la ma luu mac dinh trong csdl
 	req.session.chat_id = value._id
-	//console.log(value)
-	//if(typeof value[0].Admin != 'undefined'){
-	//	console.log(value[0].Admin)
-	//}
 	
 	models.User.findOneAndUpdate({ '_id': req.session.chat_id }, 
 		{'status_logout': 0}, {upsert: true}//khi nguoi dung dang nhap thi status_logout = 0
@@ -87,7 +83,7 @@ function Redirect_user(req, res, value)
 				throw err;
 		})
 		
-	if(value.email == "duanwebptudweb@gmail.com"){//tai khoan admin
+	if(value.role == "Admin_all"){//tai khoan admin
 		res.redirect('admin');
 	}else{
 		res.redirect('home');
@@ -172,7 +168,8 @@ router.route('/login')
 	{
 		if(User_enter_code == req.body.mailauthor)
 		{
-			models.User.findOneAndUpdate({email: req.body.youremail}, {password: md5(req.body.repassword)}).
+			models.User.findOneAndUpdate({email: req.body.youremail},
+ 			 {password: md5(req.body.repassword)}).
 			exec(function(err, value){
 				if(err){
 					console.log(err)

@@ -107,7 +107,7 @@
 			</form>
 
 			<ul class="nav navbar-nav navbar-right">
-        <li><a href=""><span class="glyphicon glyphicon-home"> Home</span></a></li>
+        <li><a href="home"><span class="glyphicon glyphicon-home"> Home</span></a></li>
 				<li><a href="" target="_blank"><span class="glyphicon glyphicon-new-window"></span> Double Site</a></li>
 				<li>
           <form class="form-horizontal" method="post" action="/user/home" style="margin-top: 8%;">
@@ -240,23 +240,57 @@
                 </div>
                 <div class="panel-body" style="overflow-y: auto;height:394px;">
 					<div class="container" style = "width:100%;">
-						<h4 style="text-align:center;">Người dùng</h4>         
-						<table class="table table-bordered" style="width:100%;">
-							<thead>
-								<tr>
-									<th style="text-align:center;">STT</th>
-									<th style="text-align:center;">Name</th>
-									<th style="text-align:center;">Email</th>
-									<th style="text-align:center;">Num of warning</th>
-									<th style="text-align:center;">Detail</th>
-									<th style="text-align:center;">Match</th><!--danh dau -->
-								</tr>
-							</thead>
+						<h4 style="text-align:center;">List user warning</h4>   
+						
+						<div style="width:auto;height:auto">
+							<table class="table table-bordered" style="width:100%;">
+								<thead>
+									<tr>
+										<th style="text-align:center;">STT</th>
+										<th style="text-align:center;">Name</th>
+										<th style="text-align:center;">Email</th>
+										<th style="text-align:center;">Num of warning</th>
+										<th style="text-align:center;">Detail</th>
+										<th style="text-align:center;">Match</th><!--danh dau -->
+									</tr>
+								</thead>
 							
-							<tbody>
-								
-							</tbody>
-						</table>
+								<tbody> </tbody>
+							</table>
+						</div>
+						
+						<!-- nguoi dung dang bi ban trong danh sach -->
+						<div style="width:auto;height:auto; display: none;">
+							<table class="table table-bordered" style="width:100%; ">
+								<thead>
+									<tr>
+										<th style="text-align:center;">STT</th>
+										<th style="text-align:center;">Name</th>
+										<th style="text-align:center;">Email</th>
+										<th style="text-align:center;">time(hour)</th>
+										<th style="text-align:center;">description</th>
+									</tr>
+								</thead>
+							
+								<tbody> </tbody>
+							</table>
+						</div>
+						
+						<!-- nguoi dung da bi xoa khoi danh sach -->
+						<div style="width:auto;height:auto; display: none;">
+							<table class="table table-bordered" style="width:100%;">
+								<thead>
+									<tr>
+										<th style="text-align:center;">STT</th>
+										<th style="text-align:center;">Name</th>
+										<th style="text-align:center;">Email</th>
+										<th style="text-align:center;">description</th>
+									</tr>
+								</thead>
+							
+								<tbody> </tbody>
+							</table>
+						</div>
 					</div>
                 </div>
                 <div class="panel-footer">
@@ -342,6 +376,14 @@
 								
 							</tbody>
 						</table>
+						
+						<div>
+						 <!-- tao moi tai khoan nguoi dung -->
+						</div>
+						
+						<div>
+						 <!-- edit tai khoan nguoi dung -->
+						</div>
 					</div>
                 </div>
                 <div class="panel-footer">

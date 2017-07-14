@@ -55,7 +55,7 @@ router.route('/logsg')
 			{
 				if(err)
 					throw err
-				//console.log(value)
+				
 				if(value.status_logout == 0)//nguoi dung chua tung dang xuat
 				{
 					//khoi tao phien lam viec
@@ -66,7 +66,7 @@ router.route('/logsg')
 					req.session.age = value.age;
 					req.session.chat_id = value._id
 	
-					if(value.email == "duanwebptudweb@gmail.com"){//tai khoan admin
+					if(value.role == "Admin_all"){//tai khoan admin manh nhat trong admin
 						res.redirect('admin');
 					}else{
 						res.redirect('home');
@@ -185,6 +185,7 @@ router.route('/logsg')
 				email: email,
 				password: pass1,
 				image: "/1.png",//anh mac dinh
+				role: "User",
 				age: age,
 				status: 1 //trang thai online la 1 vi khi dang ki thanh cong nguoi dung se duoc dieu huong
 				//thang sang trang home

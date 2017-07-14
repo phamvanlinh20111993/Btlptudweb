@@ -294,7 +294,11 @@
             </li>
         </ul>
         <ul class="nav navbar-nav navbar-right">
+		  <% if(typeof limit_function != 'undefined'){ %>
+			<li><a href="admin"><span class="glyphicon glyphicon-home"></span>  Admin page</a></li>
+		   <% }else{%>
           <li><a href="#"><span class="glyphicon glyphicon-user"></span> Your info</a></li>
+		   <% } %>
           <li>
             <form class="form-horizontal" method="post" action="/user/home" style="margin-top: 7%;">
              <input type = "hidden" name = "request_log_out" value = 1 >
@@ -341,6 +345,12 @@
                         <span class="fa fa-cogs"></span>
                         <span class="sr-only">Toggle Dropdown</span>
                         </button>
+						<!--an cac chuc nang cua nguoi dung doi voi admin -->
+						  <% if(typeof limit_function != 'undefined'){ %>
+						    <ul class="dropdown-menu" role="menu">
+								<li>Sorry!!! This setting not for you.</li>
+							</ul>
+						  <% }else{ %>
                           <ul class="dropdown-menu" role="menu">
                             <li><a href="#" data-toggle="modal" data-target="#myModal"><span class="fa fa-book fa-fw" onclick="UpdateProfile()"></span>&nbsp;Cập nhật thông tin</a></li>
                             <li><a href="#" onclick="TurnOfChat()"><span class="fa fa-comments-o"></span>&nbsp;Tắt/Bật chat</a></li>
@@ -349,6 +359,7 @@
                             <li class="divider"></li>
                             <li><a href="#" data-toggle="modal" data-target="#myModal2"><span class="fa fa-circle-o-notch"></span>&nbsp;Setting</a></li>
                           </ul>
+						  <% }%>
                       </div>
                   </div>
                     <!--  Nội dung chat sẽ hiện ở đây 

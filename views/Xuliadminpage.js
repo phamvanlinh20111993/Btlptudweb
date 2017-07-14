@@ -533,6 +533,128 @@ function Delete_class_active(start, end, dom_class, pos)
 	}
 }
 
+//ham tra ve cac su kien setting manageuser khi admin chon cac chuc nang khac nhau
+function Admin_choose_manageuser(index)
+{
+	switch(index){
+		case 0:
+		
+			break
+			
+		case 1:
+		
+			break
+			
+		case 2:
+		
+			break
+		
+		default:
+			break
+	}
+}
+
+function Request_list_ban_user(ind)
+{
+	$.ajax({
+		type: "GET",
+		url: "./admin/warninguser/banuser",
+		data:{},
+		success: function(data)
+		{
+			data = JSON.parse(data)
+			var index, Length = data.length
+			//console.log("rm" + data)
+			var table = document.getElementById("Warning_id").getElementsByTagName("table")[ind]
+			var table_body = table.getElementsByTagName("tbody")[0]
+			var elements = ""
+			for(index = 0; index < Length; index++)
+			{
+				elements += '<tr>'
+				elements += '<td>' + (index + 1) + '</td>'
+				elements += '<td>' + data[index].name  + '</td>'
+				elements += '<td>' + data[index].email + '</td>'
+				elements += '<td>' + (new Date(data[index].time) - new Date())/3600000 + '</td>'
+				elements += '<td>' + data[index].description + '</td>'
+				elements += '</tr>'
+			}
+	
+			table_body.innerHTML = elements
+		}
+		
+	})
+}
+
+function Request_list_delete_user(ind)
+{
+	$.ajax({
+		type: "GET",
+		url: "./admin/warninguser/removeuser",
+		data:{},
+		success: function(data)
+		{
+			data = JSON.parse(data)
+			var index, Length = data.length
+			//console.log("rm" + data)
+			var table = document.getElementById("Warning_id").getElementsByTagName("table")[ind]
+			var table_body = table.getElementsByTagName("tbody")[0]
+			var elements = ""
+			for(index = 0; index < Length; index++)
+			{
+				elements += '<tr>'
+				elements += '<td>' + (index + 1) + '</td>'
+				elements += '<td>' + data[index].name  + '</td>'
+				elements += '<td>' + data[index].email + '</td>'
+				elements += '<td>' + data[index].description + '</td>'
+				elements += '</tr>'
+			}
+	
+			table_body.innerHTML = elements
+		}
+		
+	})
+}
+
+//ham tra ve cac su kien setting warning khi admin chon cac chuc nang khac nhau
+function Admin_choose_warning(index)
+{
+	var div_body = document.getElementById("Warning_id").getElementsByClassName("container")[0]
+	var table = div_body.getElementsByTagName("div")
+	var h4_tag = document.getElementById("Warning_id").getElementsByTagName("h4")[0]
+	
+	switch(index){
+		case 0:
+			h4_tag.innerHTML = "List user warning"
+			table[0].style.display = "block"
+			table[1].style.display = "none"
+			table[2].style.display = "none"
+			break
+			
+		case 1:
+			h4_tag.innerHTML = "List user ban"
+			table[1].style.display = "block"
+			table[0].style.display = "none"
+			table[2].style.display = "none"
+			Request_list_ban_user(index)
+			break
+			
+		case 2:
+			h4_tag.innerHTML = "List user delete"
+			table[0].style.display = "none"
+			table[1].style.display = "none"
+			table[2].style.display = "block"
+			Request_list_delete_user(index)
+			break
+		
+		default:
+			h4_tag.innerHTML = "Not update"
+			table[0].style.display = "none"
+			table[1].style.display = "none"
+			table[2].style.display = "none"
+			break
+	}
+}
+
 //ham su li su kien admin click vao thanh setting trong warning
 var setting_warning_ul = document.getElementById("Warning_id").getElementsByTagName("ul")[0]
 var setting_warning_ul_li = setting_warning_ul.getElementsByTagName("li")
@@ -565,6 +687,7 @@ for(ind = 0; ind < setting_warning_ul_li.length; ind++){
 			
 			//xoa bo class active truoc do
 			Delete_class_active(0, setting_warning_ul_li.length, setting_warning_ul_li, this.alt)
+			Admin_choose_warning(this.alt)
 		}
 	})
 }
@@ -578,8 +701,10 @@ for(pos = 0; pos < setting_manageuser_ul_li.length; pos++){
 			var active1 = document.createAttribute("class");
 			active1.value = "active";
 			setting_manageuser_ul_li[this.alt].setAttributeNode(active1);
+			
 			//xoa bo class active truoc do
 			Delete_class_active(0, setting_manageuser_ul_li.length, setting_manageuser_ul_li, this.alt)
+			Admin_choose_manageuser(this.alt)
 		}
 	})
 }

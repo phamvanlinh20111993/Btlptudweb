@@ -157,7 +157,7 @@ router.route('/home')//dieu huong app
       {                         // nếu mã là 1, client yêu cầu lấy người dùng trong mạng nội bộ
 
          //bo qua email cua admin, admin khong chat trong app
-		    models.User.find({'Admin': {$ne: 1}}, {created_at: 0, password: 0, __v: 0})
+		    models.User.find({'role': {$ne: "Admin_all"}}, {created_at: 0, password: 0, __v: 0})
          .sort({status: -1, updated_at: -1})
          .limit(parseInt(num_of_rq))//gioi han so nguoi can tim
          .skip((parseInt(num_of_rq) - 12))//bo qua so ban ghi tinh tu vi tri dau tien
@@ -449,20 +449,31 @@ router.route('/home')//dieu huong app
 		if(!req.session.name){//nguoi dung chua dang nhap
 			res.redirect('logsg');
 		}else
-      {
-        //luu lai session
-         req.session.save(function(err) {
-            // session saved 
-            if(err) console.log(err)
-         })
+		{
+			//luu lai session
+			req.session.save(function(err) {
+				// session saved 
+				if(err) console.log(err)
+			})
 
-         //luu trang thai cua nguoi dung tren csdl de tien theo doi
-         models.User.findOneAndUpdate({'email': req.session.email}, {'status': 1},
-         function(err, user) {
-            if (err) throw err;
-         });
-
-		    res.render('home');
+			//luu trang thai cua nguoi dung tren csdl de tien theo doi
+			models.User.findOneAndUpdate({'email': req.session.email}, {'status': 1},
+			function(err, user){
+				if (err) 
+					throw err;
+				
+				//kiem tra xem nguoi dung vao trang home co phai la admin hay khong
+				if(user.role == "Admin_all"){
+					//neu la admin thi can han che mot so chuc nang, gui mã về font end
+					res.render('home', {limit_function: "limit"});
+					
+				}else{
+					//neu la nguoi dung binh thuong
+					 res.render('home');
+				}
+					
+			});
+		  
 		}
 	}
 
@@ -518,7 +529,15 @@ router.route('/home')//dieu huong app
         			models.User.findOneAndUpdate({'email': req.session.email}, {'image': link_img},
         			function(err, user) {
   						if (err)  throw err;
-  						   res.render("home")
+						
+  						  //kiem tra xem nguoi dung vao trang home co phai la admin hay khong
+						if(user.role == "Admin_all"){
+							//neu la admin thi can han che mot so chuc nang, gui mã về font end
+							res.render('home', {limit_function: "limit"});
+						}else{
+					        //neu la nguoi dung binh thuong
+					        res.render('home');
+				        }
 					});
       	 	});
          }
