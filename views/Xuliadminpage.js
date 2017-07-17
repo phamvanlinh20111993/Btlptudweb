@@ -533,23 +533,52 @@ function Delete_class_active(start, end, dom_class, pos)
 	}
 }
 
+//admin tao them tai khoan moi cho nguoi dung
+function Create_new_Account()
+{
+	
+	
+}
+
+//thay doi tai khoan nguoi dung
+function Update_account()
+{
+	
+}
+
 //ham tra ve cac su kien setting manageuser khi admin chon cac chuc nang khac nhau
 function Admin_choose_manageuser(index)
 {
+	var div_body = document.getElementById("Manage_users_id").getElementsByClassName("container")[0]
+	var table = div_body.getElementsByTagName("div")
+	var h4_tag = document.getElementById("Warning_id").getElementsByTagName("h4")[0]
+	
 	switch(index){
 		case 0:
-		
+			table[0].style.display = "block"
+			table[1].style.display = "none"
+			table[2].style.display = "none"
+			
 			break
 			
 		case 1:
-		
+			table[0].style.display = "none"
+			table[1].style.display = "block"
+			table[2].style.display = "none"
+			
 			break
 			
 		case 2:
-		
+			table[0].style.display = "none"
+			table[1].style.display = "none"
+			table[2].style.display = "block"
+			
 			break
 		
 		default:
+			table[0].style.display = "none"
+			table[1].style.display = "none"
+			table[2].style.display = "none"
 			break
 	}
 }
@@ -708,20 +737,5 @@ for(pos = 0; pos < setting_manageuser_ul_li.length; pos++){
 		}
 	})
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 

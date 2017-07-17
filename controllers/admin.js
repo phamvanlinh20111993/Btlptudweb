@@ -301,8 +301,7 @@ router.route('/admin/warninguser/removeuser')//dieu huong app
 	})
 })
 
-
-
+//trang dashboard cho phat trien sau nay
 router.route('/admin/dashboard')//dieu huong app
 .get(function(req, res)
 {
@@ -321,7 +320,6 @@ router.route('/admin/dashboard')//dieu huong app
 .delete(function(req, res){
 
 })
-
 
 
 module.exports = router;
