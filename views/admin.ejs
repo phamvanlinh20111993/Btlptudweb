@@ -335,9 +335,8 @@
     </div>
   </div>
   
-   <div class="col-md-10 content" id="Manage_users_id" style="height:510px;">
-        <div>
-            <div class="panel panel-primary">
+   <div class="col-md-10 content" id="Manage_users_id" >
+        <div class="panel panel-primary" style="height:510px;overflow-y: scroll;">
                 <div class="panel-heading">
                     <span class="glyphicon glyphicon-list"></span>Quản lí người dùng
 					
@@ -359,6 +358,7 @@
                 <div class="panel-body" ><!-- body hear -->
 					<div class="container" style = "width:100%;">
 						<h4 style="text-align:center;">Danh sách người dùng(100)</h4>  
+						
 						<div style="width:auto;height: auto;">
 							<table class="table table-bordered" style="width:100%;">
 								<thead>
@@ -378,23 +378,56 @@
 							</table>
 						</div>
 						
-						<div style="width:auto;height: auto;display:none;">
+						<div style="width:auto;height:auto;display:none;">
 							<!-- tao moi tai khoan nguoi dung -->
-							 <form>
-								<div class="input-group">
-									<span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
-									<input id="email" type="text" class="form-control" name="email" placeholder="Email">
-								</div>
-								<div class="input-group">
-									<span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span>
-									<input id="password" type="password" class="form-control" name="password" placeholder="Password">
-								</div>
-								<br>
-								<div class="input-group">
-									<span class="input-group-addon">Text</span>
-									<input id="msg" type="text" class="form-control" name="msg" placeholder="Additional Info">
-								</div>
-							</form>
+							<nav style="width:auto;height:auto;border:1px solid blue;" >
+							   <form  class = "form-inline" style="margin-left:20%;" method="post" action="./admin/manageuser/"> 
+								    <div class="input-group" >
+										
+									</div>
+									</br></br>
+									<div class="form-group">
+										<label for="email">Email:</label>
+										<input type="email" class="form-control" id="mail" placeholder="Enter email" name="aemail" required autofocus>
+									</div>
+									<div class="form-group">
+										<label for="pwd">Password:</label>
+										<input type="password" class="form-control" id="pd" placeholder="Enter password" name="apass" required>
+									</div>
+									</br></br>
+									
+									<div class="form-group">
+										<label for="uname">Alias:</label>
+										<input type="text" class="form-control" id="alias" placeholder="Enter name" name="aname" required>
+									</div>
+									<div class="form-group">
+										<label for="age">Age:</label>
+										<input type="number" class="form-control" id="age" placeholder="Enter age" name="aage" min = "16" max = "60">
+									</div>
+									</br></br>
+									
+									<div class="form-group">
+										<label for="sex">Sex:</label>
+										
+										<div class="checkbox">
+											<label><input type="checkbox" name="asex" value="boy"> Boy</label>
+										</div>
+										
+										<div class="checkbox">
+											<label><input type="checkbox" name="asex" value="girl"> Girl</label>
+										</div>
+										
+										<div class="checkbox">
+											<label><input type="checkbox" name="asex" value="unknow" checked> Unknow</label>
+										</div>
+									</div>
+									</br></br>
+									
+									<button type="submit" class="btn btn-warning" style="margin-left:35%;">Done</button>
+									   </br></br></br>
+							  </form>
+							</nav>
+							</br></br>
 						</div>
 						
 						<div style="width:auto;height: auto;display:none;">
@@ -423,7 +456,6 @@
                         </div>
                     </div>
                 </div>
-            </div>
         </div>
   
   </div>

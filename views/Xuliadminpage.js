@@ -551,34 +551,35 @@ function Admin_choose_manageuser(index)
 {
 	var div_body = document.getElementById("Manage_users_id").getElementsByClassName("container")[0]
 	var table = div_body.getElementsByTagName("div")
-	var h4_tag = document.getElementById("Warning_id").getElementsByTagName("h4")[0]
+	var h4_tag = document.getElementById("Manage_users_id").getElementsByTagName("h4")[0]
 	
 	switch(index){
 		case 0:
 			table[0].style.display = "block"
 			table[1].style.display = "none"
 			table[2].style.display = "none"
-			
+			h4_tag.innerHTML = "Danh sách người dùng(100)"
 			break
 			
 		case 1:
 			table[0].style.display = "none"
 			table[1].style.display = "block"
 			table[2].style.display = "none"
-			
+			h4_tag.innerHTML = "Tạo mới tài khoản"
 			break
 			
 		case 2:
 			table[0].style.display = "none"
 			table[1].style.display = "none"
 			table[2].style.display = "block"
-			
+			h4_tag.innerHTML = "Chỉnh sửa Account" 
 			break
 		
 		default:
 			table[0].style.display = "none"
 			table[1].style.display = "none"
 			table[2].style.display = "none"
+			h4_tag.innerHTML = ""
 			break
 	}
 }

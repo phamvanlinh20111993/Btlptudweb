@@ -121,25 +121,49 @@ router.route('/admin/manageuser')//dieu huong app
 	}
 	
 	//tao moi tai khoan nguoi dung
-	if(req.body.name)
+	console.log("name da chay")
+	if(req.body.aname)
 	{
-		var user_chat = new models.User({
-			username: req.body.name,
-			email: req.body.email,
-			password: md5(req.body.pass),
-			image: "/1.png",//anh mac dinh
-			role: "User",
-			age: req.body.age,
-			sex: req.body.sex,
-			status: 0
-		})
+		console.log("name " + req.body.aname)
+		console.log("email " + req.body.aemail)
+		console.log("pass " + req.body.apass)
+		console.log("age " + req.body.aage)
+		console.log("sex " + req.body.asex)
+		
+		//kiem tra xem email nay da ton tai hay chua
+		models.User.findOne({'email': req.body.aemail})
+		.exec(function(err, user){
+			if(err)
+				throw err;
+			
+			if(user){
+				res.render("admin", {Error_create_user: "The user already exist."})
+			}else{
+				var user_chat = new models.User({
+					username: req.body.aname,
+					email: req.body.aemail,
+					password: md5(req.body.apass),
+					image: "/1.png",//anh mac dinh
+					role: "User",
+					age: req.body.aage,
+					sex: req.body.asex,
+					status: 0
+				})
 
-			//luu lai
-		user_chat.save(function(err)
-		{
-            if(err)
-                console.log(err)
+				//luu lai
+				user_chat.save(function(err)
+				{
+					if(err)
+						console.log(err)
+				})
+		
+				res.render("admin", { Create_user_done: "Create successfull !!!."})
+			}
+				
+			
 		})
+		
+		
 	}
 	
 })
