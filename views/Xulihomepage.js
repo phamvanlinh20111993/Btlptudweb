@@ -533,7 +533,7 @@
 
               setTimeout(function(){
 				  Load_user(1, "", 12)
-			 }, 100)//load danh sach hien thi nguoi dung
+			 }, 1)//load danh sach hien thi nguoi dung
 			 
 			  //thoi gian phai sau ham ngay phia tren
               setTimeout(function(){
@@ -544,10 +544,9 @@
 
               setTimeout(function()
               {//tu dong load tin nhan tu server
-                
                   if(Information_user('truefalse'))
                   {
-
+                    console.log("Khong thay chay.")
                       //load tin nhan tu csdl cho nguoi dung
                      Load_message(yid, Information_user('id'), 15, function(data){
                         if(data.length < 15)
@@ -561,7 +560,7 @@
                         Div_content_message[0].scrollTop = Div_content_message[0].scrollHeight;
                       });
                   }
-              }, 400)//load sau 0.4s, giá trị này đảm bảo phải lớn hơn setTimeout() load người dùng
+              }, 1000)//load sau 0.4s(1s-ms sua), giá trị này đảm bảo phải lớn hơn setTimeout() load người dùng
              
              //ham bat su kien nguoi dung tim kiem nguoi dung khác trong danh sach
               var Div_contain_search = Div_infor_user_on[0].getElementsByTagName("div")

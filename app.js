@@ -1,6 +1,6 @@
 var express = require('express')
 var app = express()
-var bodyParser = require('body-parser')
+var bodyParser = require('body-parser')//Đây là một lớp trung gian node.js để xử lí JSON, dự liệu thô, text và mã hóa URL.
 var server = require('http').createServer(app) 
 var io = require('socket.io')(server);
 var morgan = require('morgan')
@@ -18,8 +18,12 @@ var flash = require('connect-flash')//chuong trinh bi loi req.flash is not a fun
 //connect-float la mot module la mot truong hop dac biet cua session de luu tru message de
 //thong bao cho nguoi dung
 
-var configDB = require('./models/database')
-mongoose.connect(configDB.url)
+/*var configDB = require('./models/database')
+mongoose.connect(configDB.url) */
+
+var config = require('./models/database');
+config.setConfig();
+mongoose.connect(process.env.MONGOOSE_CONNECT);
 
 var port = process.env.PORT||5555;
 
@@ -52,8 +56,8 @@ app.set('view engine', 'ejs')
 app.set('views', path.join(__dirname, 'views'))
 app.set('Image', path.join(__dirname, 'Image'))
 
-app.use(express.static(__dirname + '/views'));//su dung cac file tinh trong views
-app.use(express.static(__dirname + '/Image'));//su dung cac file tinh trong Image
+app.use(express.static(__dirname + '/views'));//su dung cac file tĩnh trong views
+app.use(express.static(__dirname + '/Image'));//su dung cac file tĩnh trong Image
 
 app.use(function(req, res, next){
 	res.locals.session = req.session;//su dung session trong file client vi du session.name trong file home.ejs

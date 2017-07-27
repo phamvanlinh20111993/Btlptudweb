@@ -96,7 +96,7 @@ function Turn_of_chat_someone(users, user_remove)
 //ham tra ve 1 so  nguyen nam trong khoang max, min
 function RandomInt(max, min)
 {
-  return Math.floor(Math.random() * max + min);
+  return Math.floor(Math.random() * (max + 1 - min) + min);
 }
 
 //router.route('/home/:chat_partner')//dieu huong app dung params: url co dang  http://localhost:5555/user/home/591ea6bfddd4c61a84994480
@@ -134,7 +134,7 @@ router.route('/home')//dieu huong app
 				var search = "<%- if(typeof search_id !== 'underfined')?search_id: 'empty'%>" */
 				//console.log(req.query.chat_partner)
 				//req.session.search_id = req.query.chat_partner
-				res.render('home')
+				//res.render('home')-- mới sược hôm nay: 2h35p sáng ngày 28/7/2017
 			})
 			
 		}else{
